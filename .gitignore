@@ -1,2 +1,3 @@
 # ignore all .py~ files
-/*.py~
+*.py~
+*.gitignore~
