@@ -17,7 +17,7 @@ class baseModel:
 
         self.validation(self)
         self.obs = np.dot(evaluation, state)
-        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evalution) \
+        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation) \
                       + self.noiseVar
 
         # a hidden data field used only for model prediction
@@ -35,8 +35,8 @@ class baseModel:
         # check wether dimension match
         tl.checker.checkMatrixDimension(self.transition, self.sysVar)
         tl.checker.checkMatrixDimension(self.transition, self.innovation)
-        tl.checker.checkVectorDimension(self.evalution, self.transition)
-        tl.checker.checkVectorDimension(self.obsVar, self.evalution)
+        tl.checker.checkVectorDimension(self.evaluation, self.transition)
+        tl.checker.checkVectorDimension(self.obsVar, self.evaluation)
         tl.checker.checkVectorDimension(self.state, self.transition)
 
         
