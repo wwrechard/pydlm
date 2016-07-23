@@ -1,7 +1,5 @@
-import numpy as np
-
 # define the error class for exceptions
-class matrixErrors(exception):
+class matrixErrors(Exception):
     
     def __init__(self, value):
         self.value = value
@@ -14,11 +12,13 @@ class matrixErrors(exception):
 class checker:
 
     # checking if two matrix has the same dimension
+    @staticmethod
     def checkMatrixDimension(A, B):
         if A.shape != B.shape:
             raise matrixErrors('The dimensions do not match!')
 
     # checking if a vector has the dimension as matrix
+    @staticmethod
     def checkVectorDimension(v, A):
         vDim = v.shape
         ADim = A.shape
@@ -27,6 +27,7 @@ class checker:
             raise matrixErrors('The dimensions do not match!')
 
     # checking if a matrix is symmetric
+    @staticmethod
     def checkSymmetry(A):
         ADim = A.shape
         if ADim[0] != ADim[1]:
