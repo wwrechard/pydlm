@@ -1,29 +1,26 @@
 import numpy as np
+from component import component
+import pydlm.base.tools as tl
 
 # create trend component
+# We create the trend using the component class
 
-class trend:
+class trend(component):
     def __init__(self, degree = 1):
         if degree <= 0:
             raise NameError('degree has to be positive')
         self.d = degree
         
-        # Initialize
-        self.evaluation = []
-        self.transition = []
-        self.covPrior = []
-        self.meanPrior = []
-        
-        # define the evaluation matrix for trend
+        # Initialize all basic quantities
+        self.evaluation = None
+        self.transition = None
+        self.covPrior = None
+        self.meanPrior = None
+
+        # create all basic quantities
         self.createEvaluation()
-
-        # define the transition matrix for trend
         self.createTransition()
-
-        # define the prior distribution for the covariance
         self.createCovPrior()
-
-        # define the prior distribution for the mean vector
         self.createMeanPrior()
 
     def createEvaluation(self):
@@ -39,3 +36,7 @@ class trend:
 
     def createMeanPrior(self, mean = 0):
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
+
+    def checkDimensions(self):
+        tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
+        print 'The dimesnion looks good!'
