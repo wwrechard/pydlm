@@ -23,10 +23,19 @@ class seasonality(component):
         self.createCovPrior()
         self.createMeanPrior()
 
+        # create form free seasonality component
+        self.freeForm()
+
     def createEvaluation(self):
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
 
+    # The transition matrix takes special form as
+    # G = [0 1 0]
+    #     [0 0 1]
+    #     [1 0 0]
+    # So everyt time, when G * G, we rotate the vector once, which results
+    # in the seasonality performance
     def createTransition(self):
         self.transition = np.matrix(np.diag(np.ones(self.d - 1), 1))
         self.transition[self.d - 1, 0] = 1
@@ -37,9 +46,18 @@ class seasonality(component):
     def createMeanPrior(self, mean = 0):
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
 
+    # Form free seasonality component ensures that sum(mean) = 0
+    # We use the formular from "Bayesian forecasting and dynamic linear models"
+    # Page 242
     def freeForm(self):
         if self.covPrior is None or self.meanPrior is None:
             raise NameError('freeForm can only be called after prior created.')
+        else:
+            u = np.sum(np.sum(self.covPrior, 0), 1)[0, 0]
+            A = np.sum(self.covPrior, 1) / u
+            self.meanPrior = self.meanPrior - A * np.sum(self.meanPrior, 0)[0, 0]
+            self.covPrior = self.covPrior - np.dot(A, A.T) * u
         
     def checkDimensions(self):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
+        print 'The dimension looks good!'

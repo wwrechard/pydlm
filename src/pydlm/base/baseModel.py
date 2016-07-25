@@ -6,7 +6,8 @@ import tools as tl
 class baseModel:
             
     # define the components of a baseModel
-    def __init__(self, transition, evaluation, noiseVar, sysVar, innovation, state, df):
+    def __init__(self, transition = None, evaluation = None, noiseVar = None, \
+                 sysVar = None, innovation = None, state = None, df = None):
         self.transition = transition
         self.evaluation = evaluation
         self.noiseVar = noiseVar
@@ -14,15 +15,19 @@ class baseModel:
         self.innovation = innovation
         self.state = state
         self.df = df
-
-        self.validation(self)
-        self.obs = np.dot(evaluation, state)
-        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation) \
-                      + self.noiseVar
+        self.obs = None
+        self.obsVar = None
 
         # a hidden data field used only for model prediction
         self.prediction = self.__model__()
 
+    # initialize the observation mean and variance
+    def initializeObservation(self):        
+        self.validation(self)
+        self.obs = np.dot(self.evaluation, self.state)
+        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation) \
+                      + self.noiseVar
+        
     # checking if the dimension matches with each other
     def validation(self):
 
@@ -44,7 +49,7 @@ class baseModel:
 class __model__:
 
     # to store result for prediction
-    def __init__(self, step = 0, state = [], obs = [], sysVar = [], obsVar = []):
+    def __init__(self, step = 0, state = None, obs = None, sysVar = None, obsVar = None):
         self.step = 0
         self.state = state
         self.obs = obs
