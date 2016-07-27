@@ -5,13 +5,13 @@ import pydlm.base.tools as tl
 # create trend component
 # We create the trend using the component class
 
-class trend(component):
-    def __init__(self, degree = 1):
-        if degree <= 0:
-            raise NameError('degree has to be positive')
-        self.d = degree
-        self.dynamic = False
-        self.name = 'trend'
+class dynamic(component):
+    def __init__(self, features = None, name = 'dynamic'):
+        self.d, self.n = features.shape()
+        self.features = features.T
+        self.step = 0
+        self.dynamic = True
+        self.name = name
         
         # Initialize all basic quantities
         self.evaluation = None
@@ -20,18 +20,16 @@ class trend(component):
         self.meanPrior = None
 
         # create all basic quantities
-        self.createEvaluation()
+        self.createEvaluation(self.step)
         self.createTransition()
         self.createCovPrior()
         self.createMeanPrior()
 
-    def createEvaluation(self):
-        self.evaluation = np.matrix(np.zeros((1, self.d)))
-        self.evaluation[0, 0] = 1
+    def createEvaluation(self, step):
+        self.evaluation = self.features[step, :]
 
     def createTransition(self):
-        self.transition = np.matrix(np.zeros((self.d, self.d)))
-        self.transition[np.triu_indices(self.d)] = 1
+        self.transition = np.matrix(np.eye(self.d))
         
     def createCovPrior(self, cov = 1):
         self.covPrior = np.matrix(np.eye(self.d)) * cov
@@ -42,3 +40,9 @@ class trend(component):
     def checkDimensions(self):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print 'The dimesnion looks good!'
+
+    def updateEvaluation(self):
+        self.step += 1
+        if self.step < self.n:
+            self.evalution = self.features[self.step, :]
+            

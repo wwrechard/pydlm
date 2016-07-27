@@ -10,6 +10,8 @@ class seasonality(component):
         if period <= 2:
             raise NameError('Period has to be greater than 1.')
         self.d = period
+        self.dynamic = False
+        self.name = 'seasonality'
         
         # Initialize all basic quantities
         self.evaluation = None
