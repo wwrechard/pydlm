@@ -19,13 +19,13 @@ class baseModel:
         self.obsVar = None
 
         # a hidden data field used only for model prediction
-        self.prediction = self.__model__()
+        self.prediction = __model__()
 
     # initialize the observation mean and variance
     def initializeObservation(self):        
-        self.validation(self)
+        self.validation()
         self.obs = np.dot(self.evaluation, self.state)
-        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation) \
+        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation.T) \
                       + self.noiseVar
         
     # checking if the dimension matches with each other
@@ -33,15 +33,17 @@ class baseModel:
 
         # check symmetric
         tl.checker.checkSymmetry(self.transition)
-        tl.checker.checkSymmetry(self.obsVar)
         tl.checker.checkSymmetry(self.sysVar)
-        tl.checker.checkSymmetry(self.innovation)
+        if self.innovation is not None:
+            tl.checker.checkSymmetry(self.innovation)
 
         # check wether dimension match
         tl.checker.checkMatrixDimension(self.transition, self.sysVar)
-        tl.checker.checkMatrixDimension(self.transition, self.innovation)
+        if self.innovation is not None:
+            tl.checker.checkMatrixDimension(self.transition, self.innovation)
+        print self.evaluation
+        print self.transition
         tl.checker.checkVectorDimension(self.evaluation, self.transition)
-        tl.checker.checkVectorDimension(self.obsVar, self.evaluation)
         tl.checker.checkVectorDimension(self.state, self.transition)
 
         
