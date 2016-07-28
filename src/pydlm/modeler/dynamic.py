@@ -7,7 +7,7 @@ import pydlm.base.tools as tl
 
 class dynamic(component):
     def __init__(self, features = None, name = 'dynamic', discount = 0.99):
-        self.d, self.n = features.shape()
+        self.d, self.n = features.shape
         self.features = features.T
         self.dynamic = True
         self.name = name
@@ -31,11 +31,17 @@ class dynamic(component):
     def createTransition(self):
         self.transition = np.matrix(np.eye(self.d))
         
-    def createCovPrior(self, cov = 1):
-        self.covPrior = np.matrix(np.eye(self.d)) * cov
+    def createCovPrior(self, cov = None, scale = 1):
+        if cov is None:
+            self.covPrior = np.matrix(np.eye(self.d)) * scale
+        else:
+            self.covPrior = cov * scale
 
-    def createMeanPrior(self, mean = 0):
-        self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
+    def createMeanPrior(self, mean = None, scale = 1):
+        if mean is None:
+            self.meanPrior = np.matrix(np.ones((self.d, 1))) * scale
+        else:
+            self.meanPrior = mean * scale
 
     def checkDimensions(self):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
@@ -43,7 +49,7 @@ class dynamic(component):
 
     def updateEvaluation(self, step):
         if step < self.n:
-            self.evalution = self.features[step, :]
+            self.evaluation = self.features[step, :]
         else:
             raise NameError('The step is out of range')
             
