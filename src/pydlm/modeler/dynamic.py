@@ -39,7 +39,7 @@ class dynamic(component):
 
     def createMeanPrior(self, mean = None, scale = 1):
         if mean is None:
-            self.meanPrior = np.matrix(np.ones((self.d, 1))) * scale
+            self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
         else:
             self.meanPrior = mean * scale
 

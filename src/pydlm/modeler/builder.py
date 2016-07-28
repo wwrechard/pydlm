@@ -1,6 +1,7 @@
 # this class provide all the model building operations for constructing customized model
+import numpy as np
 from pydlm.base.baseModel import baseModel
-import matrixTools as mt
+from matrixTools import matrixTools as mt
 
 # The builder will be the main class for construting dlm
 # it featues two types of evaluation matrix and evaluation matrix
@@ -38,12 +39,12 @@ class builder:
             self.staticComponents.append(component)
 
     # print all components to the client
-    def listup(self):
+    def list(self):
         if len(self.staticComponents) > 0:
             print 'The static components are'
             for compIdx in range(len(self.staticComponents)):
                 comp = self.staticComponents[compIdx]
-                print comp.name + ' of' + str(comp.d) + '. Index: ' + str(compIdx)
+                print comp.name + ' of degree ' + str(comp.d) + '. Index: ' + str(compIdx)
         else:
             print 'There is no static component.'
 
@@ -51,7 +52,7 @@ class builder:
             print 'The dynamic components are'
             for compIdx in range(len(self.dynamicComponents)):
                 comp = self.dynamicComponents[compIdx]
-                print comp.name + ' of' + str(comp.d) + '. Index: ' + \
+                print comp.name + ' of dimension ' + str(comp.d) + '. Index: ' + \
                     str(compIdx + len(self.staticComponents))
         else:
             print 'There is no dynamic component.'
@@ -74,15 +75,15 @@ class builder:
         
         # construct transition, evaluation, prior state, prior covariance
         print 'Constructing the basic quantities...'
-        transition = self.staticComponents[0].transition
-        self.staticEvaluation = self.staticComponents[0].evaluation
-        state = self.staticComponents[0].meanPrior
-        sysVar = self.staticComponents[0].covPrior
+        transition = None
+        self.staticEvaluation = None
+        state = None
+        sysVar = None
 
         # first construct for the static components
         # the evaluation will be treated separately for static or dynamic
         # as the latter one will change over time
-        for i in range(1, len(self.staticComponents)):
+        for i in range(len(self.staticComponents)):
             comp = self.staticComponents[i]
             transition = mt.matrixAddInDiag(transition, comp.transition)
             self.staticEvaluation = mt.matrixAddByCol(self.staticEvaluation, \
@@ -92,8 +93,8 @@ class builder:
 
         # if the model contains the dynamic part, we add the dynamic components
         if len(self.dynamicComponents) > 0:
-            self.dynamicEvaluation = self.dynamicComponents[0].evaluation
-            for i in range(1, len(self.dynamicComponents)):
+            self.dynamicEvaluation = None
+            for i in range(len(self.dynamicComponents)):
                 comp = self.dynamicComponents[i]
                 transition = mt.matrixAddInDiag(transition, comp.transition)
                 self.dynamicEvaluation = mt.matrixAddByCol(self.dynamicEvaluation, \
@@ -107,13 +108,13 @@ class builder:
         print 'Writing to the base model...'
         self.model = baseModel(transition = transition, \
                                evaluation = evaluation, \
-                               noiseVar = noise, \
+                               noiseVar = np.matrix(noise), \
                                sysVar = sysVar, \
                                state = state, \
                                df = 0)
         self.model.initializeObservation()
         self.initialized = True
-        print 'Initialization finished...'
+        print 'Initialization finished.'
 
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables
