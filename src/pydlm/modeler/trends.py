@@ -6,12 +6,13 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class trend(component):
-    def __init__(self, degree = 1):
+    def __init__(self, degree = 1, discount = 0.99):
         if degree <= 0:
             raise NameError('degree has to be positive')
         self.d = degree
         self.dynamic = False
         self.name = 'trend'
+        self.discount = np.ones(self.d)
         
         # Initialize all basic quantities
         self.evaluation = None

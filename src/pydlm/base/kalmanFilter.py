@@ -10,7 +10,7 @@ class kalmanFilter:
     # One parameter for Kalman filter
     def __init__(self, discount = np.array([0.99]), updateInnovation = True):
   
-        self.__checkDiscount(discount)
+        self.__checkDiscount__(discount)
         self.discount = np.matrix(np.diag(1 / np.sqrt(discount)))
         self.updateInnovation = updateInnovation
 
@@ -22,7 +22,7 @@ class kalmanFilter:
 
         # start predicting
         for i in range(step):
-            self.__predict(model)
+            self.__predict__(model)
             
     # The forward filter of one-step update given a new observation
     def forwardFilter(self, model, y):
@@ -104,16 +104,16 @@ class kalmanFilter:
 
     # for updating the discounting factor
     def updateDiscount(self, newDiscount):
-        self.__checkDiscount(newDiscount)
+        self.__checkDiscount__(newDiscount)
         self.discount = np.matrix(np.diag(1 / np.sqrt(newDiscount)))
         
-    def __checkDiscount(self, discount):
+    def __checkDiscount__(self, discount):
         for i in range(len(discount)):
             if discount[i] < 0 or discount[i] > 1:
                 raise tl.matrixErrors('discount factor must be between 0 and 1')
             
     # A hiden method that does one step a head prediction
-    def __predict(self, model):
+    def __predict__(self, model):
 
         # if the step number == 0, we use result from the model state
         if model.prediction.step == 0:
@@ -123,7 +123,7 @@ class kalmanFilter:
                                              model.transition.T)
             # update the innovation
             if self.updateInnovation:
-                self.__updateInnovation(model)
+                self.__updateInnovation__(model)
 
             # add the innovation to the system variance
             model.prediction.sysVar += model.innovation
@@ -144,7 +144,7 @@ class kalmanFilter:
             model.prediction.step += 1
 
     # update the innovation
-    def __updateInnovation(self, model):
+    def __updateInnovation__(self, model):
         
         tl.checker.checkMatrixDimension(self.discount, model.transition)
         model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \

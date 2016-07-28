@@ -6,11 +6,12 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class dynamic(component):
-    def __init__(self, features = None):
+    def __init__(self, features = None, name = 'dynamic', discount = 0.99):
         self.d, self.n = features.shape()
         self.features = features.T
-        self.step = 0
         self.dynamic = True
+        self.name = name
+        self.discount = np.ones(self.d) * discount
         
         # Initialize all basic quantities
         self.evaluation = None
@@ -19,7 +20,7 @@ class dynamic(component):
         self.meanPrior = None
 
         # create all basic quantities
-        self.createEvaluation(self.step)
+        self.createEvaluation(0)
         self.createTransition()
         self.createCovPrior()
         self.createMeanPrior()
@@ -40,8 +41,9 @@ class dynamic(component):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print 'The dimesnion looks good!'
 
-    def updateEvaluation(self):
-        self.step += 1
-        if self.step < self.n:
-            self.evalution = self.features[self.step, :]
+    def updateEvaluation(self, step):
+        if step < self.n:
+            self.evalution = self.features[step, :]
+        else:
+            raise NameError('The step is out of range')
             
