@@ -12,7 +12,7 @@ class trend(component):
         self.d = degree
         self.dynamic = False
         self.name = 'trend'
-        self.discount = np.ones(self.d)
+        self.discount = np.ones(self.d) * discount
         
         # Initialize all basic quantities
         self.evaluation = None

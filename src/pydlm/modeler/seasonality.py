@@ -12,7 +12,7 @@ class seasonality(component):
         self.d = period
         self.dynamic = False
         self.name = 'seasonality'
-        self.discount = np.ones(self.d)
+        self.discount = np.ones(self.d) * discount
         
         # Initialize all basic quantities
         self.evaluation = None

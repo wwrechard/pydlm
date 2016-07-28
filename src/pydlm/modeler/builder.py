@@ -13,7 +13,7 @@ from matrixTools import matrixTools as mt
 # We need to update this vector as time going forward
 class builder:
 
-    # create components
+    # create members
     def __init__(self):
 
         # the basic model structure for running kalman filter
@@ -45,7 +45,7 @@ class builder:
             self.staticComponents.append(component)
 
     # print all components to the client
-    def list(self):
+    def ls(self):
         if len(self.staticComponents) > 0:
             print 'The static components are'
             for compIdx in range(len(self.staticComponents)):
@@ -85,6 +85,7 @@ class builder:
         self.staticEvaluation = None
         state = None
         sysVar = None
+        self.discount = np.array([])
 
         # first construct for the static components
         # the evaluation will be treated separately for static or dynamic
@@ -96,6 +97,7 @@ class builder:
                                                       comp.evaluation)
             state = mt.matrixAddByRow(state, comp.meanPrior)
             sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
+            self.discount = np.concatenate(self.discount, comp.discount)
 
         # if the model contains the dynamic part, we add the dynamic components
         if len(self.dynamicComponents) > 0:
@@ -107,6 +109,7 @@ class builder:
                                                            comp.evaluation)
                 state = mt.matrixAddByRow(state, comp.meanPrior)
                 sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
+                self.discount = np.concatenate(self.discount, comp.discount)
 
         # We then update the result in the base model
         evaluation = mt.matrixAddByCol(self.staticEvaluation, self.dynamicEvaluation)
