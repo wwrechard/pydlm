@@ -5,6 +5,12 @@ from matrixTools import matrixTools as mt
 
 # The builder will be the main class for construting dlm
 # it featues two types of evaluation matrix and evaluation matrix
+# The static evaluation remains the same over time which is used to
+# record the trend and seasonality.
+#
+# The dynamic evaluation vector changes over time, it is basically
+# the other variables that might have impact on the time series
+# We need to update this vector as time going forward
 class builder:
 
     # create components
