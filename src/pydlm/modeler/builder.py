@@ -30,6 +30,10 @@ class builder:
         self.staticEvaluation = None
         self.dynamicEvaluation = None
 
+        # record the prior guess on the latent state and system covariance
+        self.statePrior = None
+        self.sysVarPrior = None
+        
         # record the current step/days/time stamp
         self.step = 0
 
@@ -115,6 +119,8 @@ class builder:
         evaluation = mt.matrixAddByCol(self.staticEvaluation, self.dynamicEvaluation)
         
         print 'Writing to the base model...'
+        self.statePrior = state
+        self.sysVarPrior = sysVar
         self.model = baseModel(transition = transition, \
                                evaluation = evaluation, \
                                noiseVar = np.matrix(noise), \

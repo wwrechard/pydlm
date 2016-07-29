@@ -46,7 +46,7 @@ class kalmanFilter:
             model.sysVar = model.noiseVar / lastNoiseVar * \
                            (model.prediction.sysVar - np.dot(correction, correction.T) * \
                             model.prediction.obsVar)
-
+            model.obs = np.dot(model.evaluation, model.state)
             # update the innovation using discount
             # model.innovation = model.sysVar * (1 / self.discount - 1)
 
