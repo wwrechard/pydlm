@@ -16,6 +16,7 @@ class dlm:
         self.n = len(data)
         self.result = self.__result__(self.n)
         self.builder = builder()
+        self.Filter = None
 
     # add component
     def add(self, component):
@@ -29,6 +30,10 @@ class dlm:
     def delete(self, index):
         self.builder.delete(index)
 
+    # initialize the builder
+    def __initialize__(self):
+        self.builder.initialize()
+        self.Filter = kalmanFilter(discount = self.builder.discount)
         
     # use the forward filter to filter the data
     # start: the place where the filter started
@@ -41,9 +46,6 @@ class dlm:
         # the default value for end
         if end is None:
             end = self.n - 1
-        # if start is behind the most recent filtered dates, we update it to the most recent
-        if start <= self.__result__.filteredSteps[1]:
-            start = self.__result__.filteredSteps[1] + 1
 
         # also we need to make we save consectively
         if save == 'all' and start > self.__result__.filteredSteps[1] + 1:
@@ -72,30 +74,36 @@ class dlm:
                 self.builder.updateEvaluation(step)
 
             # then we use the updated model to filter the state    
-            kalmanFilter.forwardFilter(self.builder.model, self.data[step])
+            self.Filter.forwardFilter(self.builder.model, self.data[step])
 
             # extract the result and record
             if save == 'all':
                 self.__result__.filteredObs[step] = self.builder.model.obs
                 self.__result__.predictedObs[step] = self.builder.model.prediction.obs
-                self.__result__.obsVar[step] = self.builder.model.obsVar            
+                self.__result__.filteredObsVar[step] = self.builder.model.obsVar
+                self.__result__.predictedObsVar[step] = self.builder.model.prediction.obsVar     
                 self.__result__.filteredState[step] = self.builder.model.state
                 self.__result__.predictedState[step] = self.builder.model.prediction.state
                 self.__result__.filteredCov[step] = self.builder.model.sysVar
                 self.__result__.predictedCov[step] = self.builder.model.prediction.sysVar
+                self.__result__.noiseVar[step] = self.builder.model.noiseVar
                 
         # if we just need to save the last step
         self.__result__.filteredObs[end] = self.builder.model.obs
         self.__result__.predictedObs[end] = self.builder.model.prediction.obs
-        self.__result__.obsVar[end] = self.builder.model.obsVar
+        self.__result__.filteredObsVar[end] = self.builder.model.obsVar
+        self.__result__.predictedObsVar[end] = self.builder.model.prediction.obsVar
         self.__result__.filteredState[end] = self.builder.model.state
         self.__result__.predictedState[end] = self.builder.model.prediction.state
         self.__result__.filteredCov[end] = self.builder.model.sysVar
         self.__result__.predictedCov[end] = self.builder.model.prediction.sysVar
+        self.__result__.noiseVar[end] = self.builder.model.noiseVar
 
-        self.__result__.filteredSteps[1] = end
+        self.__result__.filteredSteps = (0, end)
 
     # use the backward smooth to smooth the state
+    # start: the last date of the backward filtering chain
+    # days: number of days to go back from start 
     def __backwardSmoother__(self, start = None, days = None):
         # the default start date is the most recent date
         if start is None:
@@ -108,7 +116,39 @@ class dlm:
             end = max(start - days, 0)
 
         # the forwardFilter has to be run before the smoother
-        
+        if self.__result__.filteredSteps[1] < start:
+            raise NameError('The last day has to be filtered before smoothing!')
+        else:
+            # and we record the most recent day which does not need to be smooth
+            self.__result__.smoothedState[start] = self.__result__.filteredState[start]
+            self.__result__.smoothedObs[start] = self.__result__.filteredObs[start]
+            self.__result__.smoothedCov[start] = self.__result__.filteredCov[start]
+            self.__result__.smoothedObsVar[start] = self.__result__.filteredObsVar[start]
+            self.builder.model.noiseVar = self.__result__.noiseVar[start]
+            self.builder.model.state = self.__result__.smoothedState[start]
+            self.builder.model.sysVar = self.__result__.smoothedCov[start]
+
+        # we smooth the result sequantially from start - 1 to end
+        dates = range(end, start)
+        dates.reverse()
+        for day in dates:
+            # we first update the model to be correct status before smooth
+            self.builder.model.prediction.state = self.__result__.predictedState[day + 1]
+            self.builder.model.prediction.sysVar = self.__result__.predictedCov[day + 1]
+
+            if len(self.builder.dynamicComponents) > 0:
+                self.builder.updateEvaluation(day)
+
+            # then we use the backward filter to filter the result
+            self.Filter.backwardSmoother(model = self.builder.model, \
+                                         rawState = self.__result__.filteredState[day], \
+                                         rawSysVar = self.__result__.filteredCov[day])
+
+            # extract the result
+            self.__result__.smoothedState[day] = self.builder.model.state
+            self.__result__.smoothedObs[day] = self.builder.model.obs
+            self.__result__.smoothedCov[day] = self.builder.model.sysVar
+            self.__result__.smoothedObsVar[day] = self.builder.model.obsVar
             
     # an inner class to store all results
     class __result__:
@@ -117,7 +157,10 @@ class dlm:
             self.filteredObs = [None] * n
             self.predictedObs = [None] * n
             self.smoothedObs = [None] * n
-            self.obsVar = [None] * n
+            self.filteredObsVar = [None] * n
+            self.predictedObsVar = [None] * n
+            self.smoothedObsVar = [None] * n
+            self.noiseVar = [None] * n
             
             self.filteredState = [None] * n
             self.predictedState = [None] * n
@@ -125,7 +168,7 @@ class dlm:
             
             self.filteredCov = [None] * n
             self.predictedCov = [None] * n
-            self.smoothedState = [None] * n
+            self.smoothedCov = [None] * n
             
             # quantity to indicate the current status
             self.filteredSteps = (0, -1)
