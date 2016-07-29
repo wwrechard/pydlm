@@ -22,8 +22,8 @@ class builder:
 
         # to store all components. Separate the two as the evaluation
         # for dynamic component needs update each iteration
-        self.staticComponents = []
-        self.dynamicComponents = []
+        self.staticComponents = {}
+        self.dynamicComponents = {}
 
         # record the evaluation vector for static or dynamic component
         # avoid recompute the static part
@@ -44,37 +44,41 @@ class builder:
     # The function that allows the user to add components
     def add(self, component):
         if component.dynamic:
-            self.dynamicComponents.append(component)
+            if component.name in self.dynamicComponents:
+                raise NameError('Please rename the component to a different name.')
+            self.dynamicComponents[component.name] = component
         else:
-            self.staticComponents.append(component)
+            if component.name in self.staticComponents:
+                raise NameError('Please rename the component to a different name.')   
+            self.staticComponents[component.name] = component
 
     # print all components to the client
     def ls(self):
         if len(self.staticComponents) > 0:
             print 'The static components are'
-            for compIdx in range(len(self.staticComponents)):
-                comp = self.staticComponents[compIdx]
-                print comp.name + ' of degree ' + str(comp.d) + '. Index: ' + str(compIdx)
+            for name in self.staticComponents:
+                comp = self.staticComponents[name]
+                print comp.name + ' (degree = ' + str(comp.d) + ')'
         else:
             print 'There is no static component.'
 
         if len(self.dynamicComponents) > 0:
             print 'The dynamic components are'
-            for compIdx in range(len(self.dynamicComponents)):
-                comp = self.dynamicComponents[compIdx]
-                print comp.name + ' of dimension ' + str(comp.d) + '. Index: ' + \
-                    str(compIdx + len(self.staticComponents))
+            for name in self.dynamicComponents:
+                comp = self.dynamicComponents[name]
+                print comp.name + ' (dimension = ' + str(comp.d) + ')'
         else:
             print 'There is no dynamic component.'
 
     # delete the componet that pointed out by the client
-    def delete(self, index):
-        if index < 0 or index >= len(self.staticComponents) + len(self.dynamicComponents):
-            raise NameError('The index is out of range.')
-        elif index < len(self.staticComponents):
-            self.staticComponents.pop(index)
+    def delete(self, name):
+        if name in self.staticComponents:
+            del self.staticComponents[name]
+        elif name in self.dynamicComponents:
+            del self.dynamicComponents[name]
         else:
-            self.dynamicComponents.pop(index - len(self.staticComponents))
+            raise NameError('Such component does not exisit!')
+            
         self.initialized = False
 
     # initialize model for all the quantities
@@ -94,7 +98,7 @@ class builder:
         # first construct for the static components
         # the evaluation will be treated separately for static or dynamic
         # as the latter one will change over time
-        for i in range(len(self.staticComponents)):
+        for i in self.staticComponents:
             comp = self.staticComponents[i]
             transition = mt.matrixAddInDiag(transition, comp.transition)
             self.staticEvaluation = mt.matrixAddByCol(self.staticEvaluation, \
@@ -106,7 +110,7 @@ class builder:
         # if the model contains the dynamic part, we add the dynamic components
         if len(self.dynamicComponents) > 0:
             self.dynamicEvaluation = None
-            for i in range(len(self.dynamicComponents)):
+            for i in self.dynamicComponents:
                 comp = self.dynamicComponents[i]
                 transition = mt.matrixAddInDiag(transition, comp.transition)
                 self.dynamicEvaluation = mt.matrixAddByCol(self.dynamicEvaluation, \

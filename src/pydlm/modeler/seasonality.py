@@ -6,12 +6,12 @@ import pydlm.base.tools as tl
 # We create the seasonality using the component class
 
 class seasonality(component):
-    def __init__(self, period = 7, discount = 0.99):
+    def __init__(self, period = 7, name = 'seasonality', discount = 0.99):
         if period <= 2:
             raise NameError('Period has to be greater than 1.')
         self.d = period
         self.dynamic = False
-        self.name = 'seasonality'
+        self.name = name
         self.discount = np.ones(self.d) * discount
         
         # Initialize all basic quantities
