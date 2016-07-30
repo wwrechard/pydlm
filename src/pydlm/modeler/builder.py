@@ -59,6 +59,7 @@ class builder:
             for name in self.staticComponents:
                 comp = self.staticComponents[name]
                 print comp.name + ' (degree = ' + str(comp.d) + ')'
+            print ' '
         else:
             print 'There is no static component.'
             print ' '
@@ -106,7 +107,7 @@ class builder:
                                                       comp.evaluation)
             state = mt.matrixAddByRow(state, comp.meanPrior)
             sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
-            self.discount = np.concatenate(self.discount, comp.discount)
+            self.discount = np.concatenate((self.discount, comp.discount))
 
         # if the model contains the dynamic part, we add the dynamic components
         if len(self.dynamicComponents) > 0:
@@ -118,7 +119,7 @@ class builder:
                                                            comp.evaluation)
                 state = mt.matrixAddByRow(state, comp.meanPrior)
                 sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
-                self.discount = np.concatenate(self.discount, comp.discount)
+                self.discount = np.concatenate((self.discount, comp.discount))
 
         # We then update the result in the base model
         evaluation = mt.matrixAddByCol(self.staticEvaluation, self.dynamicEvaluation)
@@ -131,7 +132,7 @@ class builder:
                                noiseVar = np.matrix(noise), \
                                sysVar = sysVar, \
                                state = state, \
-                               df = 0)
+                               df = 1)
         self.model.initializeObservation()
         self.initialized = True
         print 'Initialization finished.'
@@ -147,16 +148,13 @@ class builder:
         if step is None:
             self.step += 1
             step = self.step
-        elif step >= self.dynamicComponents[0].n:
-            raise NameError('The step is out of range')
         else:
             self.step = step
 
         # update the dynamic evaluation vector
         # We need first update all dynamic components by 1 step
-        self.dynamicComponents[0].updateEvaluation(step)
-        self.dynamicEvaluation = self.dynamicComponents[0].evaluation
-        for i in range(1, len(self.dynamicEvaluation)):
+        self.dynamicEvaluation = None
+        for i in self.dynamicComponents:
             comp = self.dynamicComponents[i]
             comp.updateEvaluation(step)
             self.dynamicEvaluation = mt.matrixAddByCol(self.dynamicEvaluation, \

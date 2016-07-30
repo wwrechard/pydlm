@@ -35,3 +35,12 @@ class matrixTools:
             return A
         else:
             return np.concatenate((A, B), 1)
+
+    @staticmethod
+    def AddTwoVectors(a, b):
+        if a is None:
+            return b
+        elif b is None:
+            return a
+        else:
+            return np.concatenate((a, b))

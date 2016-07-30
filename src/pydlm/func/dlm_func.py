@@ -1,5 +1,4 @@
 from pydlm.base.kalmanFilter import kalmanFilter
-from pydlm.base.baseModel import baseModel
 from pydlm.modeler.builder import builder
 
 # this class defines the basic functionalities for dlm, which is not supposed to

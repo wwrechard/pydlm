@@ -41,8 +41,6 @@ class baseModel:
         tl.checker.checkMatrixDimension(self.transition, self.sysVar)
         if self.innovation is not None:
             tl.checker.checkMatrixDimension(self.transition, self.innovation)
-        print self.evaluation
-        print self.transition
         tl.checker.checkVectorDimension(self.evaluation, self.transition)
         tl.checker.checkVectorDimension(self.state, self.transition)
 

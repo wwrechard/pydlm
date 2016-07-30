@@ -8,45 +8,71 @@ import tools as tl
 class kalmanFilter:
 
     # One parameter for Kalman filter
-    def __init__(self, discount = np.array([0.99]), updateInnovation = True):
+    def __init__(self, discount = 0.99, updateInnovation = True):
   
         self.__checkDiscount__(discount)
-        self.discount = np.matrix(np.diag(1 / np.sqrt(discount)))
+        self.discount = np.matrix(np.diag(1 / np.sqrt(np.array(discount))))
         self.updateInnovation = updateInnovation
 
-    # A function used to forecast at n steps
-    def predict(self, model, step = 1):
+    # A function used to forecast one step ahead
+    def predict(self, model):
 
-        # clear the previous prediction status
-        model.prediction.step = 0
+        # if the step number == 0, we use result from the model state
+        if model.prediction.step == 0:
+            model.prediction.state = np.dot(model.transition, model.state)
+            model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
+            model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar), \
+                                             model.transition.T)
+            # update the innovation
+            if self.updateInnovation:
+                self.__updateInnovation__(model)
 
-        # start predicting
-        for i in range(step):
-            self.__predict__(model)
+            # add the innovation to the system variance
+            model.prediction.sysVar += model.innovation
+            model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
+                                                    model.prediction.sysVar), \
+                                             model.evaluation.T) + model.noiseVar
+            model.prediction.step = 1
+            
+        # otherwise, we use previous result to predict next time stamp 
+        else:
+            model.prediction.state = np.dot(model.transition, model.prediction.state)
+            model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
+            model.prediction.sysVar = np.dot(np.dot(model.transition, \
+                                                    model.prediction.sysVar),\
+                                             model.transition.T)
+            model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
+                                                    model.prediction.sysVar), \
+                                             model.evaluation.T) + model.noiseVar
+            model.prediction.step += 1
             
     # The forward filter of one-step update given a new observation
     def forwardFilter(self, model, y):
 
         # first obtain the predicted status
+        model.prediction.step = 0
         self.predict(model)
+        model.prediction.step = 0
         
         # when y is not a missing data
         if y != 'na':    
             # the prediction error and the correction matrix
             err = y - model.obs
             correction = np.dot(model.prediction.sysVar, model.evaluation.T) \
-                         / model.prediciton.obsVar
+                         / model.prediction.obsVar
 
             # update new staets
             model.df += 1
             lastNoiseVar = model.noiseVar # for updating model.sysVar
             model.noiseVar = model.noiseVar * \
-                             (1 - 1 / model.df + err^2 / model.df / model.prediction.obsVar)
+                             (1 - 1 / model.df + err * err / model.df / model.prediction.obsVar)
             model.state = model.state + correction * err
             model.sysVar = model.noiseVar / lastNoiseVar * \
                            (model.prediction.sysVar - np.dot(correction, correction.T) * \
                             model.prediction.obsVar)
             model.obs = np.dot(model.evaluation, model.state)
+            model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
+                                  model.evaluation.T) + model.noiseVar
             # update the innovation using discount
             # model.innovation = model.sysVar * (1 / self.discount - 1)
 
@@ -63,6 +89,7 @@ class kalmanFilter:
     #      model.state: the last smoothed states (t + 1)
     #      model.sysVar: the last smoothed system variance (t + 1)
     #      model.transition: the transition at time t + 1
+    #      model.evaluation: the evaluation vector at time t
     #      model.prediction.sysVar: the predicted system variance for time t + 1
     #      model.prediction.state: the predicted state for time t + 1
     #      rawState: the unsmoothed state at time t
@@ -111,42 +138,10 @@ class kalmanFilter:
         for i in range(len(discount)):
             if discount[i] < 0 or discount[i] > 1:
                 raise tl.matrixErrors('discount factor must be between 0 and 1')
-            
-    # A hiden method that does one step a head prediction
-    def __predict__(self, model):
 
-        # if the step number == 0, we use result from the model state
-        if model.prediction.step == 0:
-            model.prediction.state = np.dot(model.transition, model.state)
-            model.prediciton.obs = np.dot(model.evaluation, model.state)
-            model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar), \
-                                             model.transition.T)
-            # update the innovation
-            if self.updateInnovation:
-                self.__updateInnovation__(model)
-
-            # add the innovation to the system variance
-            model.prediction.sysVar += model.innovation
-            model.prediction.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
-                                             model.evaluation.T) + model.noiseVar
-            model.prediction.step = 1
-            
-        # otherwise, we use previous result to predict next time stamp 
-        else:
-            model.prediction.state = np.dot(model.transition, model.prediction.state)
-            model.prediciton.obs = np.dot(model.evaluation, model.prediction.state)
-            model.prediction.sysVar = np.dot(np.dot(model.transition, \
-                                                    model.prediction.sysVar),\
-                                             model.transition.T)
-            model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
-                                                    model.prediction.sysVar), \
-                                             model.evaluation.T) + model.noiseVar
-            model.prediction.step += 1
 
     # update the innovation
     def __updateInnovation__(self, model):
-        
-        tl.checker.checkMatrixDimension(self.discount, model.transition)
         model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
-                                      self.discount) - model.prediciton.sysVar
+                                      self.discount) - model.prediction.sysVar
 

@@ -33,19 +33,19 @@ class testBuilder:
         builder = pydlm.modeler.builder.builder()
         builder.add(self.trend)
         assert len(builder.staticComponents) == 1
-        assert len(builder.dynamicComponnets) == 0
+        assert len(builder.dynamicComponents) == 0
 
         builder.add(self.dynamic)
         assert len(builder.staticComponents) == 1
-        assert len(builder.dynamicComponnets) == 1
+        assert len(builder.dynamicComponents) == 1
 
         builder.add(self.seasonality)
         assert len(builder.staticComponents) == 2
-        assert len(builder.dynamicComponnets) == 1
+        assert len(builder.dynamicComponents) == 1
 
         builder.delete('seasonality')
         assert len(builder.staticComponents) == 1
-        assert len(builder.dynamicComponnets) == 1
+        assert len(builder.dynamicComponents) == 1
 
         assert builder.staticComponents['trend'] == self.trend
         pass
@@ -68,3 +68,6 @@ class testBuilder:
         builder.updateEvaluation(2)
         assert np.sum(np.abs(builder.model.evaluation - mt.matrixAddByCol(self.trend.evaluation, self.features[:, 2].T))) < self.tol
         pass
+
+aTest = testBuilder()
+aTest.testRun()
