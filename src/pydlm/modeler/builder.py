@@ -61,6 +61,7 @@ class builder:
                 print comp.name + ' (degree = ' + str(comp.d) + ')'
         else:
             print 'There is no static component.'
+            print ' '
 
         if len(self.dynamicComponents) > 0:
             print 'The dynamic components are'

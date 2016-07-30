@@ -43,11 +43,11 @@ class testBuilder:
         assert len(builder.staticComponents) == 2
         assert len(builder.dynamicComponnets) == 1
 
-        builder.delete(1)
+        builder.delete('seasonality')
         assert len(builder.staticComponents) == 1
         assert len(builder.dynamicComponnets) == 1
 
-        assert builder.staticComponents[0] == self.trend
+        assert builder.staticComponents['trend'] == self.trend
         pass
     
     def testInitialize(self):
