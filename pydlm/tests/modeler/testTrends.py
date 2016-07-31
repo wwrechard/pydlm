@@ -1,6 +1,3 @@
-import sys
-sys.path.append('/Users/samuel/Documents/Github/PyDLM/src/')
-
 import pydlm
 
 class testTrend:

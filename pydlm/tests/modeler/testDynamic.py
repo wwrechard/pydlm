@@ -1,8 +1,4 @@
-import sys
 import numpy as np
-
-sys.path.append('/Users/samuel/Documents/Github/PyDLM/src/')
-
 import pydlm
 class testDynamic:
 

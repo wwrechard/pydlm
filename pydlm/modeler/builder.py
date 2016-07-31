@@ -33,6 +33,7 @@ class builder:
         # record the prior guess on the latent state and system covariance
         self.statePrior = None
         self.sysVarPrior = None
+        self.noiseVar = None
         
         # record the current step/days/time stamp
         self.step = 0
@@ -43,14 +44,18 @@ class builder:
 
     # The function that allows the user to add components
     def add(self, component):
+        self.__add__(component)
+        
+    def __add__(self, component):
         if component.dynamic:
             if component.name in self.dynamicComponents:
                 raise NameError('Please rename the component to a different name.')
             self.dynamicComponents[component.name] = component
         else:
             if component.name in self.staticComponents:
-                raise NameError('Please rename the component to a different name.')   
+                raise NameError('Please rename the component to a different name.')
             self.staticComponents[component.name] = component
+        return self
 
     # print all components to the client
     def ls(self):
@@ -82,6 +87,7 @@ class builder:
             raise NameError('Such component does not exisit!')
             
         self.initialized = False
+        return self
 
     # initialize model for all the quantities
     # noise is the prior guess of the variance of the observed data
@@ -127,6 +133,7 @@ class builder:
         print 'Writing to the base model...'
         self.statePrior = state
         self.sysVarPrior = sysVar
+        self.noiseVar = np.matrix(noise)
         self.model = baseModel(transition = transition, \
                                evaluation = evaluation, \
                                noiseVar = np.matrix(noise), \

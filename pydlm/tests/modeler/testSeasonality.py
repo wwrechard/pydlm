@@ -1,6 +1,3 @@
-import sys
-sys.path.append('/Users/samuel/Documents/Github/PyDLM/src/')
-
 import pydlm
 
 class testSeasonality:
@@ -11,5 +8,4 @@ class testSeasonality:
     def testInitialization(self):
         newSeasonality = pydlm.modeler.seasonality.seasonality(self.DEGREE)
         newSeasonality.checkDimensions()
-        return newSeasonality
         

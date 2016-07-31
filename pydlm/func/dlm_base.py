@@ -4,7 +4,7 @@ from pydlm.modeler.builder import builder
 # this class defines the basic functionalities for dlm, which is not supposed to
 # be used by the user. Most functionality in the main dlm will be constructed
 # by using the hidden functions in this class
-class dlm_func:
+class dlm_base:
     # define the basic members
     # initialize the result
     def __init__(self, data):
@@ -33,9 +33,9 @@ class dlm_func:
             end = self.n - 1
 
         # also we need to make we save consectively
-        if save == 'all' and start > self.__result__.filteredSteps[1] + 1:
+        if save == 'all' and start > self.result.filteredSteps[1] + 1:
             raise NameError('The data before start date has yet to be filtered!')
-        elif save == 'end' and end > self.__result__.filteredSteps[1] + 1:
+        elif save == 'end' and end > self.result.filteredSteps[1] + 1:
             raise NameError('The data before the saved date has yet to be filtered!')
         
         # first we need to initialize the model to the correct status
@@ -43,13 +43,17 @@ class dlm_func:
         if start == 0 or isForget:
             self.builder.model.state = self.builder.statePrior
             self.builder.model.sysVar = self.builder.sysVarPrior
-            self.builder.model.df = 0
+            self.builder.model.noiseVar = self.builder.noiseVar
+            self.builder.model.df = 1
+            self.builder.model.initializeObservation()
 
         # otherwise we use the result on the previous day as the prior
         else:
-            self.builder.model.state = self.__result__.filteredState[start - 1]
-            self.builder.model.sysVar = self.__result__.filteredCov[start - 1]
+            self.builder.model.state = self.result.filteredState[start - 1]
+            self.builder.model.sysVar = self.result.filteredCov[start - 1]
+            self.builder.model.noiseVar = self.result.noiseVar[start - 1]
             self.builder.model.df = start
+            self.builder.model.initializeObservation()
         
         # we run the forward filter sequentially
         for step in range(start, end + 1):
@@ -64,17 +68,17 @@ class dlm_func:
             # extract the result and record
             if save == 'all':
                 self.__copy__(model = self.builder.model, \
-                              result = self.__result__, \
+                              result = self.result, \
                               step = step, \
-                              filerType = 'forwardFilter')
+                              filterType = 'forwardFilter')
                 
         # if we just need to save the last step
         self.__copy__(model = self.builder.model, \
-                      result = self.__result__, \
+                      result = self.result, \
                       step = end, \
-                      filerType = 'forwardFilter')
+                      filterType = 'forwardFilter')
 
-        self.__result__.filteredSteps = (0, end)
+        self.result.filteredSteps = (0, end)
 
     # use the backward smooth to smooth the state
     # start: the last date of the backward filtering chain
@@ -91,41 +95,42 @@ class dlm_func:
             end = max(start - days, 0)
 
         # the forwardFilter has to be run before the smoother
-        if self.__result__.filteredSteps[1] < start:
+        if self.result.filteredSteps[1] < start:
             raise NameError('The last day has to be filtered before smoothing!')
         else:
             # and we record the most recent day which does not need to be smooth
-            self.__result__.smoothedState[start] = self.__result__.filteredState[start]
-            self.__result__.smoothedObs[start] = self.__result__.filteredObs[start]
-            self.__result__.smoothedCov[start] = self.__result__.filteredCov[start]
-            self.__result__.smoothedObsVar[start] = self.__result__.filteredObsVar[start]
-            self.builder.model.noiseVar = self.__result__.noiseVar[start]
-            self.builder.model.state = self.__result__.smoothedState[start]
-            self.builder.model.sysVar = self.__result__.smoothedCov[start]
+            self.result.smoothedState[start] = self.result.filteredState[start]
+            self.result.smoothedObs[start] = self.result.filteredObs[start]
+            self.result.smoothedCov[start] = self.result.filteredCov[start]
+            self.result.smoothedObsVar[start] = self.result.filteredObsVar[start]
+            
+            self.builder.model.noiseVar = self.result.noiseVar[start]
+            self.builder.model.state = self.result.smoothedState[start]
+            self.builder.model.sysVar = self.result.smoothedCov[start]
 
         # we smooth the result sequantially from start - 1 to end
         dates = range(end, start)
         dates.reverse()
         for day in dates:
             # we first update the model to be correct status before smooth
-            self.builder.model.prediction.state = self.__result__.predictedState[day + 1]
-            self.builder.model.prediction.sysVar = self.__result__.predictedCov[day + 1]
+            self.builder.model.prediction.state = self.result.predictedState[day + 1]
+            self.builder.model.prediction.sysVar = self.result.predictedCov[day + 1]
 
             if len(self.builder.dynamicComponents) > 0:
                 self.builder.updateEvaluation(day)
 
             # then we use the backward filter to filter the result
             self.Filter.backwardSmoother(model = self.builder.model, \
-                                         rawState = self.__result__.filteredState[day], \
-                                         rawSysVar = self.__result__.filteredCov[day])
+                                         rawState = self.result.filteredState[day], \
+                                         rawSysVar = self.result.filteredCov[day])
 
             # extract the result
             self.__copy__(model = self.builder.model, \
-                          result = self.__result__, \
+                          result = self.result, \
                           step = day, \
-                          filerType = 'backwardFilter')
+                          filterType = 'backwardSmoother')
             
-        self.__result__.smoothedSteps = (end, start)
+        self.result.smoothedSteps = (end, start)
             
     # an inner class to store all results
     class __result__:
@@ -154,7 +159,7 @@ class dlm_func:
 
     # a function used to copy result from the model to the result
     def __copy__(self, model, result, step, filterType):
-        if filterType == 'forwarFilter':
+        if filterType == 'forwardFilter':
             result.filteredObs[step] = model.obs
             result.predictedObs[step] = model.prediction.obs
             result.filteredObsVar[step] = model.obsVar
