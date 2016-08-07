@@ -3,3 +3,4 @@
 *.gitignore~
 *.pyc
 *.py#
+*_flymake.py
