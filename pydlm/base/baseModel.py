@@ -1,10 +1,39 @@
+"""
+=================================================================
+
+Code for the base model structure
+
+=================================================================
+
+This piece of code provides the basic model structure for dynamic linear model.
+It stores all the necessary components for kalmanFilter and save the results
+
+"""
 # dependencies
 import numpy as np
 import tools as tl
 
 # define the basic structure for a dlm model
 class baseModel:
-            
+    """
+    The baseModel class that provides the basic model structure for dlm. 
+
+    Members:
+        transition: the transition matrix G
+        evaluation: the evaluation F
+        noiseVar: the variance of the observation noise
+        sysVar: the covariance of the underlying states
+        innovation: the incremnent of the latent covariance W
+        state: the latent states
+        df: the degree of freedom (= number of data points)
+        obs: the expectation of the observation
+        obsVar: the variance of the observation
+
+    Methods:
+        initializeObservation: initialize the obs and obsVar
+        validation: validate the matrix dimensions are consistent.
+    """
+    
     # define the components of a baseModel
     def __init__(self, transition = None, evaluation = None, noiseVar = None, \
                  sysVar = None, innovation = None, state = None, df = None):
@@ -22,7 +51,11 @@ class baseModel:
         self.prediction = __model__()
 
     # initialize the observation mean and variance
-    def initializeObservation(self):        
+    def initializeObservation(self):
+        """
+        Initialize the value of obs and obsVar
+
+        """
         self.validation()
         self.obs = np.dot(self.evaluation, self.state)
         self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation.T) \
@@ -30,7 +63,10 @@ class baseModel:
         
     # checking if the dimension matches with each other
     def validation(self):
+        """
+        Validate the model components are consistent
 
+        """
         # check symmetric
         tl.checker.checkSymmetry(self.transition)
         tl.checker.checkSymmetry(self.sysVar)
