@@ -1,4 +1,5 @@
 import numpy as np
+import unittest
 
 #sys.path.append('/Users/samuel/Documents/Github/PyDLM/src/')
 
@@ -6,51 +7,45 @@ from pydlm.modeler.trends import trend
 from pydlm.modeler.builder import builder
 from pydlm.base.kalmanFilter import kalmanFilter
 
-class testKalmanFilter:
+class testKalmanFilter(unittest.TestCase):
 
-    def __init__(self):
+    def setUp(self):
         self.kf1 = kalmanFilter(discount = [1])
-        self.kf0 = kalmanFilter(discount = [0.00000001])
-        self.tol = 0.001
-
-    def runTest(self):
-        self.testForwardFilter()
-        self.testBackwardSmoother()
+        self.kf0 = kalmanFilter(discount = [1e-10])
         
     def testForwardFilter(self):
         dlm = builder()
         dlm.add(trend(degree = 1, discount = 1))
         dlm.initialize()
         self.kf1.predict(dlm.model)
-        assert np.abs(dlm.model.prediction.obs - 0) < self.tol
+        self.assertAlmostEqual(dlm.model.prediction.obs, 0)
 
         # the prior on the mean is zero, but observe 1, with
         # discount = 1, one should expect the filterd mean to be 0.5
         self.kf1.forwardFilter(dlm.model, 1)
-        assert np.abs(dlm.model.obs - 0.5) < self.tol
-        assert np.abs(dlm.model.prediction.obs - 0) < self.tol
-        assert np.abs(dlm.model.sysVar - 0.625) < self.tol
+        self.assertAlmostEqual(dlm.model.obs, 0.5)
+        self.assertAlmostEqual(dlm.model.prediction.obs, 0)
+        self.assertAlmostEqual(dlm.model.sysVar, 0.625)
 
         self.kf1.predict(dlm.model)
-        assert np.abs(dlm.model.obs - 0.5) < self.tol
-        assert np.abs(dlm.model.prediction.obs - 0.5) < self.tol
+        self.assertAlmostEqual(dlm.model.obs, 0.5)
+        self.assertAlmostEqual(dlm.model.prediction.obs, 0.5)
 
         dlm.initialize()
         self.kf0.predict(dlm.model)
-        assert np.abs(dlm.model.prediction.obs - 0) < self.tol
+        self.assertAlmostEqual(dlm.model.prediction.obs, 0)
 
         # the prior on the mean is zero, but observe 1, with discount = 0
         # one should expect the filtered mean close to 1
         self.kf0.forwardFilter(dlm.model, 1)
-        assert np.abs(dlm.model.obs - 1) < self.tol
-        assert np.abs(dlm.model.prediction.obs - 0) < self.tol
-        assert np.abs(dlm.model.sysVar - 1) < self.tol
+        self.assertAlmostEqual(dlm.model.obs, 1)
+        self.assertAlmostEqual(dlm.model.prediction.obs, 0)
+        self.assertAlmostEqual(dlm.model.sysVar, 1)
 
         self.kf0.predict(dlm.model)
-        assert np.abs(dlm.model.obs - 1) < self.tol
-        assert np.abs(dlm.model.prediction.obs - 1) < self.tol
+        self.assertAlmostEqual(dlm.model.obs, 1)
+        self.assertAlmostEqual(dlm.model.prediction.obs, 1)
 
-        pass
 
     def testBackwardSmoother(self):
         dlm = builder()
@@ -64,14 +59,10 @@ class testKalmanFilter:
         self.kf1.backwardSmoother(dlm.model, \
                                   np.matrix([[0.5]]), \
                                   np.matrix([[0.625]]))
-        assert np.abs(dlm.model.obs - 1.0/3) < self.tol
-        assert np.abs(dlm.model.sysVar - 0.43518519) < self.tol
-
-        pass
+        self.assertAlmostEqual(dlm.model.obs, 1.0/3)
+        self.assertAlmostEqual(dlm.model.sysVar, 0.43518519)
     
-aTest = testKalmanFilter()
-aTest.runTest()
-
+unittest.main()
 #kf1 = kalmanFilter(discount = [1])
 #kf0 = kalmanFilter(discount = [0.01])
 #dlm = builder()

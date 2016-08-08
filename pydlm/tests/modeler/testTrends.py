@@ -1,8 +1,9 @@
 import pydlm
+import unittest
 
-class testTrend:
+class testTrend(unittest.TestCase):
 
-    def __init__(self):
+    def setUp(self):
         self.DEGREE = 3
         
     def testInitialization(self):
