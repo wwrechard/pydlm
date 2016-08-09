@@ -53,6 +53,6 @@ class testBuilder(unittest.TestCase):
         self.builder1.initialize()
 
         self.builder1.updateEvaluation(2)
-        self.assertEqual(np.sum(np.abs(self.builder1.model.evaluation - mt.matrixAddByCol(self.trend.evaluation, self.features[:, 2].T))), 0.0)
+        self.assertAlmostEqual(np.sum(np.abs(self.builder1.model.evaluation - mt.matrixAddByCol(self.trend.evaluation, self.features[:, 2].T))), 0.0)
 
 unittest.main()

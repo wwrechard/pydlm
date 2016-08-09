@@ -24,11 +24,7 @@ class builder:
         # for dynamic component needs update each iteration
         self.staticComponents = {}
         self.dynamicComponents = {}
-
-        # record the evaluation vector for static or dynamic component
-        # avoid recompute the static part
-        self.staticEvaluation = None
-        self.dynamicEvaluation = None
+        self.componentIndex = {}
 
         # record the prior guess on the latent state and system covariance
         self.statePrior = None
@@ -98,7 +94,7 @@ class builder:
         # construct transition, evaluation, prior state, prior covariance
         print 'Constructing the basic quantities...'
         transition = None
-        self.staticEvaluation = None
+        evaluation = None
         state = None
         sysVar = None
         self.discount = np.array([])
@@ -106,14 +102,17 @@ class builder:
         # first construct for the static components
         # the evaluation will be treated separately for static or dynamic
         # as the latter one will change over time
+        currentIndex = 0 # used for compute the index
         for i in self.staticComponents:
             comp = self.staticComponents[i]
             transition = mt.matrixAddInDiag(transition, comp.transition)
-            self.staticEvaluation = mt.matrixAddByCol(self.staticEvaluation, \
-                                                      comp.evaluation)
+            evaluation = mt.matrixAddByCol(evaluation, \
+                                           comp.evaluation)
             state = mt.matrixAddByRow(state, comp.meanPrior)
             sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
             self.discount = np.concatenate((self.discount, comp.discount))
+            self.componentIndex[i] = (currentIndex, currentIndex + comp.d - 1)
+            currentIndex += comp.d
 
         # if the model contains the dynamic part, we add the dynamic components
         if len(self.dynamicComponents) > 0:
@@ -121,14 +120,13 @@ class builder:
             for i in self.dynamicComponents:
                 comp = self.dynamicComponents[i]
                 transition = mt.matrixAddInDiag(transition, comp.transition)
-                self.dynamicEvaluation = mt.matrixAddByCol(self.dynamicEvaluation, \
-                                                           comp.evaluation)
+                evaluation = mt.matrixAddByCol(evaluation, \
+                                               comp.evaluation)
                 state = mt.matrixAddByRow(state, comp.meanPrior)
                 sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
                 self.discount = np.concatenate((self.discount, comp.discount))
-
-        # We then update the result in the base model
-        evaluation = mt.matrixAddByCol(self.staticEvaluation, self.dynamicEvaluation)
+                self.componentIndex[i] = (currentIndex, currentIndex + comp.d - 1)
+                currentIndex += comp.d
         
         print 'Writing to the base model...'
         self.statePrior = state
@@ -160,12 +158,8 @@ class builder:
 
         # update the dynamic evaluation vector
         # We need first update all dynamic components by 1 step
-        self.dynamicEvaluation = None
         for i in self.dynamicComponents:
             comp = self.dynamicComponents[i]
             comp.updateEvaluation(step)
-            self.dynamicEvaluation = mt.matrixAddByCol(self.dynamicEvaluation, \
-                                                       comp.evaluation)
-
-        self.model.evaluation = mt.matrixAddByCol(self.staticEvaluation, \
-                                                  self.dynamicEvaluation)
+            self.model.evaluation[0, self.componentIndex[i][0] : \
+                                  (self.componentIndex[i][1] + 1)] = comp.evaluation
