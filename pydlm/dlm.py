@@ -3,15 +3,15 @@
 # Kalman filter functionality for filtering the data
 
 #from pydlm.modeler.builder import builder
-from pydlm.func.dlm_func import dlm_base
+from pydlm.func._dlm import _dlm
 
 
-class dlm(dlm_base):
+class dlm(_dlm):
 
     # define the basic members
     # initialize the result
     def __init__(self, data):
-        dlm_base.__init__(data)
+        super(dlm, self).__init__(data)
 
 #===================== modeling components =====================
 
@@ -21,6 +21,7 @@ class dlm(dlm_base):
 
     def __add__(self, component):
         self.builder.__add__(component)
+        self.initialized = False
         return self
 
     # list all components
@@ -28,8 +29,9 @@ class dlm(dlm_base):
         self.builder.ls()
 
     # delete one component
-    def delete(self, index):
-        self.builder.delete(index)
+    def delete(self, name):
+        self.initialized = False
+        self.builder.delete(name)
 
 #====================== result components ====================
 
@@ -37,15 +39,23 @@ class dlm(dlm_base):
         return self.result
 
     def getFilteredObs(self):
+        print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + ' to ' \
+                + str(self.result.filteredSteps[1])
         return self.result.filteredObs
 
     def getFilteredObsVar(self):
+        print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + ' to ' \
+                + str(self.result.filteredSteps[1])
         return self.result.filteredObsVar
 
     def getSmoothedObs(self):
+        print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + ' to ' \
+                + str(self.result.smoothedSteps[1])
         return self.result.smoothedObs
 
     def getSmoothedObsVar(self):
+        print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + ' to ' \
+                + str(self.result.smoothedSteps[1])
         return self.result.smoothedObsVar
 
     def getPredictedObs(self):
@@ -55,6 +65,8 @@ class dlm(dlm_base):
         return self.result.predictedObsVar
 
     def getFilteredState(self, name = 'all'):
+        print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + ' to ' \
+                + str(self.result.filteredSteps[1])
         if name == 'all':
             return self.result.filteredState
 
@@ -70,6 +82,8 @@ class dlm(dlm_base):
             raise NameError('Such component does not exist!')
 
     def getSmoothedState(self, name = 'all'):
+        print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + ' to ' \
+                + str(self.result.smoothedSteps[1])
         if name == 'all':
             return self.result.smoothedState
 
@@ -85,6 +99,8 @@ class dlm(dlm_base):
             raise NameError('Such component does not exist!')
 
     def getFilteredCov(self, name = 'all'):
+        print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + ' to ' \
+                + str(self.result.filteredSteps[1])
         if name == 'all':
             return self.result.filteredCov
 
@@ -101,6 +117,8 @@ class dlm(dlm_base):
             raise NameError('Such component does not exist!')
 
     def getSmoothedCov(self, name = 'all'):
+        print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + ' to ' \
+                + str(self.result.smoothedSteps[1])
         if name == 'all':
             return self.result.smoothedCov
 
@@ -115,5 +133,45 @@ class dlm(dlm_base):
         
         else:
             raise NameError('Such component does not exist!')
-
+        
 #========================== model training component =======================
+
+    def fitForwardFilter(self, useRollingWindow = False, windowLength = 3):
+        # see if the model has been initialized
+        if not self.initialized:
+            self._initialize()
+            
+        start = self.result.filteredSteps[1] + 1
+        if not useRollingWindow:
+            # we start from the last step of previous fitering
+            self._forwardFilter(start = start, end = self.n - 1)
+        else:
+            # for dates within (start, windowLength - 1) we ran the usual ff
+            self._forwardFilter(start = start, end = windowLength - 1)
+
+            # for the remaining date, we use a rolling window
+            for day in range(max(start, windowLength), self.n):
+                self._forwardFilter(start = max(0, day - windowLength + 1), \
+                                       save = day, ForgetPrevious = True)
+
+    
+    def fitBackwardSmoother(self, backLength = 3):
+        # see if the model has been initialized
+        if not self.initialized:
+            raise NameError('Backward Smoother has to be run after forward filter')
+
+        if self.result.filteredSteps[1] != self.n - 1:
+            raise NameError('Forward Fiter needs to run on full data before using backward Smoother')
+
+        if self.result.smoothedSteps[1] == self.n - 1:
+            return None
+        else:
+            self._backwardSmoother(start = self.n - 1, days = backLength)
+
+    def fit(self):
+        self.fitForwardFilter()
+        self.fitBackwardSmoother(backLength = self.n)
+
+#=========================== model prediction ==============================
+
+#    def predict(self, date = None, days = 1):

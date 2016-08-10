@@ -51,6 +51,7 @@ class builder:
             if component.name in self.staticComponents:
                 raise NameError('Please rename the component to a different name.')
             self.staticComponents[component.name] = component
+        self.initialized = False
         return self
 
     # print all components to the client
@@ -83,7 +84,6 @@ class builder:
             raise NameError('Such component does not exisit!')
             
         self.initialized = False
-        return self
 
     # initialize model for all the quantities
     # noise is the prior guess of the variance of the observed data

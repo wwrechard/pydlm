@@ -1,3 +1,3 @@
-__all__ = ['dlm_base']
+__all__ = ['_dlm']
 
-import dlm_base
+import _dlm

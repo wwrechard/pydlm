@@ -4,21 +4,24 @@ from pydlm.modeler.builder import builder
 # this class defines the basic functionalities for dlm, which is not supposed to
 # be used by the user. Most functionality in the main dlm will be constructed
 # by using the hidden functions in this class
-class dlm_base:
+class _dlm:
     # define the basic members
     # initialize the result
     def __init__(self, data):
 
         self.data = data
         self.n = len(data)
-        self.result = self.__result__(self.n)
+        self.result = None
         self.builder = builder()
         self.Filter = None
+        self.initialized = False
     
     # initialize the builder
-    def __initialize__(self):
+    def _initialize(self):
         self.builder.initialize()
         self.Filter = kalmanFilter(discount = self.builder.discount)
+        self.result = self._result(self.n)
+        self.initialized = True
         
     # use the forward filter to filter the data
     # start: the place where the filter started
@@ -27,20 +30,26 @@ class dlm_base:
     #       could be 'all' or 'end'
     # isForget: indicate where the filter should use the previous state as prior
     #         or just use the prior information from builder
-    def __forwardFilter__(self, start = 0, end = None, save = 'all', isForget = False):
+    def _forwardFilter(self, start = 0, end = None, save = 'all', ForgetPrevious = False):
+        
         # the default value for end
         if end is None:
             end = self.n - 1
 
+        # to see if the ff need to run or not
+        if start < end:
+            return None
+        
         # also we need to make we save consectively
         if save == 'all' and start > self.result.filteredSteps[1] + 1:
             raise NameError('The data before start date has yet to be filtered!')
-        elif save == 'end' and end > self.result.filteredSteps[1] + 1:
-            raise NameError('The data before the saved date has yet to be filtered!')
+        
+#        elif save == 'end' and end > self.result.filteredSteps[1] + 1:
+#            raise NameError('The data before the saved date has yet to be filtered!')
         
         # first we need to initialize the model to the correct status
         # if the start point is 0 or we want to forget the previous result
-        if start == 0 or isForget:
+        if start == 0 or ForgetPrevious:
             self.builder.model.state = self.builder.statePrior
             self.builder.model.sysVar = self.builder.sysVarPrior
             self.builder.model.noiseVar = self.builder.noiseVar
@@ -66,28 +75,24 @@ class dlm_base:
             self.Filter.forwardFilter(self.builder.model, self.data[step])
 
             # extract the result and record
-            if save == 'all':
-                self.__copy__(model = self.builder.model, \
+            if save == 'all' or save == step:
+                self._copy(model = self.builder.model, \
                               result = self.result, \
                               step = step, \
                               filterType = 'forwardFilter')
-                
-        # if we just need to save the last step
-        self.__copy__(model = self.builder.model, \
-                      result = self.result, \
-                      step = end, \
-                      filterType = 'forwardFilter')
 
         self.result.filteredSteps = (0, end)
 
     # use the backward smooth to smooth the state
     # start: the last date of the backward filtering chain
     # days: number of days to go back from start 
-    def __backwardSmoother__(self, start = None, days = None):
+    def _backwardSmoother(self, start = None, days = None):
         # the default start date is the most recent date
         if start is None:
             start = self.n - 1
-
+        elif start > self.n - 1:
+            return None
+        
         # the default backward days number is the total length
         if days is None:
             end = 0
@@ -125,7 +130,7 @@ class dlm_base:
                                          rawSysVar = self.result.filteredCov[day])
 
             # extract the result
-            self.__copy__(model = self.builder.model, \
+            self._copy(model = self.builder.model, \
                           result = self.result, \
                           step = day, \
                           filterType = 'backwardSmoother')
@@ -133,7 +138,7 @@ class dlm_base:
         self.result.smoothedSteps = (end, start)
             
     # an inner class to store all results
-    class __result__:
+    class _result:
         # quantites to record the result
         def __init__(self, n):
             self.filteredObs = [None] * n
@@ -158,7 +163,7 @@ class dlm_base:
     
 
     # a function used to copy result from the model to the result
-    def __copy__(self, model, result, step, filterType):
+    def _copy(self, model, result, step, filterType):
         if filterType == 'forwardFilter':
             result.filteredObs[step] = model.obs
             result.predictedObs[step] = model.prediction.obs
