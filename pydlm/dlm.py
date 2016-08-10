@@ -83,3 +83,37 @@ class dlm(dlm_base):
 
         else:
             raise NameError('Such component does not exist!')
+
+    def getFilteredCov(self, name = 'all'):
+        if name == 'all':
+            return self.result.filteredCov
+
+        elif name in self.builder.staticComponents or \
+             name in self.builder.dynamicComponents:
+            indx = self.builder.componentIndex[name]
+            result = [None] * self.n
+            for i in range(len(result)):
+                result[i] = self.result.filteredCov[indx[0] : (indx[1] + 1), \
+                                                    indx[0] : (indx[1] + 1)]
+            return result
+        
+        else:
+            raise NameError('Such component does not exist!')
+
+    def getSmoothedCov(self, name = 'all'):
+        if name == 'all':
+            return self.result.smoothedCov
+
+        elif name in self.builder.staticComponents or \
+             name in self.builder.dynamicComponents:
+            indx = self.builder.componentIndex[name]
+            result = [None] * self.n
+            for i in range(len(result)):
+                result[i] = self.result.smoothedCov[indx[0] : (indx[1] + 1), \
+                                                    indx[0] : (indx[1] + 1)]
+            return result
+        
+        else:
+            raise NameError('Such component does not exist!')
+
+#========================== model training component =======================
