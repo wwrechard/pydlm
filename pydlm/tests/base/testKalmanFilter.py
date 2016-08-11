@@ -48,14 +48,16 @@ class testKalmanFilter(unittest.TestCase):
         self.assertAlmostEqual(dlm.model.obs, 1)
         self.assertAlmostEqual(dlm.model.prediction.obs, 1)
 
-    def testKalmanFilterMultiDim(self):
+    def testForwardFilterMultiDim(self):
         dlm = builder()
         dlm.add(seasonality(period = 2, discount = 1))
         dlm.initialize()
 
         self.kf11.forwardFilter(dlm.model, 1)
+        self.assertAlmostEqual(dlm.model.state[0], 0.33333333333)
+        self.assertAlmostEqual(dlm.model.state[1], -0.33333333333)
+        
         self.kf11.forwardFilter(dlm.model, -1)
-
         self.assertAlmostEqual(dlm.model.state[0], -0.5)
         self.assertAlmostEqual(dlm.model.state[1], 0.5)
 
@@ -73,7 +75,26 @@ class testKalmanFilter(unittest.TestCase):
                                   np.matrix([[0.625]]))
         self.assertAlmostEqual(dlm.model.obs, 1.0/3)
         self.assertAlmostEqual(dlm.model.sysVar, 0.43518519)
-    
+
+    # second order trend with discount = 1. The smoothed result should be
+    # equal to a direct fit on the three data points, 0, 1, -1. Thus, the
+    # smoothed observation should be 0.0
+    def testBackwardSmootherMultiDim(self):
+        dlm = builder()
+        dlm.add(trend(degree = 2, discount = 1))
+        dlm.initialize()
+
+        self.kf11.forwardFilter(dlm.model, 1)
+        state1 = dlm.model.state
+        cov1 = dlm.model.sysVar
+        
+        self.kf11.forwardFilter(dlm.model, -1)        
+        self.kf11.backwardSmoother(dlm.model, \
+                                   rawState = state1, \
+                                   rawSysVar = cov1)
+        
+        self.assertAlmostEqual(dlm.model.obs, 0.0)
+        
 unittest.main()
 #kf1 = kalmanFilter(discount = [1])
 #kf0 = kalmanFilter(discount = [0.01])

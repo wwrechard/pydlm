@@ -144,7 +144,7 @@ class _dlm:
             date = self.n - 1
 
         # reset the date to the date we are interested in
-        self._setModelStatus(self, date = date)
+        self._setModelStatus(date = date)
         self.builder.model.prediction.step = 0
         for i in range(days):
             self.Filter.predict(self.builder.model)
