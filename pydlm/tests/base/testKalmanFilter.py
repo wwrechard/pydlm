@@ -4,6 +4,7 @@ import unittest
 #sys.path.append('/Users/samuel/Documents/Github/PyDLM/src/')
 
 from pydlm.modeler.trends import trend
+from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.builder import builder
 from pydlm.base.kalmanFilter import kalmanFilter
 
@@ -12,6 +13,7 @@ class testKalmanFilter(unittest.TestCase):
     def setUp(self):
         self.kf1 = kalmanFilter(discount = [1])
         self.kf0 = kalmanFilter(discount = [1e-10])
+        self.kf11 = kalmanFilter(discount = [1, 1])
         
     def testForwardFilter(self):
         dlm = builder()
@@ -46,6 +48,16 @@ class testKalmanFilter(unittest.TestCase):
         self.assertAlmostEqual(dlm.model.obs, 1)
         self.assertAlmostEqual(dlm.model.prediction.obs, 1)
 
+    def testKalmanFilterMultiDim(self):
+        dlm = builder()
+        dlm.add(seasonality(period = 2, discount = 1))
+        dlm.initialize()
+
+        self.kf11.forwardFilter(dlm.model, 1)
+        self.kf11.forwardFilter(dlm.model, -1)
+
+        self.assertAlmostEqual(dlm.model.state[0], -0.5)
+        self.assertAlmostEqual(dlm.model.state[1], 0.5)
 
     def testBackwardSmoother(self):
         dlm = builder()

@@ -20,7 +20,8 @@ import tools as tl
 # backward smoother and backward sampler for one-step move
 
 class kalmanFilter:
-    """ The kalmanFilter class the provide the basic functionalities
+    """ 
+    The kalmanFilter class the provide the basic functionalities
 
     Members:
         discount: the discounting factor determining how much information to carry on
@@ -115,7 +116,7 @@ class kalmanFilter:
         # when y is not a missing data
         if y != 'na':    
             # the prediction error and the correction matrix
-            err = y - model.obs
+            err = y - model.prediction.obs
             correction = np.dot(model.prediction.sysVar, model.evaluation.T) \
                          / model.prediction.obsVar
 
@@ -125,10 +126,10 @@ class kalmanFilter:
             model.noiseVar = model.noiseVar * \
                              (1 - 1 / model.df + \
                               err * err / model.df / model.prediction.obsVar)
-            model.state = model.state + correction * err
-            model.sysVar = model.noiseVar / lastNoiseVar * \
+            model.state = model.prediction.state + correction * err
+            model.sysVar = model.noiseVar[0, 0] / lastNoiseVar[0, 0] * \
                            (model.prediction.sysVar - np.dot(correction, correction.T) * \
-                            model.prediction.obsVar)
+                            model.prediction.obsVar[0, 0])
             model.obs = np.dot(model.evaluation, model.state)
             model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
                                   model.evaluation.T) + model.noiseVar

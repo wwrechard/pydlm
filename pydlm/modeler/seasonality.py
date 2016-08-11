@@ -7,7 +7,7 @@ import pydlm.base.tools as tl
 
 class seasonality(component):
     def __init__(self, period = 7, name = 'seasonality', discount = 0.99):
-        if period <= 2:
+        if period <= 1:
             raise NameError('Period has to be greater than 1.')
         self.d = period
         self.dynamic = False
