@@ -11,7 +11,7 @@ class dlm(_dlm):
     # define the basic members
     # initialize the result
     def __init__(self, data):
-        super(dlm, self).__init__(data)
+        _dlm.__init__(self, data)
 
 #===================== modeling components =====================
 
@@ -207,8 +207,104 @@ class dlm(_dlm):
 
 #=========================== model prediction ==============================
 
+    # The prediction function
     def predict(self, date = None, days = 1):
+
+        # the default prediction date
         if date is None:
             date = self.n - 1
 
+        # check if the data on the date has been filtered
+        if date > self.result.filteredSteps[1]:
+            raise NameError('Prediction can only be made right after the filtered date')
         
+        return self._predict(date = date, days = days)
+
+#======================= data appending, popping and altering ===============
+
+    # Append new data or features to the dlm
+    def append(self, data, name = 'data'):
+
+        if name == 'data':
+            # add the data to the self.data
+            self.data.extend(data)
+
+            # update the length
+            self.n += len(data)
+            self.result._appendResult(len(data))
+
+        elif name in self.builder.dynamicComponents:
+            comp = self.builder.dynamicComponents[name]
+            comp.features.extend(data)
+            comp.n += len(data)
+
+        else:
+            raise NameError('Such dynamic component does not exist.')
+
+
+    # pop the data of a specific date out
+    def popout(self, date):
+
+        if date < 0 or date > self.n - 1:
+            raise NameError('The date should be between 0 and ' + str(self.n - 1))
+
+        # pop out the data at date
+        self.data.pop(date)
+        self.n -= 1
+
+        # pop out the feature at date
+        for name in self.builder.dynamicComponents:
+            comp = self.builder.dynamicComponents[name]
+            comp.features.pop(date)
+            comp.n -= 1
+
+        # pop out the results at date
+        self.result._popout(date)
+
+        # update the filtered and the smoothed steps
+        self.result.filteredSteps[1] = date - 1
+        self.result.smoothedSteps[1] = date - 1
+
+        if self.result.filteredSteps[0] > self.result.filteredSteps[1]:
+            self.result.filteredSteps = (0, -1)
+            self.result.smoothedSteps = (0, -1)
+
+        elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
+            self.result.smoothedSteps = (0, -1)
+
+    # alter the data of a specific days
+    def alter(self, date, data, name = 'data'):
+
+        if date < 0 or date > self.n - 1:
+            raise NameError('The date should be between 0 and ' + str(self.n - 1))
+
+        # to alter the data for the observed chain
+        if name == 'data':
+            self.data[date] = data
+
+        # to alter the feature of a component
+        elif name in self.builder.dynamicComponents:
+            comp = self.builder.dynamicComponents[name]
+            comp.features[date] = data
+            
+        else:
+            raise NameError('Such dynamic component does not exist.')
+        
+        # update the filtered and the smoothed steps
+        self.result.filteredSteps[1] = date - 1
+        self.result.smoothedSteps[1] = date - 1
+
+        if self.result.filteredSteps[0] > self.result.filteredSteps[1]:
+            self.result.filteredSteps = (0, -1)
+            self.result.smoothedSteps = (0, -1)
+
+        elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
+            self.result.smoothedSteps = (0, -1)
+
+    # ignore the data of a given date
+    def ignore(self, date):
+
+        if date < 0 or date > self.n - 1:
+            raise NameError('The date should be between 0 and ' + str(self.n - 1))
+
+        self.alter(date = date, data = None)

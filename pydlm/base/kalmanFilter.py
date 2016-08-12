@@ -107,14 +107,17 @@ class kalmanFilter:
             The filtered result is stored in the 'model' replacing the old states
 
         """
-
-        # first obtain the predicted status
-        model.prediction.step = 0
-        self.predict(model)
-        model.prediction.step = 0
         
         # when y is not a missing data
-        if y != 'na':    
+        if y is not None:
+            
+            # first obtain the predicted status
+            # we make the prediction step equal to 0 to ensure the prediction
+            # is based on the model state and innovation is updated correctlly
+            # model.prediction.step = 0
+            self.predict(model)
+            model.prediction.step = 0
+        
             # the prediction error and the correction matrix
             err = y - model.prediction.obs
             correction = np.dot(model.prediction.sysVar, model.evaluation.T) \
@@ -138,6 +141,16 @@ class kalmanFilter:
 
         # when y is missing, then we update the status by the predicted results
         else:
+            # we do not update the model.predict.step because we need to take of the case
+            # [5, None, None, None]. In such case, we do not add more innovation, because
+            # no information is comming in.
+            # This is correct because
+            # 1. for the first 'None', the step starts from 0 because '5' appears before
+            # 2. for the second 'None', the step starts from 1, but the prediction.state
+            #    is correct, because now model.state = model.prediciton.state
+            # 3. The last 'None' follows the same
+            self.predict(model)
+            
             model.state = model.prediction.state
             model.sysVar = model.prediction.sysVar
             model.obs = model.prediction.obs

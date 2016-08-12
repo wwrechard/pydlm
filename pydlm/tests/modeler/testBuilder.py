@@ -9,7 +9,7 @@ from pydlm.modeler.matrixTools import matrixTools as mt
 class testBuilder(unittest.TestCase):
 
     def setUp(self):
-        self.features = np.matrix(np.random.rand(2, 10))
+        self.features = np.random.rand(10, 2).tolist()
         self.trend = trend(degree = 3)
         self.seasonality = seasonality(period = 7)
         self.dynamic = dynamic(self.features)
@@ -53,6 +53,6 @@ class testBuilder(unittest.TestCase):
         self.builder1.initialize()
 
         self.builder1.updateEvaluation(2)
-        self.assertAlmostEqual(np.sum(np.abs(self.builder1.model.evaluation - mt.matrixAddByCol(self.trend.evaluation, self.features[:, 2].T))), 0.0)
+        self.assertAlmostEqual(np.sum(np.abs(self.builder1.model.evaluation - mt.matrixAddByCol(self.trend.evaluation, np.matrix([self.features[2]])))), 0.0)
 
 unittest.main()

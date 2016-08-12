@@ -78,7 +78,7 @@ class test_dlm(unittest.TestCase):
     def testPredict(self):
         self.dlm3._forwardFilter(start = 0, end = 11)
         self.dlm3.result.filteredSteps = (0, 11)
-        self.dlm3._predict(days = 1)
-        self.assertAlmostEqual(self.dlm3.builder.model.prediction.obs, -6.0/7)
+        (obs, var) = self.dlm3._predict(days = 1)
+        self.assertAlmostEqual(obs[0], -6.0/7)
 
 unittest.main()

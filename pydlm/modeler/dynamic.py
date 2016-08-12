@@ -7,8 +7,9 @@ import pydlm.base.tools as tl
 
 class dynamic(component):
     def __init__(self, features = None, name = 'dynamic', discount = 0.99):
-        self.d, self.n = features.shape
-        self.features = features.T
+        self.n = len(features)
+        self.d = len(features[0])
+        self.features = features
         self.dynamic = True
         self.name = name
         self.discount = np.ones(self.d) * discount
@@ -26,7 +27,7 @@ class dynamic(component):
         self.createMeanPrior()
 
     def createEvaluation(self, step):
-        self.evaluation = self.features[step, :]
+        self.evaluation = np.matrix([self.features[step]])
 
     def createTransition(self):
         self.transition = np.matrix(np.eye(self.d))
@@ -49,7 +50,7 @@ class dynamic(component):
 
     def updateEvaluation(self, step):
         if step < self.n:
-            self.evaluation = self.features[step, :]
+            self.evaluation = np.matrix([self.features[step]])
         else:
             raise NameError('The step is out of range')
             

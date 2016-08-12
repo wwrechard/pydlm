@@ -1,8 +1,6 @@
 import numpy as np
 import unittest
 
-#sys.path.append('/Users/samuel/Documents/Github/PyDLM/src/')
-
 from pydlm.modeler.trends import trend
 from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.builder import builder
@@ -93,6 +91,26 @@ class testKalmanFilter(unittest.TestCase):
                                    rawState = state1, \
                                    rawSysVar = cov1)
         
+        self.assertAlmostEqual(dlm.model.obs, 0.0)
+
+    def testMissingData(self):
+        dlm = builder()
+        dlm.add(trend(degree = 1, discount = 1))
+        dlm.initialize()
+        
+        self.kf0.forwardFilter(dlm.model, 1)
+        self.assertAlmostEqual(dlm.model.obs, 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar, 2.0)
+
+        self.kf0.forwardFilter(dlm.model, None)
+        self.assertAlmostEqual(dlm.model.obs, 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar/1e10, 1.0)
+
+        self.kf0.forwardFilter(dlm.model, None)
+        self.assertAlmostEqual(dlm.model.obs, 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar/1e10, 1.0)
+
+        self.kf0.forwardFilter(dlm.model, 0)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
         
 unittest.main()

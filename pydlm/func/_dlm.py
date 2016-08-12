@@ -146,11 +146,17 @@ class _dlm:
         if date is None:
             date = self.n - 1
 
+        predictedObs = [None] * days
+        predictedObsVar = [None] * days
         # reset the date to the date we are interested in
         self._setModelStatus(date = date)
         self.builder.model.prediction.step = 0
         for i in range(days):
             self.Filter.predict(self.builder.model)
+            predictedObs[i] = self.builder.model.prediction.obs
+            predictedObsVar[i] = self.builder.model.prediction.obsVar
+            
+        return (predictedObs, predictedObsVar)
             
 #=======================================================================
 
@@ -173,30 +179,34 @@ class _dlm:
         
     # an inner class to store all results
     class _result:
+        # class level (static) variables to record all names
+        records = ['filteredObs', 'predictedObs', 'smoothedObs', 'filteredObsVar', \
+                   'predictedObsVar', 'smoothedObsVar', 'noiseVar', 'df', \
+                   'filteredState', 'predictedState', 'smoothedState', \
+                   'filteredCov', 'predictedCov', 'smoothedCov']
+        
         # quantites to record the result
         def __init__(self, n):
-            self.filteredObs = [None] * n
-            self.predictedObs = [None] * n
-            self.smoothedObs = [None] * n
-            self.filteredObsVar = [None] * n
-            self.predictedObsVar = [None] * n
-            self.smoothedObsVar = [None] * n
-            self.noiseVar = [None] * n
-            self.df = [None] * n
-            
-            self.filteredState = [None] * n
-            self.predictedState = [None] * n
-            self.smoothedState = [None] * n
-            
-            self.filteredCov = [None] * n
-            self.predictedCov = [None] * n
-            self.smoothedCov = [None] * n
+
+            # initialize all records to be [None] * n
+            for variable in self.records:
+                setattr(self, variable, [None] * n)
             
             # quantity to indicate the current status
             self.filteredSteps = (0, -1)
             self.smoothedSteps = (0, -1)
-    
 
+        # extend the current record by n blocks
+        def _appendResult(self, n):
+            for variable in self.records:
+                getattr(self, variable).extend([None] * n)
+
+        # pop out a specific date 
+        def _popout(self, date):
+            for variable in self.records:
+                getattr(self, variable).pop(date)
+        
+            
     # a function used to copy result from the model to the result
     def _copy(self, model, result, step, filterType):
         if filterType == 'forwardFilter':
