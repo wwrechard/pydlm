@@ -4,14 +4,14 @@
 
 #from pydlm.modeler.builder import builder
 from pydlm.func._dlm import _dlm
-
+from pydlm.base.tools import duplicateList
 
 class dlm(_dlm):
 
     # define the basic members
     # initialize the result
-    def __init__(self, data):
-        _dlm.__init__(self, data)
+    def __init__(self, data, noise = 1):
+        _dlm.__init__(self, data, noise)
 
 #===================== modeling components =====================
 
@@ -19,7 +19,7 @@ class dlm(_dlm):
     def add(self, component):
         self.__add__(component)
 
-    def __add__(self, component):
+    def __add__(self, component):    
         self.builder.__add__(component)
         self.initialized = False
         return self
@@ -145,15 +145,18 @@ class dlm(_dlm):
 #========================== model training component =======================
 
     def fitForwardFilter(self, useRollingWindow = False, windowLength = 3):
+        # check if the feature size matches the data size
+        self._checkFeatureSize()
+        
         # see if the model has been initialized
         if not self.initialized:
             self._initialize()
-            
+
+        print 'Starting forward filtering...'
         if not useRollingWindow:
             # we start from the last step of previous fitering
             start = self.result.filteredSteps[1] + 1
             self._forwardFilter(start = start, end = self.n - 1)
-            self.result.filteredSteps = (0, self.n - 1)
         else:
             windowFront = self.result.filteredSteps[1] + 1
             # if end is still within (0, windowLength - 1), we should run the
@@ -169,8 +172,8 @@ class dlm(_dlm):
                                         end = day, \
                                         save = day, \
                                         ForgetPrevious = True)
-            self.result.filteredSteps = (0, self.n - 1)
-
+        self.result.filteredSteps = [0, self.n - 1]
+        print 'Forward fitering completed.'
     
     def fitBackwardSmoother(self, backLength = None):
         # see if the model has been initialized
@@ -183,7 +186,8 @@ class dlm(_dlm):
         # default value for backLength        
         if backLength is None:
             backLength = self.n
-            
+
+        print 'Starting backward smoothing...'
         # if the smoothed dates has already been done, we do nothing
         if self.result.smoothedSteps[1] == self.n - 1 and \
            self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
@@ -198,7 +202,8 @@ class dlm(_dlm):
         elif self.result.smoothedSteps[1] < self.n - 1:
             self._backwardSmoother(start = self.n - 1, days = backLength)
 
-        self.result.smootehdSteps = (self.n - backLength, self.n - 1)
+        self.result.smootehdSteps = [self.n - backLength, self.n - 1]
+        print 'Backward smoothing completed.'
             
 
     def fit(self):
@@ -223,19 +228,19 @@ class dlm(_dlm):
 #======================= data appending, popping and altering ===============
 
     # Append new data or features to the dlm
-    def append(self, data, name = 'data'):
+    def append(self, data, component = 'mainData'):
 
-        if name == 'data':
+        if component == 'mainData':
             # add the data to the self.data
-            self.data.extend(data)
+            self.data.extend(list(data))
 
             # update the length
             self.n += len(data)
             self.result._appendResult(len(data))
 
-        elif name in self.builder.dynamicComponents:
-            comp = self.builder.dynamicComponents[name]
-            comp.features.extend(data)
+        elif component in self.builder.dynamicComponents:
+            comp = self.builder.dynamicComponents[component]
+            comp.features.extend(duplicateList(data))
             comp.n += len(data)
 
         else:
@@ -266,26 +271,26 @@ class dlm(_dlm):
         self.result.smoothedSteps[1] = date - 1
 
         if self.result.filteredSteps[0] > self.result.filteredSteps[1]:
-            self.result.filteredSteps = (0, -1)
-            self.result.smoothedSteps = (0, -1)
+            self.result.filteredSteps = [0, -1]
+            self.result.smoothedSteps = [0, -1]
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
-            self.result.smoothedSteps = (0, -1)
+            self.result.smoothedSteps = [0, -1]
 
     # alter the data of a specific days
-    def alter(self, date, data, name = 'data'):
+    def alter(self, date, data, component = 'mainData'):
 
         if date < 0 or date > self.n - 1:
             raise NameError('The date should be between 0 and ' + str(self.n - 1))
 
         # to alter the data for the observed chain
-        if name == 'data':
+        if component == 'mainData':
             self.data[date] = data
 
         # to alter the feature of a component
-        elif name in self.builder.dynamicComponents:
-            comp = self.builder.dynamicComponents[name]
-            comp.features[date] = data
+        elif component in self.builder.dynamicComponents:
+            comp = self.builder.dynamicComponents[component]
+            comp.features[component] = data
             
         else:
             raise NameError('Such dynamic component does not exist.')
@@ -295,11 +300,11 @@ class dlm(_dlm):
         self.result.smoothedSteps[1] = date - 1
 
         if self.result.filteredSteps[0] > self.result.filteredSteps[1]:
-            self.result.filteredSteps = (0, -1)
-            self.result.smoothedSteps = (0, -1)
+            self.result.filteredSteps = [0, -1]
+            self.result.smoothedSteps = [0, -1]
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
-            self.result.smoothedSteps = (0, -1)
+            self.result.smoothedSteps = [0, -1]
 
     # ignore the data of a given date
     def ignore(self, date):
@@ -307,4 +312,4 @@ class dlm(_dlm):
         if date < 0 or date > self.n - 1:
             raise NameError('The date should be between 0 and ' + str(self.n - 1))
 
-        self.alter(date = date, data = None)
+        self.alter(date = date, data = None, component = 'mainData')

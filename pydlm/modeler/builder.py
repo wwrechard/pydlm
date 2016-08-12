@@ -43,11 +43,12 @@ class builder:
         self.__add__(component)
         
     def __add__(self, component):
-        if component.dynamic:
+        if component.type == 'dynamic':
             if component.name in self.dynamicComponents:
                 raise NameError('Please rename the component to a different name.')
             self.dynamicComponents[component.name] = component
-        else:
+            
+        if component.type == 'trend' or component.type == 'seasonality':
             if component.name in self.staticComponents:
                 raise NameError('Please rename the component to a different name.')
             self.staticComponents[component.name] = component
@@ -92,7 +93,7 @@ class builder:
             raise NameError('The model must contain at least one static component')
         
         # construct transition, evaluation, prior state, prior covariance
-        print 'Constructing the basic quantities...'
+        print 'Initializing models...'
         transition = None
         evaluation = None
         state = None
@@ -128,7 +129,6 @@ class builder:
                 self.componentIndex[i] = (currentIndex, currentIndex + comp.d - 1)
                 currentIndex += comp.d
         
-        print 'Writing to the base model...'
         self.statePrior = state
         self.sysVarPrior = sysVar
         self.noiseVar = np.matrix(noise)

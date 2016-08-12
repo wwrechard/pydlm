@@ -10,7 +10,7 @@ class trend(component):
         if degree <= 0:
             raise NameError('degree has to be positive')
         self.d = degree
-        self.dynamic = False
+        self.type = 'trend'
         self.name = name
         self.discount = np.ones(self.d) * discount
         

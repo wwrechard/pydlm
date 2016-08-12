@@ -7,18 +7,19 @@ from pydlm.modeler.builder import builder
 class _dlm:
     # define the basic members
     # initialize the result
-    def __init__(self, data):
+    def __init__(self, data, noise = 1.0):
 
-        self.data = data
+        self.data = list(data)
         self.n = len(data)
         self.result = None
         self.builder = builder()
         self.Filter = None
         self.initialized = False
+        self.noise = noise
     
     # initialize the builder
     def _initialize(self):
-        self.builder.initialize()
+        self.builder.initialize(noise = self.noise)
         self.Filter = kalmanFilter(discount = self.builder.discount)
         self.result = self._result(self.n)
         self.initialized = True
@@ -193,8 +194,8 @@ class _dlm:
                 setattr(self, variable, [None] * n)
             
             # quantity to indicate the current status
-            self.filteredSteps = (0, -1)
-            self.smoothedSteps = (0, -1)
+            self.filteredSteps = [0, -1]
+            self.smoothedSteps = [0, -1]
 
         # extend the current record by n blocks
         def _appendResult(self, n):
@@ -238,3 +239,10 @@ class _dlm:
         model.prediction.sysVar = result.predictedCov[step]
         model.noiseVar = result.noiseVar[step]
         model.df = result.df[step]
+
+    # check if the data size matches the dynamic features
+    def _checkFeatureSize(self):
+        if len(self.builder.dynamicComponents) > 0:
+            for name in self.builder.dynamicComponents:
+                if self.builder.dynamicComponents[name].n != self.n:
+                    raise NameError('The data size of dlm and ' + name + ' does not match')

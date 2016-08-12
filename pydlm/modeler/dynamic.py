@@ -9,8 +9,8 @@ class dynamic(component):
     def __init__(self, features = None, name = 'dynamic', discount = 0.99):
         self.n = len(features)
         self.d = len(features[0])
-        self.features = features
-        self.dynamic = True
+        self.features = tl.duplicateList(features)
+        self.type = 'dynamic'
         self.name = name
         self.discount = np.ones(self.d) * discount
         
@@ -53,4 +53,3 @@ class dynamic(component):
             self.evaluation = np.matrix([self.features[step]])
         else:
             raise NameError('The step is out of range')
-            

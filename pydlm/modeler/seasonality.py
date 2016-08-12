@@ -10,7 +10,7 @@ class seasonality(component):
         if period <= 1:
             raise NameError('Period has to be greater than 1.')
         self.d = period
-        self.dynamic = False
+        self.type = 'seasonality'
         self.name = name
         self.discount = np.ones(self.d) * discount
         

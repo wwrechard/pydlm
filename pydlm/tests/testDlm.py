@@ -10,6 +10,7 @@ class testDlm(unittest.TestCase):
 
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
+        self.features = np.random.random((20, 2)).tolist()
         self.dlm1 = dlm(self.data)
         self.dlm2 = dlm(self.data)
         self.dlm3 = dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
@@ -61,22 +62,69 @@ class testDlm(unittest.TestCase):
 
     def testAppendDynamic(self):
         # we feed the data to dlm4 via two segments
-        dlm4 = dlm(self.data[0:11])
-        features = np.random.random((20, 2)).tolist()
-        
-        dlm4 + trend(degree = 1, discount = 1) + dynamic(features = features[0:11], \
+        dlm4 = dlm(self.data[0:11])        
+        dlm4 + trend(degree = 1, discount = 1) + dynamic(features = self.features[0:11], \
                                                          discount = 1)
         dlm4.fitForwardFilter()
         dlm4.append(self.data[11 : 20])
-        dlm4.append(features[11 : 20], name = 'dynamic')
+        dlm4.append(self.features[11 : 20], component = 'dynamic')
         dlm4.fitForwardFilter()
 
         # we feed the data to dlm5 all at once
         dlm5 = dlm(self.data)
-        dlm5 + trend(degree = 1, discount = 1) + dynamic(features = features, \
+        dlm5 + trend(degree = 1, discount = 1) + dynamic(features = self.features, \
                                                          discount = 1)
         dlm5.fitForwardFilter()
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)       
+
+    def testPopout(self):
+        dlm4 = dlm(self.data)
+        dlm4 + trend(degree = 1, discount = 1) + dynamic(features = \
+                                                         self.features, \
+                                                         discount = 1)
+        dlm4.fitForwardFilter()
+        # the filtered step range should be (0, 19)
+        self.assertEqual(dlm4.result.filteredSteps, [0, 19])
+
+        # pop out the first date, the filtered range should be (0, -1)
+        dlm4.popout(0)
+        self.assertEqual(dlm4.result.filteredSteps, [0, -1])
         
+        dlm4.fitForwardFilter()
+        dlm5 = dlm(self.data[1 : 20])
+        dlm5 + trend(degree = 1, discount = 1) + dynamic(features = \
+                                                         self.features[1 : 20], \
+                                                         discount = 1)
+        dlm5.fitForwardFilter()
+
+        # The two chain should have the same filtered obs
+        self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
+                                      np.array(dlm5.result.filteredObs)), 0.0)
+
+    def testAlter(self):
+        dlm4 = dlm(self.data)
+        dlm4 + trend(degree = 1, discount = 1) + dynamic(features = \
+                                                         self.features, \
+                                                         discount = 1)
+        dlm4.fitForwardFilter()
+        # the filtered step range should be (0, 19)
+        self.assertEqual(dlm4.result.filteredSteps, [0, 19])
+
+        # pop out the first date, the filtered range should be (0, -1)
+        dlm4.alter(date = 15, data = 1, component = 'mainData')
+        self.assertEqual(dlm4.result.filteredSteps, [0, 14])
+        dlm4.fitForwardFilter()
+
+        newData = [0] * 9 + [1] + [0] * 10
+        newData[15] = 1
+        dlm5 = dlm(newData)
+        dlm5 + trend(degree = 1, discount = 1) + dynamic(features = \
+                                                         self.features, \
+                                                         discount = 1)
+        dlm5.fitForwardFilter()
+
+        # The two chain should have the same filtered obs
+        self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
+                                      np.array(dlm5.result.filteredObs)), 0.0)
 unittest.main()

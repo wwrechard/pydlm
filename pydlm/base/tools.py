@@ -32,4 +32,9 @@ class checker:
         ADim = A.shape
         if ADim[0] != ADim[1]:
             raise matrixErrors('The matrix is not symmetric!')
-        
+
+# a completely unshared copy of lists
+def duplicateList(aList):
+    if isinstance(aList, list):
+        return list(map(duplicateList, aList))
+    return aList
