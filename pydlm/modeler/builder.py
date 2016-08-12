@@ -1,3 +1,16 @@
+"""
+==============================================================================
+
+Code for builder of a dynamic linear model
+
+==============================================================================
+
+This piece of code provides the basic functionality for constructing the model
+of a dlm. It allows flexible modeling by users. User can add to, delete and view
+componets of a given dlm. Builder will finally assemble all the components to
+a final big model.
+
+"""
 # this class provide all the model building operations for constructing customized model
 import numpy as np
 from pydlm.base.baseModel import baseModel
@@ -12,7 +25,31 @@ from matrixTools import matrixTools as mt
 # the other variables that might have impact on the time series
 # We need to update this vector as time going forward
 class builder:
+    """
+    The main modeling part of a dynamic linear model. It allows the users to
+    custemize their own model. User can add, delete any components like trend or
+    seasonality to the builder, or view the existing components. Builder will finally
+    assemble all components to a big model for further training and inference.
 
+    Members:
+        model: the model structure from @baseModel, stores all the necessary quantities
+        initialized: indicates whether the model has been built
+        staticComponents: stores all the static components (trend and seasonality)
+        dynamicComponents: stores all the dynamic components
+        componentIndex: the location of each component in the latent states
+        statePrior: the prior mean of the latent state
+        sysVarPrior: the prior of the covariance of the latent states
+        noiseVar: the prior of the observation noise
+        discount: the discounting factor, please refer to @kalmanFilter for more details
+
+    Methods:
+        add: add new component
+        ls:  list out all components
+        delete: delete a specific component by its name
+        initialize: assemble all the component to construt a big model
+        updateEvaluation: update the valuation matrix of the big model
+    """
+    
     # create members
     def __init__(self):
 
@@ -30,9 +67,6 @@ class builder:
         self.statePrior = None
         self.sysVarPrior = None
         self.noiseVar = None
-        
-        # record the current step/days/time stamp
-        self.step = 0
 
         # record the discount factor for the model
         self.discount = None
@@ -40,15 +74,23 @@ class builder:
 
     # The function that allows the user to add components
     def add(self, component):
+        """
+        Add a new model component to the builder.
+        
+        Args:
+            component: a model component, any class implements @component class
+
+        """
+        
         self.__add__(component)
         
     def __add__(self, component):
-        if component.type == 'dynamic':
+        if component.componentType == 'dynamic':
             if component.name in self.dynamicComponents:
                 raise NameError('Please rename the component to a different name.')
             self.dynamicComponents[component.name] = component
             
-        if component.type == 'trend' or component.type == 'seasonality':
+        if component.componentType == 'trend' or component.type == 'seasonality':
             if component.name in self.staticComponents:
                 raise NameError('Please rename the component to a different name.')
             self.staticComponents[component.name] = component
@@ -57,6 +99,11 @@ class builder:
 
     # print all components to the client
     def ls(self):
+        """
+        List out all the existing components to the model
+
+        """
+        
         if len(self.staticComponents) > 0:
             print 'The static components are'
             for name in self.staticComponents:
@@ -77,6 +124,14 @@ class builder:
 
     # delete the componet that pointed out by the client
     def delete(self, name):
+        """
+        Delete a specific component from dlm by its name.
+
+        Args:
+            name: the name of the component. Can be read from ls()
+
+        """
+        
         if name in self.staticComponents:
             del self.staticComponents[name]
         elif name in self.dynamicComponents:
@@ -89,6 +144,14 @@ class builder:
     # initialize model for all the quantities
     # noise is the prior guess of the variance of the observed data
     def initialize(self, noise = 1):
+        """
+        Initialize the model. It construct the baseModel by assembling all
+        quantities from the components.
+
+        Args:
+            noise: the initial guess of the variance of the observation noise.
+        """
+        
         if len(self.staticComponents) == 0:
             raise NameError('The model must contain at least one static component')
         
@@ -145,16 +208,19 @@ class builder:
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables
     # This function should be called only when dynamicComponents is not empty
-    def updateEvaluation(self, step = None):
+    def updateEvaluation(self, step):
+        """
+        Update the evaluation matrix of the model to a specific date. It loops over all
+        dynamic components and update their evaluation matrix and then reconstruct the 
+        model evaluation matrix by incorporating the new evaluations
+
+        Arges:
+            step: the date at which the evaluation matrix is needed.
+
+        """
+        
         if len(self.dynamicComponents) == 0:
             raise NameError('This shall only be used when there are dynamic components!')
-
-        # obtain the correct step
-        if step is None:
-            self.step += 1
-            step = self.step
-        else:
-            self.step = step
 
         # update the dynamic evaluation vector
         # We need first update all dynamic components by 1 step

@@ -10,8 +10,8 @@ class dlm(_dlm):
 
     # define the basic members
     # initialize the result
-    def __init__(self, data, noise = 1):
-        _dlm.__init__(self, data, noise)
+    def __init__(self, data):
+        _dlm.__init__(self, data)
 
 #===================== modeling components =====================
 

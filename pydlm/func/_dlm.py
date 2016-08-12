@@ -7,7 +7,7 @@ from pydlm.modeler.builder import builder
 class _dlm:
     # define the basic members
     # initialize the result
-    def __init__(self, data, noise = 1.0):
+    def __init__(self, data):
 
         self.data = list(data)
         self.n = len(data)
@@ -15,14 +15,19 @@ class _dlm:
         self.builder = builder()
         self.Filter = None
         self.initialized = False
-        self.noise = noise
+        self.options = None
+        self._defaultOptions()
     
     # initialize the builder
     def _initialize(self):
-        self.builder.initialize(noise = self.noise)
+        self.builder.initialize(noise = self.options.noise)
         self.Filter = kalmanFilter(discount = self.builder.discount)
         self.result = self._result(self.n)
         self.initialized = True
+
+    # set the default options (can add more terms in the future)
+    def _defaultOptions(self):
+        self.options.noise = 1.0
         
     # use the forward filter to filter the data
     # start: the place where the filter started
