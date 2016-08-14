@@ -1,3 +1,14 @@
+"""
+===============================================================================
+
+The code for all hidden method for the class dlm
+
+===============================================================================
+
+This piece of code include all the hidden methods and members of the class dlm.
+It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
+
+"""
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
 
@@ -5,6 +16,37 @@ from pydlm.modeler.builder import builder
 # be used by the user. Most functionality in the main dlm will be constructed
 # by using the hidden functions in this class
 class _dlm:
+    """
+    _dlm includes all hidden functions that used by the class dlm. These hidden
+    methods provide the basic modeling, filtering, forecasting and smoothing of
+    dlm.
+
+    Members:
+        data: the observed time series data
+        n: the length of the time series data
+        result: the inner class that records the filtered and smoothed results
+        builder: the @builder that is used for providing the modeling functionality.
+                 For details please refer to @builder
+        Filter: the filter used for filtering time series data using the model.
+                For details please refer to @kalmanFilter
+        initialized: indicates whether the dynamic linear model has been initialized
+        options: model options, including initial guess of the observational variance.
+                 More is going to be added (plot options and shrinkage options)
+       
+
+    Methods:
+        _initialize: initialize the dlm (builder and kalmanFilter)
+        _defaultOptions: to set the default value of the options
+        _forwardFilter: run forward filter for a specific start and end date
+        _backwardSmoother: run backward smooth for a specific start and end date
+        _predict: predict the latent state and observation for a given period of time
+        _resetModelStatus: reset the model status to its prior status
+        _setModelStatus: set the model status to a specific date
+        _result: a class to store the results
+        _copy: copy the result from the model to the _result class
+        _reverseCopy: copy the result from the _result class to the model
+        _checkFeatureSize: check whether the features's n matches the data's n
+    """
     # define the basic members
     # initialize the result
     def __init__(self, data):
@@ -20,6 +62,10 @@ class _dlm:
     
     # initialize the builder
     def _initialize(self):
+        """
+        Initialize the model: initialize builder and filter.
+
+        """
         self.builder.initialize(noise = self.options.noise)
         self.Filter = kalmanFilter(discount = self.builder.discount)
         self.result = self._result(self.n)
@@ -27,6 +73,10 @@ class _dlm:
 
     # set the default options (can add more terms in the future)
     def _defaultOptions(self):
+        """
+        Set the default value for the options
+
+        """
         self.options.noise = 1.0
         
     # use the forward filter to filter the data
@@ -37,7 +87,18 @@ class _dlm:
     # isForget: indicate where the filter should use the previous state as prior
     #         or just use the prior information from builder
     def _forwardFilter(self, start = 0, end = None, save = 'all', ForgetPrevious = False):
+        """
+        Running forwardFilter for the data for a given start and end date
         
+        Args:
+            start: the start date
+            end: the end date (default to the last day of the chain)
+            save: indicate the dates of which the result needs to be saved for. 'all' 
+                  stands for (start, end), otherwise an integer between start and end.
+            ForgetPrevious: indicate whether the fitering should start from the prior
+                            status or the previous date that has been filtered.
+                            (used for rolling window filtering, see @dlm)
+        """
         # the default value for end
         if end is None:
             end = self.n - 1
@@ -89,6 +150,16 @@ class _dlm:
     # start: the last date of the backward filtering chain
     # days: number of days to go back from start 
     def _backwardSmoother(self, start = None, days = None, ignoreFuture = False):
+        """
+        Backward smooth over filtered results for a specific start and number of days
+
+        Args:
+            start: the start date
+            days: number of days to be smoothed starting from start towards zero
+            ignoreFuture: indicate whether the smoothed should start as if the future
+                          data was not observed or using the future data as the initial
+                          smoothing status.
+        """
         # the default start date is the most recent date
         if start is None:
             start = self.n - 1
@@ -149,6 +220,18 @@ class _dlm:
 
     # Forecast the result based on filtered chains
     def _predict(self, date = None, days = 1):
+        """
+        Predict the model's status based on the model of a specific day
+        
+        Args:
+            date: the date the prediction is based on
+            day: number of days forward that are need to be predicted.
+        
+        Return:
+            A tuple. (Predicted observation, variance of the predicted observation)
+
+        """
+        
         if date is None:
             date = self.n - 1
 
@@ -168,6 +251,9 @@ class _dlm:
 
     # to set model to a specific date
     def _setModelStatus(self, date = 0):
+        """
+        Set the model status to a specific date (the date mush have been filtered)
+        """
         if date < self.result.filteredSteps[0] or date > self.result.filteredSteps[1]:
             raise NameError('The date has yet to be filtered yet. Check the <filteredSteps> in <result> object.')
         
@@ -177,6 +263,10 @@ class _dlm:
         
     # reset model to initial status
     def _resetModelStatus(self):
+        """
+        Reset the model to the prior status
+
+        """
         self.builder.model.state = self.builder.statePrior
         self.builder.model.sysVar = self.builder.sysVarPrior
         self.builder.model.noiseVar = self.builder.noiseVar
@@ -215,6 +305,11 @@ class _dlm:
             
     # a function used to copy result from the model to the result
     def _copy(self, model, result, step, filterType):
+        """
+        Copy result from the model to _result class
+
+        """
+        
         if filterType == 'forwardFilter':
             result.filteredObs[step] = model.obs
             result.predictedObs[step] = model.prediction.obs
@@ -234,6 +329,11 @@ class _dlm:
             result.smoothedObsVar[step] = model.obsVar
 
     def _reverseCopy(self, model, result, step):
+        """
+        Copy result from _result class to the model
+
+        """
+        
         model.obs = result.filteredObs[step]
         model.prediction.obs = result.predictedObs[step]
         model.obsVar = result.filteredObsVar[step] 
@@ -247,6 +347,9 @@ class _dlm:
 
     # check if the data size matches the dynamic features
     def _checkFeatureSize(self):
+        """
+        Check features's n matches the data's n
+        """
         if len(self.builder.dynamicComponents) > 0:
             for name in self.builder.dynamicComponents:
                 if self.builder.dynamicComponents[name].n != self.n:

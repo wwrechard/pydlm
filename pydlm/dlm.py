@@ -1,3 +1,30 @@
+"""
+===============================================================================
+
+The code for the class dlm
+
+===============================================================================
+
+This is the main class of the dynamic linear model.
+It provides the modeling, filtering, forecasting and smoothing function of a dlm.
+The dlm use the @builder to construct the @baseModel based on user supplied
+@components and then run @kalmanFilter to filter the result.
+
+Example:
+ # randomly generate fake data on 1000 days
+> import numpy as np
+> data = np.random.random((1, 1000))
+
+ # construct the dlm of a linear trend and a 7-day seasonality
+> myDlm = dlm(data) + trend(degree = 2, 0.98) + seasonality(period = 7, 0.98)
+
+ # filter the result
+> myDlm.fitForwardFilter()
+
+ # extract the filtered result
+> myDlm.getFilteredObs()
+
+"""
 # This is the major class for fitting time series data using the
 # dynamic linear model. dlm is a subclass of builder, with adding the
 # Kalman filter functionality for filtering the data
@@ -7,7 +34,40 @@ from pydlm.func._dlm import _dlm
 from pydlm.base.tools import duplicateList
 
 class dlm(_dlm):
+    """
+    The main class of the dynamic linear model. Provide functionality for modeling,
+    filtering, forecasting and smoothing.
 
+    Members:
+       See the members for @_dlm
+
+    Methods:
+       add/+: add new modeling component
+       ls: list out all existing model components and names
+       delete: delete one existing model components by its name
+       
+       getAll: get all the _result class which contains all results
+       getFilteredObs: get the filtered observations
+       getFilteredObsVar: get the filtered observation variance
+       getFilteredState: get the filtered latent states
+       getFilteredCov: get the filtered covariance matrix
+       getSmoothedObs: get the smoothed observation
+       getSmoothedObsVar: get the smoothed observation variance
+       getSmoothedState: get the smoothed latent states
+       getSmoothedCov: get the smoothed covariance matrix
+       getPredictedObs: get the predicted observations (array of one-day ahead prediction)
+       getPredictedObsVar: get the predicted variance (array of one-day ahead prediction)
+
+       fitForwardFilter: fit the forward filter on the data
+       fitBackwardSmoother: fit the backward smoother on the data
+       fit: fit both the forward filter and the backward smoother
+       predict: make prediction based on all the data
+
+       append: append new data and features to the current 
+       popout: pop out existing data of a particular days
+       alter: alter the data of a specific date
+       ignore: ignore the data of a specific date, treated as missing data
+    """
     # define the basic members
     # initialize the result
     def __init__(self, data):
@@ -17,6 +77,11 @@ class dlm(_dlm):
 
     # add component
     def add(self, component):
+        """
+        Add new modeling component to the dlm. Currently support: trend, seasonality
+        and dynamic component.
+
+        """
         self.__add__(component)
 
     def __add__(self, component):    
@@ -26,49 +91,94 @@ class dlm(_dlm):
 
     # list all components
     def ls(self):
+        """
+        List out all existing components
+
+        """
         self.builder.ls()
 
     # delete one component
     def delete(self, name):
-        self.initialized = False
+        """
+        Delete model component by its name
+        """
         self.builder.delete(name)
+        self.initialized = False
 
 #====================== result components ====================
 
     def getAll(self):
+        """
+        get all the _result class which contains all results
+
+        """
         return self.result
 
     def getFilteredObs(self):
+        """       
+        get the filtered observations. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.filteredSteps != (0, self.n - 1):
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
         return self.result.filteredObs
 
     def getFilteredObsVar(self):
+        """
+        get the filtered observation variance. If the filtered dates are not 
+        (0, self.n - 1), then a warning will prompt stating the actual filtered dates.
+        """
         if self.result.filteredSteps != (0, self.n - 1):
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
         return self.result.filteredObsVar
 
     def getSmoothedObs(self):
+        """       
+        get the smoothed observations. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.smootehdSteps != (0, self.n - 1):
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
         return self.result.smoothedObs
 
     def getSmoothedObsVar(self):
+        """       
+        get the smoothed variance. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.smootehdSteps != (0, self.n - 1):
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
         return self.result.smoothedObsVar
 
     def getPredictedObs(self):
+        """       
+        get the predicted observations. An array of numbers. a[k] shows the prediction on 
+        that the date k given all the data up to k - 1.
+
+        """
         return self.result.predictedObs
 
     def getPredictedObsVar(self):
+        """       
+        get the predicted variance. An array of numbers. a[k] shows the prediction on 
+        that the date k given all the data up to k - 1.
+
+        """
         return self.result.predictedObsVar
 
     def getFilteredState(self, name = 'all'):
+        """
+        get the filtered states. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.filteredSteps != (0, self.n - 1):
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
@@ -87,6 +197,11 @@ class dlm(_dlm):
             raise NameError('Such component does not exist!')
 
     def getSmoothedState(self, name = 'all'):
+        """       
+        get the smoothed latent states. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.smootehdSteps != (0, self.n - 1):
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
@@ -105,6 +220,11 @@ class dlm(_dlm):
             raise NameError('Such component does not exist!')
 
     def getFilteredCov(self, name = 'all'):
+        """
+        get the filtered covariance. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.filteredSteps != (0, self.n - 1):
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
@@ -124,6 +244,11 @@ class dlm(_dlm):
             raise NameError('Such component does not exist!')
 
     def getSmoothedCov(self, name = 'all'):
+        """       
+        get the smoothed covariance. If the filtered dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        """
         if self.result.smootehdSteps != (0, self.n - 1):
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
@@ -145,6 +270,18 @@ class dlm(_dlm):
 #========================== model training component =======================
 
     def fitForwardFilter(self, useRollingWindow = False, windowLength = 3):
+        """
+        Fit forward filter on the available data. User can choose use rolling windowFront
+        or not. If user choose not to use the rolling window, then the filtering
+        will be based on all the previous data. If rolling window is used, then the
+        filtering for a particular date will only consider previous dates that are
+        within the rolling window length.
+        
+        Args:
+            useRollingWindow: indicate whether rolling window should be used.
+            windowLength: the length of the rolling window if used.
+
+        """
         # check if the feature size matches the data size
         self._checkFeatureSize()
         
@@ -176,6 +313,15 @@ class dlm(_dlm):
         print 'Forward fitering completed.'
     
     def fitBackwardSmoother(self, backLength = None):
+        """
+        Fit backward smoothing on the data. Starting from the last observed date.
+        
+        Args:
+            backLength: integer, indicating how many days the backward smoother
+            should go, starting from the last date.
+
+        """
+        
         # see if the model has been initialized
         if not self.initialized:
             raise NameError('Backward Smoother has to be run after forward filter')
@@ -207,6 +353,10 @@ class dlm(_dlm):
             
 
     def fit(self):
+        """
+        An easy caller for fitting both the forward filter and backward smoother.
+
+        """
         self.fitForwardFilter()
         self.fitBackwardSmoother(backLength = self.n)
 
@@ -214,7 +364,7 @@ class dlm(_dlm):
 
     # The prediction function
     def predict(self, date = None, days = 1):
-
+        
         # the default prediction date
         if date is None:
             date = self.n - 1
