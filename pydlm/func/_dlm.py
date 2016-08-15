@@ -36,12 +36,12 @@ class _dlm:
 
     Methods:
         _initialize: initialize the dlm (builder and kalmanFilter)
-        _defaultOptions: to set the default value of the options
         _forwardFilter: run forward filter for a specific start and end date
         _backwardSmoother: run backward smooth for a specific start and end date
         _predict: predict the latent state and observation for a given period of time
         _resetModelStatus: reset the model status to its prior status
         _setModelStatus: set the model status to a specific date
+        _defaultOptions: a class to store and set default options
         _result: a class to store the results
         _copy: copy the result from the model to the _result class
         _reverseCopy: copy the result from the _result class to the model
@@ -57,8 +57,7 @@ class _dlm:
         self.builder = builder()
         self.Filter = None
         self.initialized = False
-        self.options = None
-        self._defaultOptions()
+        self.options = self._defaultOptions()
     
     # initialize the builder
     def _initialize(self):
@@ -70,14 +69,6 @@ class _dlm:
         self.Filter = kalmanFilter(discount = self.builder.discount)
         self.result = self._result(self.n)
         self.initialized = True
-
-    # set the default options (can add more terms in the future)
-    def _defaultOptions(self):
-        """
-        Set the default value for the options
-
-        """
-        self.options.noise = 1.0
         
     # use the forward filter to filter the data
     # start: the place where the filter started
@@ -272,7 +263,12 @@ class _dlm:
         self.builder.model.noiseVar = self.builder.noiseVar
         self.builder.model.df = 1
         self.builder.model.initializeObservation()
-        
+
+    # an inner class to store all options
+    class _defaultOptions:
+        def __init__(self):
+            self.noise = 1.0
+            
     # an inner class to store all results
     class _result:
         # class level (static) variables to record all names

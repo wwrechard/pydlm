@@ -112,7 +112,7 @@ class testDlm(unittest.TestCase):
         self.assertEqual(dlm4.result.filteredSteps, [0, 19])
 
         # pop out the first date, the filtered range should be (0, -1)
-        dlm4.alter(date = 15, data = 1, component = 'mainData')
+        dlm4.alter(date = 15, data = 1, component = 'main')
         self.assertEqual(dlm4.result.filteredSteps, [0, 14])
         dlm4.fitForwardFilter()
 

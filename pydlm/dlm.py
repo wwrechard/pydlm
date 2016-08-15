@@ -364,7 +364,13 @@ class dlm(_dlm):
 
     # The prediction function
     def predict(self, date = None, days = 1):
-        
+        """
+        Predict based on all the current data for a specific future days
+
+        Args:
+            days: number of days ahead to predict
+
+        """
         # the default prediction date
         if date is None:
             date = self.n - 1
@@ -378,9 +384,18 @@ class dlm(_dlm):
 #======================= data appending, popping and altering ===============
 
     # Append new data or features to the dlm
-    def append(self, data, component = 'mainData'):
+    def append(self, data, component = 'main'):
+        """
+        Append the new data to the main data or the components (new feature data)
 
-        if component == 'mainData':
+        Args:
+            data: the new data
+            component: the name of which the new data to be added to.
+                       'main': the main time series data
+                       other omponent name: add new feature data to other component.
+
+        """
+        if component == 'main':
             # add the data to the self.data
             self.data.extend(list(data))
 
@@ -399,7 +414,13 @@ class dlm(_dlm):
 
     # pop the data of a specific date out
     def popout(self, date):
+        """
+        Pop out the data for a given date
+        
+        Args:
+            date: the index indicates which date to be popped out.
 
+        """
         if date < 0 or date > self.n - 1:
             raise NameError('The date should be between 0 and ' + str(self.n - 1))
 
@@ -428,13 +449,23 @@ class dlm(_dlm):
             self.result.smoothedSteps = [0, -1]
 
     # alter the data of a specific days
-    def alter(self, date, data, component = 'mainData'):
+    def alter(self, date, data, component = 'main'):
+        """
+        To alter the data for a specific date and a specific component.
 
+        Args:
+            date: the date of the altering data
+            data: the new data
+            component: the component for which the new data need to be supplied to.
+                       'main': the main time series data
+                       other component name: other component feature data
+
+        """
         if date < 0 or date > self.n - 1:
             raise NameError('The date should be between 0 and ' + str(self.n - 1))
 
         # to alter the data for the observed chain
-        if component == 'mainData':
+        if component == 'main':
             self.data[date] = data
 
         # to alter the feature of a component
@@ -458,8 +489,14 @@ class dlm(_dlm):
 
     # ignore the data of a given date
     def ignore(self, date):
+        """
+        Ignore the data for a specific day. treat it as missing data
 
+        Args:
+            date: the date to ignore.
+
+        """
         if date < 0 or date > self.n - 1:
             raise NameError('The date should be between 0 and ' + str(self.n - 1))
 
-        self.alter(date = date, data = None, component = 'mainData')
+        self.alter(date = date, data = None, component = 'main')

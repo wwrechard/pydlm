@@ -90,7 +90,7 @@ class builder:
                 raise NameError('Please rename the component to a different name.')
             self.dynamicComponents[component.name] = component
             
-        if component.componentType == 'trend' or component.type == 'seasonality':
+        if component.componentType == 'trend' or component.componentType == 'seasonality':
             if component.name in self.staticComponents:
                 raise NameError('Please rename the component to a different name.')
             self.staticComponents[component.name] = component
