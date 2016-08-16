@@ -33,7 +33,6 @@ Example:
 from pydlm.func._dlm import _dlm
 from pydlm.base.tools import duplicateList
 from pydlm.base.tools import getInterval
-from pydlm.plot.dlmPlot import dlmPlot
 
 class dlm(_dlm):
     """
@@ -69,6 +68,13 @@ class dlm(_dlm):
        popout: pop out existing data of a particular days
        alter: alter the data of a specific date
        ignore: ignore the data of a specific date, treated as missing data
+
+       turnOn: turn on for plot options
+       turnOff: turn off for plot options
+       setColor: set the color for different results in plot
+       setConfidence: set the confidence level in plot confidence interval
+       resetPlotOptions: reset options to default
+       plot: plot the result
     """
     # define the basic members
     # initialize the result
@@ -566,10 +572,116 @@ class dlm(_dlm):
 
 #============================= plot component ====================================
 
-    # plot the result according to the options
-    def plot(self, time = None):
+    def turnOn(self, switch):
+        """
+        "turn on" Operation for the dlm plotting options.
 
-        if time is None:
+        Args:
+            switch: key word. Controls over filtered/smoothed/predicted results, 
+                    confidence interval plot, scatter plot and whether plots are
+                    layout in multiple figures
+        """
+        if switch in set(['filtered plot', 'filter', 'filtered results', 'filtering']):
+            self.options.plotFilteredData = True
+        elif switch in set(['smoothed plot', 'smooth', 'smoothed results', 'smoothing']):
+            self.options.plotSmoothedData = True
+        elif switch in set(['predict plot', 'predict', 'predicted results', 'prediction']):
+            self.options.plotPredictedData = True
+        elif switch in set(['confidence Interval', 'confidence', 'interval', 'CI', 'ci']):
+            self.options.showConfidenceInterval = True
+        elif switch in set(['data points', 'data point', 'points', 'data']):
+            self.options.showDataPoint = True
+        elif switch in set(['multiple', 'multiple plots', 'separate plots', 'separate']):
+            self.options.separatePlot = True
+        elif switch in set(['fitted dots', 'fitted results', 'fitted data']):
+            self.options.showFittedPoint = True
+        else:
+            raise NameError('no such options')
+
+    def turnOff(self, switch):
+        """
+        "turn off" Operation for the dlm plotting options.
+
+        Args:
+            switch: key word. Controls over filtered/smoothed/predicted results, 
+                    confidence interval plot, scatter plot and whether plots are
+                    layout in multiple figures
+        """
+        if switch in set(['filtered plot', 'filter', 'filtered results', 'filtering']):
+            self.options.plotFilteredData = False
+        elif switch in set(['smoothed plot', 'smooth', 'smoothed results', 'smoothing']):
+            self.options.plotSmoothedData = False
+        elif switch in set(['predict plot', 'predict', 'predicted results', 'prediction']):
+            self.options.plotPredictedData = False
+        elif switch in set(['confidence Interval', 'confidence', 'interval', 'CI', 'ci']):
+            self.options.showConfidenceInterval = False
+        elif switch in set(['data points', 'data point', 'points', 'data']):
+            self.options.showDataPoint = False
+        elif switch in set(['multiple', 'multiple plots', 'separate plots', 'separate']):
+            self.options.separatePlot = False
+        elif switch in set(['fitted dots', 'fitted results', 'fitted data']):
+            self.options.showFittedPoint = False
+        else:
+            raise NameError('no such options')
+
+    def setColor(self, switch, color):
+        """
+        "set" Operation for the dlm plotting colors
+
+        Args:
+            switch: key word. Controls over filtered/smoothed/predicted results, 
+            color: the color for the corresponding keyword.
+        """
+        if switch in set(['filtered plot', 'filter', 'filtered results', 'filtering']):
+            self.options.filteredColor = color
+        elif switch in set(['smoothed plot', 'smooth', 'smoothed results', 'smoothing']):
+            self.options.smoothedColor = color
+        elif switch in set(['predict plot', 'predict', 'predicted results', 'prediction']):
+            self.options.predictedColor = color
+        elif switch in set(['data points', 'data point', 'points', 'data']):
+            self.options.dataColor = color
+        else:
+            raise NameError('no such options')
+
+    def setConfidence(self, p = 0.95):
+        """
+        Set the confidence interval for the plot
+
+        """
+        assert p >= 0 and p <= 1
+        self.options.confidence = p
+        
+    def resetPlotOptions(self):
+        """
+        Reset the plotting option for the dlm class
+
+        """
+        self.options.plotOriginalData = True
+        self.options.plotFilteredData = True
+        self.options.plotSmoothedData = False
+        self.options.plotPredictedData = False
+        self.options.showDataPoint = True
+        self.options.showFittedPoint = False
+        self.options.showConfidenceInterval = True
+        self.options.dataColor = 'black'
+        self.options.filteredColor = 'blue'
+        self.options.predictedColor = 'green'
+        self.options.smoothedColor = 'red'
+        self.options.separatePlot = True
+        self.options.confidence = 0.95
+        
+    # plot the result according to the options
+    def plot(self):
+        """
+        The main plot function. The dlmPlot and the matplotlib will only be loaded
+        when necessary.
+
+        """
+
+        # load the library only when needed
+        import pydlm.plot.dlmPlot as dlmPlot
+        
+        if self.time is None:
             time = range(len(self.data))
 
         # initialize the figure
@@ -577,53 +689,14 @@ class dlm(_dlm):
         
         # if we just need one plot
         if self.options.separatePlot is not True:
-            # plot the original data
-            dlmPlot.plotData(time = time, data = self.data, showDataPoint = \
-                             self.options.showDataPoint, color = self.options.dataColor)
-
-            # plot fitered results if needed
-            if self.options.plotFilteredData:
-                start = self.result.filteredSteps[0]
-                end = self.result.filteredSteps[1] + 1
-                dlmPlot.plotData(time = time[start:end], \
-                                 data = self.getFilteredObs(), \
-                                 showDataPoint = self.options.showFittedPoint, \
-                                 color = self.options.filteredColor)
-
-                if self.options.showConfidenceInterval:
-                    upper, lower = self.getFilteredInterval(p = self.options.confidence)
-                    dlmPlot.plotInterval(time = time[start:end], \
-                                         upper = upper, lower = lower, \
-                                         color = self.options.filteredColor)
-            
-            # plot predicted results if needed
-            if self.options.plotPredictedData:
-                start = self.result.filteredSteps[0]
-                end = self.result.filteredSteps[1] + 1
-                dlmPlot.plotData(time = time[start:end], \
-                                 data = self.getPredictedObs(), \
-                                 showDataPoint = self.options.showFittedPoint, \
-                                 color = self.options.predictedColor)
-
-                if self.options.showConfidenceInterval:
-                    upper, lower = self.getPredictedInterval(p = self.options.confidence)
-                    dlmPlot.plotInterval(time = time[start:end], \
-                                         upper = upper, lower = lower, \
-                                         color = self.options.predictedColor)
-
-            # plot smoothed results if needed
-            if self.options.plotSmoothedData:
-                start = self.result.smoothedSteps[0]
-                end = self.result.smoothedSteps[1] + 1
-                dlmPlot.plotData(time = time[start:end], \
-                                 data = self.getSmoothedObs(), \
-                                 showDataPoint = self.options.showFittedPoint, \
-                                 color = self.options.smoothedColor)
-
-                if self.options.showConfidenceInterval:
-                    upper, lower = self.getSmoothedInterval(p = self.options.confidence)
-                    dlmPlot.plotInterval(time = time[start:end], \
-                                         upper = upper, lower = lower, \
-                                         color = self.options.smoothedColor)
+            dlmPlot.plotInOneFigure(time = time, \
+                                    data = self.data, \
+                                    result = self.result, \
+                                    options = self.options)
+        else:
+            dlmPlot.plotInMultipleFigure(time = time, \
+                                         data = self.data, \
+                                         result = self.result, \
+                                         options = self.options)
 
         dlmPlot.plotout()

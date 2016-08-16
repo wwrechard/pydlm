@@ -24,7 +24,7 @@ def plotInOneFigure(time, data, result, options):
     """
     # plot the original data
     plotData(time = time, data = data, showDataPoint = \
-             options.showDataPoint, color = options.dataColor)
+             options.showDataPoint, color = options.dataColor, label = 'time series')
     
     # plot fitered results if needed
     if options.plotFilteredData:
@@ -33,7 +33,8 @@ def plotInOneFigure(time, data, result, options):
         plotData(time = time[start : end], \
                  data = to1dArray(result.filteredObs[start : end]), \
                  showDataPoint = options.showFittedPoint, \
-                 color = options.filteredColor)
+                 color = options.filteredColor, \
+                 label = 'filtered series')
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.filteredObs[start : end], \
@@ -51,7 +52,8 @@ def plotInOneFigure(time, data, result, options):
         plotData(time = time[start : end], \
                  data = to1dArray(result.predictedObs), \
                  showDataPoint = options.showFittedPoint, \
-                 color = options.predictedColor)
+                 color = options.predictedColor, \
+                 label = 'one-day prediction')
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.predictedObs[start : end], \
@@ -69,7 +71,8 @@ def plotInOneFigure(time, data, result, options):
         plotData(time = time[start:end], \
                  data = to1dArray(result.smoothedObs), \
                  showDataPoint = options.showFittedPoint, \
-                 color = options.smoothedColor)
+                 color = options.smoothedColor, \
+                 label = 'smoothed series')
             
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.smoothedObs[start : end], \
@@ -78,6 +81,8 @@ def plotInOneFigure(time, data, result, options):
             plotInterval(time = time[start:end], \
                          upper = to1dArray(upper), lower = to1dArray(lower), \
                          color = options.smoothedColor)
+            
+    plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')   
     
 def plotInMultipleFigure(time, data, result, options):
     """
@@ -104,14 +109,15 @@ def plotInMultipleFigure(time, data, result, options):
         
         #plot original data
         plotData(time = time, data = data, showDataPoint = \
-                 options.showDataPoint, color = options.dataColor)
+                 options.showDataPoint, color = options.dataColor, label = 'time series')
         
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
         plotData(time = time[start : end], \
                  data = to1dArray(result.filteredObs[start : end]), \
                  showDataPoint = options.showFittedPoint, \
-                 color = options.filteredColor)
+                 color = options.filteredColor, \
+                 label = 'filtered series')
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.filteredObs[start : end], \
@@ -121,7 +127,7 @@ def plotInMultipleFigure(time, data, result, options):
             plotInterval(time = time[start : end], \
                          upper = to1dArray(upper), lower = to1dArray(lower), \
                          color = options.filteredColor)
-    
+        plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')
         location += 1
 
     # plot predicted results if needed
@@ -131,14 +137,15 @@ def plotInMultipleFigure(time, data, result, options):
         
         #plot original data
         plotData(time = time, data = data, showDataPoint = \
-                 options.showDataPoint, color = options.dataColor)
+                 options.showDataPoint, color = options.dataColor, label = 'time series')
         
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
         plotData(time = time[start : end], \
                  data = to1dArray(result.predictedObs), \
                  showDataPoint = options.showFittedPoint, \
-                 color = options.predictedColor)
+                 color = options.predictedColor, \
+                 label = 'one-day prediction')
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.predictedObs[start : end], \
@@ -147,7 +154,7 @@ def plotInMultipleFigure(time, data, result, options):
             plotInterval(time = time[start:end], \
                          upper = to1dArray(upper), lower = to1dArray(lower), \
                          color = options.predictedColor)
-            
+        plt.legend(loc='best', shadow = True)    
         location += 1
 
     # plot smoothed results if needed
@@ -157,14 +164,15 @@ def plotInMultipleFigure(time, data, result, options):
         
         #plot original data
         plotData(time = time, data = data, showDataPoint = \
-                 options.showDataPoint, color = options.dataColor)
+                 options.showDataPoint, color = options.dataColor, label = 'time series')
         
         start = result.smoothedSteps[0]
         end = result.smoothedSteps[1] + 1
         plotData(time = time[start:end], \
                  data = to1dArray(result.smoothedObs), \
                  showDataPoint = options.showFittedPoint, \
-                 color = options.smoothedColor)
+                 color = options.smoothedColor, \
+                 label = 'smoothed series')
             
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.smoothedObs[start : end], \
@@ -173,8 +181,9 @@ def plotInMultipleFigure(time, data, result, options):
             plotInterval(time = time[start:end], \
                          upper = to1dArray(upper), lower = to1dArray(lower), \
                          color = options.smoothedColor)
-            
-def plotData(time, data, showDataPoint = True, color = 'black'):
+        plt.legend(loc='best', shadow = True)
+        
+def plotData(time, data, showDataPoint = True, color = 'black', label = 'unknown'):
     """
     The function to plot data points.
 
@@ -183,19 +192,20 @@ def plotData(time, data, showDataPoint = True, color = 'black'):
         data: the data points
         showDataPoint: indicate whether scatter plot is needed
         color: the color of the plot
+        label: the label for the plot
     """
     if time is None:
         if showDataPoint:
             plt.plot(data, 'o', color = color)
-            plt.plot(data, '-', color = color)
+            plt.plot(data, '-', color = color, label = label)
         else:
-            plt.plot(data, '-', color = color)
+            plt.plot(data, '-', color = color, label = label)
     else:
         if showDataPoint:
             plt.plot(time, data, 'o', color = color)
-            plt.plot(time, data, '-', color = color)
+            plt.plot(time, data, '-', color = color, label = label)
         else:
-            plt.plot(time, data, '-', color = color)
+            plt.plot(time, data, '-', color = color, label = label)
 
  
 def plotInterval(time, upper, lower, color = 'black'):

@@ -58,6 +58,7 @@ class _dlm:
         self.Filter = None
         self.initialized = False
         self.options = self._defaultOptions()
+        self.time = None
 
 
     # an inner class to store all options
@@ -76,7 +77,7 @@ class _dlm:
             self.filteredColor = 'blue'
             self.predictedColor = 'green'
             self.smoothedColor = 'red'
-            self.separatePlot = False
+            self.separatePlot = True
             self.confidence = 0.95
             
     # an inner class to store all results
