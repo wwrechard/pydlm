@@ -186,7 +186,7 @@ class _dlm:
         self.builder.model.sysVar = self.result.smoothedCov[start + 1]
         
         # we smooth the result sequantially from start - 1 to end
-        dates = range(end, start)
+        dates = range(end, start + 1)
         dates.reverse()
         for day in dates:
             # we first update the model to be correct status before smooth
@@ -269,6 +269,20 @@ class _dlm:
         def __init__(self):
             self.noise = 1.0
             
+            self.plotOriginalData = True
+            self.plotFilteredData = True
+            self.plotSmoothedData = False
+            self.plotPredictedData = False
+            self.showDataPoint = True
+            self.showFittedPoint = False
+            self.showConfidenceInterval = True
+            self.dataColor = 'black'
+            self.filteredColor = 'blue'
+            self.predictedColor = 'green'
+            self.smoothedColor = 'red'
+            self.separatePlot = False
+            self.confidence = 0.95
+            
     # an inner class to store all results
     class _result:
         # class level (static) variables to record all names
@@ -350,3 +364,6 @@ class _dlm:
             for name in self.builder.dynamicComponents:
                 if self.builder.dynamicComponents[name].n != self.n:
                     raise NameError('The data size of dlm and ' + name + ' does not match')
+
+    def _1DmatrixToArray(self, arrayOf1dMatrix):
+        return [item.tolist()[0][0] for item in arrayOf1dMatrix]

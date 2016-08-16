@@ -57,7 +57,7 @@ class seasonality(component):
         > ctrend.freeForm()
     
     """
-    def __init__(self, period = 7, name = 'seasonality', discount = 0.99):
+    def __init__(self, period = 7, discount = 0.99, name = 'seasonality'):
         if period <= 1:
             raise NameError('Period has to be greater than 1.')
         self.d = period

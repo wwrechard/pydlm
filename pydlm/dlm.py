@@ -32,6 +32,8 @@ Example:
 #from pydlm.modeler.builder import builder
 from pydlm.func._dlm import _dlm
 from pydlm.base.tools import duplicateList
+from pydlm.base.tools import getInterval
+from pydlm.plot.dlmPlot import dlmPlot
 
 class dlm(_dlm):
     """
@@ -120,20 +122,39 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.filteredSteps != (0, self.n - 1):
+        if self.result.filteredSteps != [0, self.n - 1]:
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
-        return self.result.filteredObs
+        start = self.result.filteredSteps[0]
+        end = self.result.filteredSteps[1] + 1
+        # get out of the matrix form
+        return self._1DmatrixToArray(self.result.filteredObs[start:end])
 
     def getFilteredObsVar(self):
         """
         get the filtered observation variance. If the filtered dates are not 
         (0, self.n - 1), then a warning will prompt stating the actual filtered dates.
         """
-        if self.result.filteredSteps != (0, self.n - 1):
+        if self.result.filteredSteps != [0, self.n - 1]:
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
-        return self.result.filteredObsVar
+        start = self.result.filteredSteps[0]
+        end = self.result.filteredSteps[1] + 1
+        return self._1DmatrixToArray(self.result.filteredObsVar[start:end])
+
+    def getFilteredInterval(self, p):
+        """
+        get the filtered confidence interval. If the filtered dates are not 
+        (0, self.n - 1), then a warning will prompt stating the actual filtered dates.
+        """
+        if self.result.filteredSteps != [0, self.n - 1]:
+            print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1])
+        start = self.result.filteredSteps[0]
+        end = self.result.filteredSteps[1] + 1
+        upper, lower =  getInterval(self.result.filteredObs[start : end], \
+                                    self.result.filteredObsVar[start : end], p)
+        return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
 
     def getSmoothedObs(self):
         """       
@@ -141,10 +162,12 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.smootehdSteps != (0, self.n - 1):
+        if self.result.smoothedSteps != [0, self.n - 1]:
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
-        return self.result.smoothedObs
+        start = self.result.smoothedSteps[0]
+        end = self.result.smoothedSteps[1] + 1
+        return self._1DmatrixToArray(self.result.smoothedObs[start:end])
 
     def getSmoothedObsVar(self):
         """       
@@ -152,18 +175,39 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.smootehdSteps != (0, self.n - 1):
+        if self.result.smoothedSteps != [0, self.n - 1]:
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
-        return self.result.smoothedObsVar
+        start = self.result.smoothedSteps[0]
+        end = self.result.smoothedSteps[1] + 1
+        return self._1DmatrixToArray(self.result.smoothedObsVar[start:end])
 
+    def getSmoothedInterval(self, p):
+        """
+        get the smoothed confidence interval. If the filtered dates are not 
+        (0, self.n - 1), then a warning will prompt stating the actual smoothed dates.
+        """
+        if self.result.smoothedSteps != [0, self.n - 1]:
+            print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
+                ' to ' + str(self.result.smoothedSteps[1])
+        start = self.result.smoothedSteps[0]
+        end = self.result.smoothedSteps[1] + 1
+        upper, lower = getInterval(self.result.smoothedObs[start : end], \
+                                   self.result.smoothedObsVar[start : end], p)
+        return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
+    
     def getPredictedObs(self):
         """       
         get the predicted observations. An array of numbers. a[k] shows the prediction on 
         that the date k given all the data up to k - 1.
 
         """
-        return self.result.predictedObs
+        if self.result.filteredSteps != [0, self.n - 1]:
+            print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1])
+        start = self.result.filteredSteps[0]
+        end = self.result.filteredSteps[1] + 1
+        return self._1DmatrixToArray(self.result.predictedObs[start : end])
 
     def getPredictedObsVar(self):
         """       
@@ -171,7 +215,26 @@ class dlm(_dlm):
         that the date k given all the data up to k - 1.
 
         """
-        return self.result.predictedObsVar
+        if self.result.filteredSteps != [0, self.n - 1]:
+            print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1])
+        start = self.result.filteredSteps[0]
+        end = self.result.filteredSteps[1] + 1
+        return self._1DmatrixToArray(self.result.predictedObsVar[start : end])
+
+    def getPredictedInterval(self, p):
+        """
+        get the predicted confidence interval. If the predicted dates are not 
+        (0, self.n - 1), then a warning will prompt stating the actual predicted dates.
+        """
+        if self.result.filteredSteps != (0, self.n - 1):
+            print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1])
+        start = self.result.filteredSteps[0]
+        end = self.result.filteredSteps[1] + 1
+        upper, lower = getInterval(self.result.predictedObs[start : end], \
+                                   self.result.predictedObsVar[start : end], p)
+        return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
 
     def getFilteredState(self, name = 'all'):
         """
@@ -179,7 +242,7 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.filteredSteps != (0, self.n - 1):
+        if self.result.filteredSteps != [0, self.n - 1]:
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
         if name == 'all':
@@ -202,7 +265,7 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.smootehdSteps != (0, self.n - 1):
+        if self.result.smootehdSteps != [0, self.n - 1]:
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
         if name == 'all':
@@ -225,7 +288,7 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.filteredSteps != (0, self.n - 1):
+        if self.result.filteredSteps != [0, self.n - 1]:
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
         if name == 'all':
@@ -249,7 +312,7 @@ class dlm(_dlm):
         then a warning will prompt stating the actual filtered dates.
 
         """
-        if self.result.smootehdSteps != (0, self.n - 1):
+        if self.result.smootehdSteps != [0, self.n - 1]:
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
                 ' to ' + str(self.result.smoothedSteps[1])
         if name == 'all':
@@ -266,7 +329,7 @@ class dlm(_dlm):
         
         else:
             raise NameError('Such component does not exist!')
-        
+
 #========================== model training component =======================
 
     def fitForwardFilter(self, useRollingWindow = False, windowLength = 3):
@@ -348,7 +411,7 @@ class dlm(_dlm):
         elif self.result.smoothedSteps[1] < self.n - 1:
             self._backwardSmoother(start = self.n - 1, days = backLength)
 
-        self.result.smootehdSteps = [self.n - backLength, self.n - 1]
+        self.result.smoothedSteps = [self.n - backLength, self.n - 1]
         print 'Backward smoothing completed.'
             
 
@@ -358,7 +421,7 @@ class dlm(_dlm):
 
         """
         self.fitForwardFilter()
-        self.fitBackwardSmoother(backLength = self.n)
+        self.fitBackwardSmoother()
 
 #=========================== model prediction ==============================
 
@@ -500,3 +563,67 @@ class dlm(_dlm):
             raise NameError('The date should be between 0 and ' + str(self.n - 1))
 
         self.alter(date = date, data = None, component = 'main')
+
+#============================= plot component ====================================
+
+    # plot the result according to the options
+    def plot(self, time = None):
+
+        if time is None:
+            time = range(len(self.data))
+
+        # initialize the figure
+        dlmPlot.plotInitialize()
+        
+        # if we just need one plot
+        if self.options.separatePlot is not True:
+            # plot the original data
+            dlmPlot.plotData(time = time, data = self.data, showDataPoint = \
+                             self.options.showDataPoint, color = self.options.dataColor)
+
+            # plot fitered results if needed
+            if self.options.plotFilteredData:
+                start = self.result.filteredSteps[0]
+                end = self.result.filteredSteps[1] + 1
+                dlmPlot.plotData(time = time[start:end], \
+                                 data = self.getFilteredObs(), \
+                                 showDataPoint = self.options.showFittedPoint, \
+                                 color = self.options.filteredColor)
+
+                if self.options.showConfidenceInterval:
+                    upper, lower = self.getFilteredInterval(p = self.options.confidence)
+                    dlmPlot.plotInterval(time = time[start:end], \
+                                         upper = upper, lower = lower, \
+                                         color = self.options.filteredColor)
+            
+            # plot predicted results if needed
+            if self.options.plotPredictedData:
+                start = self.result.filteredSteps[0]
+                end = self.result.filteredSteps[1] + 1
+                dlmPlot.plotData(time = time[start:end], \
+                                 data = self.getPredictedObs(), \
+                                 showDataPoint = self.options.showFittedPoint, \
+                                 color = self.options.predictedColor)
+
+                if self.options.showConfidenceInterval:
+                    upper, lower = self.getPredictedInterval(p = self.options.confidence)
+                    dlmPlot.plotInterval(time = time[start:end], \
+                                         upper = upper, lower = lower, \
+                                         color = self.options.predictedColor)
+
+            # plot smoothed results if needed
+            if self.options.plotSmoothedData:
+                start = self.result.smoothedSteps[0]
+                end = self.result.smoothedSteps[1] + 1
+                dlmPlot.plotData(time = time[start:end], \
+                                 data = self.getSmoothedObs(), \
+                                 showDataPoint = self.options.showFittedPoint, \
+                                 color = self.options.smoothedColor)
+
+                if self.options.showConfidenceInterval:
+                    upper, lower = self.getSmoothedInterval(p = self.options.confidence)
+                    dlmPlot.plotInterval(time = time[start:end], \
+                                         upper = upper, lower = lower, \
+                                         color = self.options.smoothedColor)
+
+        dlmPlot.plotout()

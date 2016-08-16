@@ -20,6 +20,7 @@ class testDlm(unittest.TestCase):
 
     def testFitForwardFilter(self):
         self.dlm1.fitForwardFilter(useRollingWindow = False)
+        self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
         self.assertAlmostEqual(np.sum(self.dlm1.result.filteredObs[0:9]), 0)
         self.assertAlmostEqual(self.dlm1.result.filteredObs[9], 1.0/11)
         self.assertAlmostEqual(self.dlm1.result.filteredObs[19], 1.0/21)
@@ -32,6 +33,7 @@ class testDlm(unittest.TestCase):
     def testFitBackwardSmoother(self):
         self.dlm1.fitForwardFilter()
         self.dlm1.fitBackwardSmoother()
+        self.assertEqual(self.dlm1.result.smoothedSteps, [0, 19])
         self.assertAlmostEqual(self.dlm1.result.smoothedObs[0], 1.0/21)
         self.assertAlmostEqual(self.dlm1.result.smoothedObs[19], 1.0/21)
 
@@ -128,3 +130,18 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)
 unittest.main()
+
+
+
+import numpy as np
+import unittest
+
+from pydlm.modeler.trends import trend
+from pydlm.modeler.seasonality import seasonality
+from pydlm.modeler.dynamic import dynamic
+from pydlm.dlm import dlm
+
+data = np.random.random(100)
+myDLM = dlm(data) + trend(2)
+myDLM.options.noise = 0.1
+myDLM.fit()

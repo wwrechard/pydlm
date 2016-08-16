@@ -53,7 +53,7 @@ class trend(component):
     # class variable specify the component type
     componentType = 'trend'
     
-    def __init__(self, degree = 1, name = 'trend', discount = 0.99):
+    def __init__(self, degree = 1, discount = 0.99, name = 'trend'):
         if degree <= 0:
             raise NameError('degree has to be positive')
         self.d = degree

@@ -127,8 +127,9 @@ class kalmanFilter:
             model.df += 1
             lastNoiseVar = model.noiseVar # for updating model.sysVar
             model.noiseVar = model.noiseVar * \
-                             (1 - 1 / model.df + \
+                             (1.0 - 1.0 / model.df + \
                               err * err / model.df / model.prediction.obsVar)
+
             model.state = model.prediction.state + correction * err
             model.sysVar = model.noiseVar[0, 0] / lastNoiseVar[0, 0] * \
                            (model.prediction.sysVar - np.dot(correction, correction.T) * \
@@ -188,9 +189,14 @@ class kalmanFilter:
         Returns:
             The smoothed results are stored in the 'model' replacing the filtered result.
         """
+
+        #### use generalized inverse to ensure the computation stability #######
         
-        backward = np.dot(np.dot(rawSysVar, model.transition.T), \
-                          np.linalg.inv(model.prediction.sysVar))
+        predSysVarInv = self._gInverse(model.prediction.sysVar)
+        
+        ################################################
+        
+        backward = np.dot(np.dot(rawSysVar, model.transition.T), predSysVarInv)
         model.state = rawState + np.dot(backward, (model.state - model.prediction.state))
         model.sysVar = rawSysVar + \
                        np.dot(np.dot(backward, \
@@ -220,9 +226,13 @@ class kalmanFilter:
         Returns:
             The sampled results are stored in the 'model' replacing the filtered result.
         """
+        #### use generalized inverse to ensure the computation stability #######
         
-        backward = np.dot(np.dot(rawSysVar, model.transition.T), \
-                          np.linalg.inv(model.prediction.sysVar))
+        predSysVarInv = self._gInverse(model.prediction.sysVar)
+        
+        ################################################
+        
+        backward = np.dot(np.dot(rawSysVar, model.transition.T), predSysVarInv)
         model.state = rawState + np.dot(backward, (model.state - model.prediction.state))
         model.sysVar = rawSysVar + \
                        np.dot(np.dot(backward, \
@@ -266,3 +276,15 @@ class kalmanFilter:
         model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
                                       self.discount) - model.prediction.sysVar
 
+
+    # a generalized inverse of matrix A
+    def _gInverse(self, A):
+        """
+        A generalized inverse of matrix A
+
+        """
+        U, s, V = np.linalg.svd(A)
+        s = 1 / s
+        s[s < 0] = 0
+        S = np.diag(s)
+        return np.dot(U, np.dot(S, V))

@@ -57,7 +57,7 @@ class dynamic(component):
         > ctrend.createMeanPrior(mean = 1)
     
     """
-    def __init__(self, features = None, name = 'dynamic', discount = 0.99):
+    def __init__(self, features = None, discount = 0.99, name = 'dynamic'):
         self.n = len(features)
         self.d = len(features[0])
         self.features = tl.duplicateList(features)

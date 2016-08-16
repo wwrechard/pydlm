@@ -17,7 +17,6 @@ class testBuilder(unittest.TestCase):
         
     def testInitialization(self):
        
-        self.assertEqual(self.builder1.step, 0)
         self.assertEqual(len(self.builder1.dynamicComponents), 0)
 
 
