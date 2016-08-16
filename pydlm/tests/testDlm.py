@@ -131,17 +131,3 @@ class testDlm(unittest.TestCase):
                                       np.array(dlm5.result.filteredObs)), 0.0)
 unittest.main()
 
-
-
-import numpy as np
-import unittest
-
-from pydlm.modeler.trends import trend
-from pydlm.modeler.seasonality import seasonality
-from pydlm.modeler.dynamic import dynamic
-from pydlm.dlm import dlm
-
-data = np.random.random(100)
-myDLM = dlm(data) + trend(2)
-myDLM.options.noise = 0.1
-myDLM.fit()

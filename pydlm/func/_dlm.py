@@ -58,7 +58,56 @@ class _dlm:
         self.Filter = None
         self.initialized = False
         self.options = self._defaultOptions()
-    
+
+
+    # an inner class to store all options
+    class _defaultOptions:
+        def __init__(self):
+            self.noise = 1.0
+            
+            self.plotOriginalData = True
+            self.plotFilteredData = True
+            self.plotSmoothedData = False
+            self.plotPredictedData = False
+            self.showDataPoint = True
+            self.showFittedPoint = False
+            self.showConfidenceInterval = True
+            self.dataColor = 'black'
+            self.filteredColor = 'blue'
+            self.predictedColor = 'green'
+            self.smoothedColor = 'red'
+            self.separatePlot = False
+            self.confidence = 0.95
+            
+    # an inner class to store all results
+    class _result:
+        # class level (static) variables to record all names
+        records = ['filteredObs', 'predictedObs', 'smoothedObs', 'filteredObsVar', \
+                   'predictedObsVar', 'smoothedObsVar', 'noiseVar', 'df', \
+                   'filteredState', 'predictedState', 'smoothedState', \
+                   'filteredCov', 'predictedCov', 'smoothedCov']
+        
+        # quantites to record the result
+        def __init__(self, n):
+
+            # initialize all records to be [None] * n
+            for variable in self.records:
+                setattr(self, variable, [None] * n)
+            
+            # quantity to indicate the current status
+            self.filteredSteps = [0, -1]
+            self.smoothedSteps = [0, -1]
+
+        # extend the current record by n blocks
+        def _appendResult(self, n):
+            for variable in self.records:
+                getattr(self, variable).extend([None] * n)
+
+        # pop out a specific date 
+        def _popout(self, date):
+            for variable in self.records:
+                getattr(self, variable).pop(date)
+                
     # initialize the builder
     def _initialize(self):
         """
@@ -263,56 +312,7 @@ class _dlm:
         self.builder.model.noiseVar = self.builder.noiseVar
         self.builder.model.df = 1
         self.builder.model.initializeObservation()
-
-    # an inner class to store all options
-    class _defaultOptions:
-        def __init__(self):
-            self.noise = 1.0
-            
-            self.plotOriginalData = True
-            self.plotFilteredData = True
-            self.plotSmoothedData = False
-            self.plotPredictedData = False
-            self.showDataPoint = True
-            self.showFittedPoint = False
-            self.showConfidenceInterval = True
-            self.dataColor = 'black'
-            self.filteredColor = 'blue'
-            self.predictedColor = 'green'
-            self.smoothedColor = 'red'
-            self.separatePlot = False
-            self.confidence = 0.95
-            
-    # an inner class to store all results
-    class _result:
-        # class level (static) variables to record all names
-        records = ['filteredObs', 'predictedObs', 'smoothedObs', 'filteredObsVar', \
-                   'predictedObsVar', 'smoothedObsVar', 'noiseVar', 'df', \
-                   'filteredState', 'predictedState', 'smoothedState', \
-                   'filteredCov', 'predictedCov', 'smoothedCov']
-        
-        # quantites to record the result
-        def __init__(self, n):
-
-            # initialize all records to be [None] * n
-            for variable in self.records:
-                setattr(self, variable, [None] * n)
-            
-            # quantity to indicate the current status
-            self.filteredSteps = [0, -1]
-            self.smoothedSteps = [0, -1]
-
-        # extend the current record by n blocks
-        def _appendResult(self, n):
-            for variable in self.records:
-                getattr(self, variable).extend([None] * n)
-
-        # pop out a specific date 
-        def _popout(self, date):
-            for variable in self.records:
-                getattr(self, variable).pop(date)
-        
-            
+                   
     # a function used to copy result from the model to the result
     def _copy(self, model, result, step, filterType):
         """

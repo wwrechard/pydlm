@@ -227,7 +227,7 @@ class dlm(_dlm):
         get the predicted confidence interval. If the predicted dates are not 
         (0, self.n - 1), then a warning will prompt stating the actual predicted dates.
         """
-        if self.result.filteredSteps != (0, self.n - 1):
+        if self.result.filteredSteps != [0, self.n - 1]:
             print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
                 ' to ' + str(self.result.filteredSteps[1])
         start = self.result.filteredSteps[0]
