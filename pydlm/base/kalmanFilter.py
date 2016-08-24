@@ -38,7 +38,8 @@ class kalmanFilter:
         updateDiscount: for updating the discount factors
     """
 
-    def __init__(self, discount = 0.99, updateInnovation = True):
+    def __init__(self, discount = [0.99], \
+                 updateInnovation = True):
         """ 
         Initializing the kalmanFilter class
 
@@ -51,8 +52,15 @@ class kalmanFilter:
         self.__checkDiscount__(discount)
         self.discount = np.matrix(np.diag(1 / np.sqrt(np.array(discount))))
         self.updateInnovation = updateInnovation
+        #self.shrink = shrink
+        #self.shrinkageMatrix = shrinkageMatrix
 
- 
+        # initialize the shrinkage Matrix
+        #if self.shrinkageMatrix is None:
+        #    self.shrinkageMatrix = np.eye(self.discount.shape[0])
+
+        #self.shrinkageMatrix = np.dot(np.dot(self.discount, self.shrinkageMatrix), \
+        #                              self.discount) - self.shrinkageMatrix
     def predict(self, model):
         """ 
         Predict the next states of the model by one step
@@ -67,16 +75,18 @@ class kalmanFilter:
         
         # if the step number == 0, we use result from the model state
         if model.prediction.step == 0:
-            model.prediction.state = np.dot(model.transition, model.state)
+            model.prediction.state = np.dot(model.transition, model.state)                
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
             model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar), \
                                              model.transition.T)
+            
             # update the innovation
             if self.updateInnovation:
                 self.__updateInnovation__(model)
-
+                
             # add the innovation to the system variance
             model.prediction.sysVar += model.innovation
+            
             model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
                                                     model.prediction.sysVar), \
                                              model.evaluation.T) + model.noiseVar
@@ -123,7 +133,7 @@ class kalmanFilter:
             correction = np.dot(model.prediction.sysVar, model.evaluation.T) \
                          / model.prediction.obsVar
 
-            # update new staets
+            # update new states
             model.df += 1
             lastNoiseVar = model.noiseVar # for updating model.sysVar
             model.noiseVar = model.noiseVar * \
@@ -131,9 +141,11 @@ class kalmanFilter:
                               err * err / model.df / model.prediction.obsVar)
 
             model.state = model.prediction.state + correction * err
+            
             model.sysVar = model.noiseVar[0, 0] / lastNoiseVar[0, 0] * \
                            (model.prediction.sysVar - np.dot(correction, correction.T) * \
                             model.prediction.obsVar[0, 0])
+            
             model.obs = np.dot(model.evaluation, model.state)
             model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
                                   model.evaluation.T) + model.noiseVar
@@ -284,7 +296,7 @@ class kalmanFilter:
 
         """
         U, s, V = np.linalg.svd(A)
-        s = 1 / s
-        s[s < 0] = 0
+        s[s > 1e-5] = 1 / s[s > 1e-5]
+        s[s < 1e-5] = 0
         S = np.diag(s)
         return np.dot(U, np.dot(S, V))

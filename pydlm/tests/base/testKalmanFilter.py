@@ -25,7 +25,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf1.forwardFilter(dlm.model, 1)
         self.assertAlmostEqual(dlm.model.obs, 0.5)
         self.assertAlmostEqual(dlm.model.prediction.obs, 0)
-        self.assertAlmostEqual(dlm.model.sysVar, 0.625)
+        self.assertAlmostEqual(dlm.model.sysVar, 0.375)
 
         self.kf1.predict(dlm.model)
         self.assertAlmostEqual(dlm.model.obs, 0.5)
@@ -40,7 +40,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf0.forwardFilter(dlm.model, 1)
         self.assertAlmostEqual(dlm.model.obs, 1)
         self.assertAlmostEqual(dlm.model.prediction.obs, 0)
-        self.assertAlmostEqual(dlm.model.sysVar, 1)
+        self.assertAlmostEqual(dlm.model.sysVar, 0.5)
 
         self.kf0.predict(dlm.model)
         self.assertAlmostEqual(dlm.model.obs, 1)
@@ -70,9 +70,9 @@ class testKalmanFilter(unittest.TestCase):
         self.kf1.forwardFilter(dlm.model, 0)
         self.kf1.backwardSmoother(dlm.model, \
                                   np.matrix([[0.5]]), \
-                                  np.matrix([[0.625]]))
+                                  np.matrix([[0.375]]))
         self.assertAlmostEqual(dlm.model.obs, 1.0/3)
-        self.assertAlmostEqual(dlm.model.sysVar, 0.43518519)
+        self.assertAlmostEqual(dlm.model.sysVar, 0.18518519)
 
     # second order trend with discount = 1. The smoothed result should be
     # equal to a direct fit on the three data points, 0, 1, -1. Thus, the
@@ -100,15 +100,15 @@ class testKalmanFilter(unittest.TestCase):
         
         self.kf0.forwardFilter(dlm.model, 1)
         self.assertAlmostEqual(dlm.model.obs, 1.0)
-        self.assertAlmostEqual(dlm.model.obsVar, 2.0)
+        self.assertAlmostEqual(dlm.model.obsVar, 1.0)
 
         self.kf0.forwardFilter(dlm.model, None)
         self.assertAlmostEqual(dlm.model.obs, 1.0)
-        self.assertAlmostEqual(dlm.model.obsVar/1e10, 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar/1e10, 0.5)
 
         self.kf0.forwardFilter(dlm.model, None)
         self.assertAlmostEqual(dlm.model.obs, 1.0)
-        self.assertAlmostEqual(dlm.model.obsVar/1e10, 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar/1e10, 0.5)
 
         self.kf0.forwardFilter(dlm.model, 0)
         self.assertAlmostEqual(dlm.model.obs, 0.0)

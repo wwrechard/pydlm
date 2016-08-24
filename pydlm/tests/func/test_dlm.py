@@ -20,7 +20,7 @@ class test_dlm(unittest.TestCase):
         self.dlm3._initialize()
 
     def testForwardFilter(self):
-        self.dlm1._forwardFilter(start = 0, end = 19)
+        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.assertAlmostEqual(np.sum(self.dlm1.result.filteredObs[0:9]), 0)
         self.assertAlmostEqual(self.dlm1.result.filteredObs[9], 1.0/11)
         self.assertAlmostEqual(self.dlm1.result.filteredObs[19], 1.0/21)
@@ -31,7 +31,7 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(self.dlm2.result.filteredObs[19], 0.0)
 
     def testResetModelStatus(self):
-        self.dlm1._forwardFilter(start = 0, end = 19)
+        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
         self.assertAlmostEqual(self.dlm1.builder.model.obs, \
                                self.dlm1.result.filteredObs[19])
@@ -40,7 +40,7 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(self.dlm1.builder.model.state \
                                       - self.dlm1.builder.statePrior), 0.0)        
     def testSetModelStatus(self):
-        self.dlm1._forwardFilter(start = 0, end = 19)
+        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
         self.assertAlmostEqual(self.dlm1.builder.model.obs, \
                                self.dlm1.result.filteredObs[19])
@@ -49,7 +49,7 @@ class test_dlm(unittest.TestCase):
                                self.dlm1.result.filteredObs[12])
         
     def testForwaredFilterConsectiveness(self):
-        self.dlm1._forwardFilter(start = 0, end = 19)
+        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         filtered1 = self.dlm1.result.filteredObs
 
         self.dlm1._initialize()
@@ -62,7 +62,7 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(np.array(filtered1) - np.array(filtered2)), 0.0)
 
     def testBackwardSmoother(self):
-        self.dlm1._forwardFilter(start = 0, end = 19)
+        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
         self.dlm1._backwardSmoother(start = 19)
         self.assertAlmostEqual(self.dlm1.result.smoothedObs[0], 1.0/21)
@@ -76,7 +76,7 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[9], 1.0)
 
     def testPredict(self):
-        self.dlm3._forwardFilter(start = 0, end = 11)
+        self.dlm3._forwardFilter(start = 0, end = 11, renew = False)
         self.dlm3.result.filteredSteps = (0, 11)
         (obs, var) = self.dlm3._predict(days = 1)
         self.assertAlmostEqual(obs[0], -6.0/7)

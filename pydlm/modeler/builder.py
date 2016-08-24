@@ -71,6 +71,10 @@ class builder:
         # record the discount factor for the model
         self.discount = None
 
+        # renew term used to indicate the effective length of data, i.e.,
+        # for days before this length will have little impact on the current result
+        self.renewTerm = None
+
 
     # The function that allows the user to add components
     def add(self, component):
@@ -202,6 +206,12 @@ class builder:
                                state = state, \
                                df = 1)
         self.model.initializeObservation()
+        # compute the renew period
+        if np.min(self.discount) < 1.0 - 1e-8:
+            self.rewnewTerm = np.log(0.0001 * (1 - np.min(self.discount))) \
+                            / np.log(np.min(self.discount))
+        else:
+            self.renewTerm = -1
         self.initialized = True
         print 'Initialization finished.'
 

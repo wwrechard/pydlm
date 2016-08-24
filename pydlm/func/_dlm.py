@@ -65,6 +65,7 @@ class _dlm:
     class _defaultOptions:
         def __init__(self):
             self.noise = 1.0
+            self.stable = True
             
             self.plotOriginalData = True
             self.plotFilteredData = True
@@ -98,6 +99,7 @@ class _dlm:
             # quantity to indicate the current status
             self.filteredSteps = [0, -1]
             self.smoothedSteps = [0, -1]
+            self.filteredType = None
 
         # extend the current record by n blocks
         def _appendResult(self, n):
@@ -116,7 +118,12 @@ class _dlm:
 
         """
         self.builder.initialize(noise = self.options.noise)
-        self.Filter = kalmanFilter(discount = self.builder.discount)
+        #if self.options.shrink == 'auto':
+        #    self.Filter = kalmanFilter(discount = self.builder.discount, \
+        #                               shrink = 1 - min(self.builder.discount), \
+        #                               shrinkageMatrix = self.builder.sysVarPrior)
+        #else:
+        self.Filter = kalmanFilter(discount = self.builder.discount)            
         self.result = self._result(self.n)
         self.initialized = True
         
@@ -127,7 +134,12 @@ class _dlm:
     #       could be 'all' or 'end'
     # isForget: indicate where the filter should use the previous state as prior
     #         or just use the prior information from builder
-    def _forwardFilter(self, start = 0, end = None, save = 'all', ForgetPrevious = False):
+    def _forwardFilter(self, \
+                       start = 0, \
+                       end = None, \
+                       save = 'all', \
+                       ForgetPrevious = False, \
+                       renew = False):
         """
         Running forwardFilter for the data for a given start and end date
         
@@ -139,6 +151,11 @@ class _dlm:
             ForgetPrevious: indicate whether the fitering should start from the prior
                             status or the previous date that has been filtered.
                             (used for rolling window filtering, see @dlm)
+            renew: if true, filter will refit certain days when the chain gets too long
+                   to add numerical stability, the length of the chain is determined by
+                   the information carried on. For example, when discount = 0.9, any days
+                   that are 65 days ago together only carry information 1%, so we ignore
+                   these days and refit the model to aid stability.
         """
         # the default value for end
         if end is None:
@@ -166,14 +183,24 @@ class _dlm:
             if start > self.result.filteredSteps[1] + 1:
                 raise NameError('The data before start date has yet to be filtered! Otherwise set ForgetPrevious to be True. Check the <filteredSteps> in <result> object.')
             self._setModelStatus(date = start - 1)
-        
+            
         # we run the forward filter sequentially
+        lastRenewPoint = start # record the last renew point
         for step in range(start, end + 1):
             
             # first check whether we need to update evaluation or not
             if len(self.builder.dynamicComponents) > 0:
                 self.builder.updateEvaluation(step)
 
+            # check if rewnew is needed
+            if renew and step - lastRenewPoint > self.builder.renewTerm \
+               and self.builder.renewTerm > 0.0:
+                # we renew the state of the day
+                self._resetModelStatus()
+                for innerStep in range(step - int(self.builder.renewTerm), step):
+                    self.Filter.forwardFilter(self.builder.model, self.data[innerStep])
+                lastRenewPoint = step
+                    
             # then we use the updated model to filter the state    
             self.Filter.forwardFilter(self.builder.model, self.data[step])
 

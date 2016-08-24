@@ -361,23 +361,34 @@ class dlm(_dlm):
         print 'Starting forward filtering...'
         if not useRollingWindow:
             # we start from the last step of previous fitering
-            start = self.result.filteredSteps[1] + 1
-            self._forwardFilter(start = start, end = self.n - 1)
+            if self.result.filteredType == 'non-rolling':
+                start = self.result.filteredSteps[1] + 1
+            else:
+                start = 0
+
+            # determine whether renew should be used
+            self._forwardFilter(start = start, \
+                                end = self.n - 1, \
+                                renew = self.options.stable)
+            self.result.filteredType = 'non-rolling'
         else:
-            windowFront = self.result.filteredSteps[1] + 1
+            if self.result.filteredType == 'rolling':
+                windowFront = self.result.filteredSteps[1] + 1
+            else:
+                windowFront = 0
+            self.result.filteredType = 'rolling'
             # if end is still within (0, windowLength - 1), we should run the
             # usual ff from
             if windowFront < windowLength:
                 self._forwardFilter(start = self.result.filteredSteps[1] + 1, \
                                     end = min(windowLength - 1, self.n - 1))
 
-            else:
             # for the remaining date, we use a rolling window
-                for day in range(max(windowFront, windowLength), self.n):
-                    self._forwardFilter(start = day - windowLength + 1, \
-                                        end = day, \
-                                        save = day, \
-                                        ForgetPrevious = True)
+            for day in range(max(windowFront, windowLength), self.n):
+                self._forwardFilter(start = day - windowLength + 1, \
+                                    end = day, \
+                                    save = day, \
+                                    ForgetPrevious = True)
         self.result.filteredSteps = [0, self.n - 1]
         print 'Forward fitering completed.'
     
@@ -700,3 +711,8 @@ class dlm(_dlm):
                                          options = self.options)
 
         dlmPlot.plotout()
+
+#================================ control options ==================================
+    #def shrink(self, level = 'auto'):
+    #    self.options.shrink = level
+    #    self.initialized = False

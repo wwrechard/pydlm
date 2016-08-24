@@ -131,3 +131,26 @@ class testDlm(unittest.TestCase):
                                       np.array(dlm5.result.filteredObs)), 0.0)
 unittest.main()
 
+
+
+import numpy as np
+import unittest
+
+from pydlm.modeler.trends import trend
+from pydlm.modeler.seasonality import seasonality
+from pydlm.modeler.dynamic import dynamic
+from pydlm.dlm import dlm
+
+data = np.concatenate((np.random.random(100), np.random.random(100) + 3))
+myDLM = dlm(data) + trend(2, discount = 0.9) + seasonality(4, discount = 0.90)
+
+
+myDLM.options.noise = 1
+myDLM.turnOn('smooth')
+myDLM.turnOn('predict')
+#myDLM.turnOff('multiple')
+#myDLM.shrink(0.0)
+#myDLM.fitForwardFilter(useRollingWindow = True, windowLength = 10)
+myDLM.fitForwardFilter()
+myDLM.fitBackwardSmoother()
+myDLM.plot()

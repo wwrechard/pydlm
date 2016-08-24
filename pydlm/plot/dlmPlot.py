@@ -113,20 +113,21 @@ def plotInMultipleFigure(time, data, result, options):
         
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
-        plotData(time = time[start : end], \
-                 data = to1dArray(result.filteredObs[start : end]), \
-                 showDataPoint = options.showFittedPoint, \
-                 color = options.filteredColor, \
-                 label = 'filtered series')
+        if start < end:
+            plotData(time = time[start : end], \
+                     data = to1dArray(result.filteredObs[start : end]), \
+                     showDataPoint = options.showFittedPoint, \
+                     color = options.filteredColor, \
+                     label = 'filtered series')
 
-        if options.showConfidenceInterval:
-            upper, lower = getInterval(result.filteredObs[start : end], \
-                                       result.filteredObsVar[start : end], \
-                                       p = options.confidence)
+            if options.showConfidenceInterval:
+                upper, lower = getInterval(result.filteredObs[start : end], \
+                                           result.filteredObsVar[start : end], \
+                                           p = options.confidence)
                     
-            plotInterval(time = time[start : end], \
-                         upper = to1dArray(upper), lower = to1dArray(lower), \
-                         color = options.filteredColor)
+                plotInterval(time = time[start : end], \
+                             upper = to1dArray(upper), lower = to1dArray(lower), \
+                             color = options.filteredColor)
         plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')
         location += 1
 
@@ -141,19 +142,20 @@ def plotInMultipleFigure(time, data, result, options):
         
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
-        plotData(time = time[start : end], \
-                 data = to1dArray(result.predictedObs), \
-                 showDataPoint = options.showFittedPoint, \
-                 color = options.predictedColor, \
-                 label = 'one-day prediction')
+        if start < end:
+            plotData(time = time[start : end], \
+                     data = to1dArray(result.predictedObs), \
+                     showDataPoint = options.showFittedPoint, \
+                     color = options.predictedColor, \
+                     label = 'one-day prediction')
 
-        if options.showConfidenceInterval:
-            upper, lower = getInterval(result.predictedObs[start : end], \
-                                       result.filteredObsVar[start : end], \
-                                       p = options.confidence)
-            plotInterval(time = time[start:end], \
-                         upper = to1dArray(upper), lower = to1dArray(lower), \
-                         color = options.predictedColor)
+            if options.showConfidenceInterval:
+                upper, lower = getInterval(result.predictedObs[start : end], \
+                                           result.filteredObsVar[start : end], \
+                                           p = options.confidence)
+                plotInterval(time = time[start:end], \
+                             upper = to1dArray(upper), lower = to1dArray(lower), \
+                             color = options.predictedColor)
         plt.legend(loc='best', shadow = True)    
         location += 1
 
@@ -168,19 +170,20 @@ def plotInMultipleFigure(time, data, result, options):
         
         start = result.smoothedSteps[0]
         end = result.smoothedSteps[1] + 1
-        plotData(time = time[start:end], \
-                 data = to1dArray(result.smoothedObs), \
-                 showDataPoint = options.showFittedPoint, \
-                 color = options.smoothedColor, \
-                 label = 'smoothed series')
+        if start < end:
+            plotData(time = time[start:end], \
+                     data = to1dArray(result.smoothedObs), \
+                     showDataPoint = options.showFittedPoint, \
+                     color = options.smoothedColor, \
+                     label = 'smoothed series')
             
-        if options.showConfidenceInterval:
-            upper, lower = getInterval(result.smoothedObs[start : end], \
-                                       result.smoothedObsVar[start : end], \
-                                       p = options.confidence)
-            plotInterval(time = time[start:end], \
-                         upper = to1dArray(upper), lower = to1dArray(lower), \
-                         color = options.smoothedColor)
+            if options.showConfidenceInterval:
+                upper, lower = getInterval(result.smoothedObs[start : end], \
+                                           result.smoothedObsVar[start : end], \
+                                           p = options.confidence)
+                plotInterval(time = time[start:end], \
+                             upper = to1dArray(upper), lower = to1dArray(lower), \
+                             color = options.smoothedColor)
         plt.legend(loc='best', shadow = True)
         
 def plotData(time, data, showDataPoint = True, color = 'black', label = 'unknown'):
@@ -231,7 +234,7 @@ def plotInitialize():
     Initialize the plot
 
     """
-    plt.figure(1)
+    plt.figure()
 
  
 def subplot(size, location):
