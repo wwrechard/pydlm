@@ -41,6 +41,16 @@ class builder:
         sysVarPrior: the prior of the covariance of the latent states
         noiseVar: the prior of the observation noise
         discount: the discounting factor, please refer to @kalmanFilter for more details
+        renewTerm: used for aiding the stability of the model. The renewTerm is computed
+                   according to the discount fact. When the filter goes over certain steps,
+                   the information contribution of the previous data has decayed to minimum.
+                   We then ignore those days and refit the time series starting from 
+                   current - renewTerm. Thus, the effective sample size of the dlm is twice
+                   renewTerm. When discount = 1, there will be no renewTerm, since all the
+                   information will be passed along.
+        renewDiscount: the minimum discount of seasonality component, or if there is no
+                       seasonality, this will be the minimum discount of all components.
+                       Used for computing renewTerm.
 
     Methods:
         add: add new component

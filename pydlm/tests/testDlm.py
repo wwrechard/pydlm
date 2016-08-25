@@ -141,15 +141,15 @@ from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.dynamic import dynamic
 from pydlm.dlm import dlm
 
-data = np.concatenate((np.random.random(10), np.random.random(10) + 3))
-myDLM = dlm(data) + trend(4, discount = 0.95)# + seasonality(4, discount = 0.95)
+data = np.concatenate((np.random.random(1000), np.random.random(1000) + 3))
+myDLM = dlm(data) + trend(2, discount = 0.95) + seasonality(8, discount = 0.96)
 
 
-myDLM.turnOff('smooth')
-myDLM.turnOn('predict')
+#myDLM.turnOn('smooth')
+#myDLM.turnOn('predict')
 #myDLM.turnOff('multiple')
 #myDLM.shrink(0.0)
-myDLM.fitForwardFilter()
-myDLM.fitForwardFilter()
-myDLM.fitBackwardSmoother()
-myDLM.plot()
+#myDLM.fitForwardFilter(useRollingWindow = True, windowLength = 20)
+#myDLM.fitForwardFilter()
+#myDLM.fitBackwardSmoother()
+#myDLM.plot()

@@ -75,6 +75,16 @@ class dlm(_dlm):
        setConfidence: set the confidence level in plot confidence interval
        resetPlotOptions: reset options to default
        plot: plot the result
+
+       showOptions: show all the options values
+       stableMode: indicate whether the renew strategy should be used to add numerical
+                   stability. When the filter goes over certain steps,
+                   the information contribution of the previous data has decayed to minimum.
+                   In the stable mode, We then ignore those days and refit the time series 
+                   starting from current - renewTerm, where renewTerm is computed according
+                   to the discount. Thus, the effective sample size of the dlm is twice
+                   renewTerm. When discount = 1, there will be no renewTerm, since all the
+                   information will be passed along.
     """
     # define the basic members
     # initialize the result
@@ -604,7 +614,7 @@ class dlm(_dlm):
             self.options.showDataPoint = True
         elif switch in set(['multiple', 'multiple plots', 'separate plots', 'separate']):
             self.options.separatePlot = True
-        elif switch in set(['fitted dots', 'fitted results', 'fitted data']):
+        elif switch in set(['fitted dots', 'fitted results', 'fitted data', 'fitted']):
             self.options.showFittedPoint = True
         else:
             raise NameError('no such options')
@@ -630,7 +640,7 @@ class dlm(_dlm):
             self.options.showDataPoint = False
         elif switch in set(['multiple', 'multiple plots', 'separate plots', 'separate']):
             self.options.separatePlot = False
-        elif switch in set(['fitted dots', 'fitted results', 'fitted data']):
+        elif switch in set(['fitted dots', 'fitted results', 'fitted data', 'fitted']):
             self.options.showFittedPoint = False
         else:
             raise NameError('no such options')
@@ -713,6 +723,12 @@ class dlm(_dlm):
         dlmPlot.plotout()
 
 #================================ control options ==================================
-    #def shrink(self, level = 'auto'):
-    #    self.options.shrink = level
-    #    self.initialized = False
+    def showOptions(self):
+        allItems = vars(self.options)
+        for item in allItems:
+            print item + ': ' + allItems[item]
+
+    def stableMode(self, use = True):
+        if self.options.stable != use:
+            self.initialized = False
+        self.options.stable = use

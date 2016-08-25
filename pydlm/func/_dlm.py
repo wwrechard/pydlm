@@ -32,6 +32,7 @@ class _dlm:
         initialized: indicates whether the dynamic linear model has been initialized
         options: model options, including initial guess of the observational variance.
                  More is going to be added (plot options and shrinkage options)
+        time: the time label, used for plotting
        
 
     Methods:
