@@ -73,7 +73,8 @@ class builder:
 
         # renew term used to indicate the effective length of data, i.e.,
         # for days before this length will have little impact on the current result
-        self.renewTerm = None
+        self.renewTerm = -1.0
+        self.renewDiscount = None # used for adjusting renewTerm
 
 
     # The function that allows the user to add components
@@ -98,6 +99,13 @@ class builder:
             if component.name in self.staticComponents:
                 raise NameError('Please rename the component to a different name.')
             self.staticComponents[component.name] = component
+
+            # we use seasonality's discount to adjust the renewTerm
+            if component.componentType == 'seasonality':
+                if self.renewDiscount is None:
+                    self.renewDiscount = 1.0
+                self.renewDiscount = min(self.renewDiscount, min(component.discount))
+                
         self.initialized = False
         return self
 
@@ -206,12 +214,15 @@ class builder:
                                state = state, \
                                df = 1)
         self.model.initializeObservation()
+        
         # compute the renew period
-        if np.min(self.discount) < 1.0 - 1e-8:
-            self.rewnewTerm = np.log(0.0001 * (1 - np.min(self.discount))) \
-                            / np.log(np.min(self.discount))
-        else:
-            self.renewTerm = -1
+        if self.renewDiscount is None:
+            self.renewDiscount = np.min(self.discount)
+        
+        if self.renewDiscount < 1.0 - 1e-8:
+            self.renewTerm = np.log(0.001 * (1 - self.renewDiscount)) \
+                             / np.log(self.renewDiscount)
+            
         self.initialized = True
         print 'Initialization finished.'
 
