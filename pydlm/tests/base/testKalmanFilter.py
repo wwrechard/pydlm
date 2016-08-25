@@ -112,6 +112,16 @@ class testKalmanFilter(unittest.TestCase):
 
         self.kf0.forwardFilter(dlm.model, 0)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
+
+    def testMissingEvaluation(self):
+        dlm = builder()
+        dlm.add(trend(degree = 1, discount = 1))
+        dlm.initialize()
+       
+        dlm.model.evaluation = np.matrix([[None]])
+        self.kf1.forwardFilter(dlm.model, 1.0)
+        self.assertAlmostEqual(dlm.model.obs, 0.0)
+        self.assertAlmostEqual(dlm.model.transition, 1.0)
         
 unittest.main()
 #kf1 = kalmanFilter(discount = [1])

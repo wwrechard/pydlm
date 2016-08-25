@@ -1,7 +1,8 @@
 # This is the PyDLM package
 
-__all__ = ['base', 'modeler', 'func']
+__all__ = ['dlm', 'trend', 'seasonality', 'dynamic']
 
-import base
-import modeler
-import func
+from dlm import dlm
+from modeler.trends import trend
+from modeler.seasonality import seasonality
+from modeler.dynamic import dynamic

@@ -61,17 +61,22 @@ class kalmanFilter:
 
         #self.shrinkageMatrix = np.dot(np.dot(self.discount, self.shrinkageMatrix), \
         #                              self.discount) - self.shrinkageMatrix
-    def predict(self, model):
+    def predict(self, model, dealWithMissingValue = True):
         """ 
         Predict the next states of the model by one step
 
         Args:
             model: the @baseModel class provided all necessary information
-
+            dealWithMissingValue: indicate whether we need to treat the missing value.
+                                  it will be turned off when used in forwardFilter as
+                                  missing cases have already been address by forwardFilter
         Returns:
             The predicted result is stored in 'model.prediction'
 
         """
+        # check whether evaluation has missing data, if so, we need to take care of it
+        if dealWithMissingValue:
+            loc = self._modifyTransitionAccordingToMissingValue(model)
         
         # if the step number == 0, we use result from the model state
         if model.prediction.step == 0:
@@ -103,7 +108,10 @@ class kalmanFilter:
                                                     model.prediction.sysVar), \
                                              model.evaluation.T) + model.noiseVar
             model.prediction.step += 1
-            
+
+        # recover the evaluation and the transition matrix
+        if dealWithMissingValue:
+            self._recoverTransitionAndEvaluation(model, loc)
 
     def forwardFilter(self, model, y):
         """ 
@@ -117,6 +125,11 @@ class kalmanFilter:
             The filtered result is stored in the 'model' replacing the old states
 
         """
+        # check whether evaluation has missing data, if so, we need to take care of it
+        loc = self._modifyTransitionAccordingToMissingValue(model)
+
+        # since we have delt with the missing value, we don't need to double treat it.
+        self.predict(model, dealWithMissingValue = False)
         
         # when y is not a missing data
         if y is not None:
@@ -125,7 +138,6 @@ class kalmanFilter:
             # we make the prediction step equal to 0 to ensure the prediction
             # is based on the model state and innovation is updated correctlly
             # model.prediction.step = 0
-            self.predict(model)
             model.prediction.step = 0
         
             # the prediction error and the correction matrix
@@ -162,14 +174,15 @@ class kalmanFilter:
             # 2. for the second 'None', the step starts from 1, but the prediction.state
             #    is correct, because now model.state = model.prediciton.state
             # 3. The last 'None' follows the same
-            self.predict(model)
             
             model.state = model.prediction.state
             model.sysVar = model.prediction.sysVar
             model.obs = model.prediction.obs
             model.obsVar = model.prediction.obsVar
 
-
+        # recover the evaluation and the transition matrix
+        self._recoverTransitionAndEvaluation(model, loc)
+        
     # The backward smoother for a given unsmoothed states at time t
     # what model should store:
     #      model.state: the last smoothed states (t + 1)
@@ -202,6 +215,9 @@ class kalmanFilter:
             The smoothed results are stored in the 'model' replacing the filtered result.
         """
 
+        # check whether evaluation has missing data, if so, we need to take care of it
+        loc = self._modifyTransitionAccordingToMissingValue(model)
+        
         #### use generalized inverse to ensure the computation stability #######
         
         predSysVarInv = self._gInverse(model.prediction.sysVar)
@@ -216,7 +232,10 @@ class kalmanFilter:
         model.obs = np.dot(model.evaluation, model.state)
         model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
                               model.evaluation.T) + model.noiseVar
-
+        
+        # recover the evaluation and the transition matrix
+        self._recoverTransitionAndEvaluation(model, loc)
+        
     def backwardSampler(self, model, rawState, rawSysVar):
         """ 
         The backwardSampler for one step backward sampling
@@ -300,3 +319,28 @@ class kalmanFilter:
         s[s < 1e-5] = 0
         S = np.diag(s)
         return np.dot(U, np.dot(S, V))
+
+    def _modifyTransitionAccordingToMissingValue(self, model):
+        """
+        When evaluation contains None value, we modify the corresponding entries
+        in the transition to deal with the missing value
+
+        """
+        loc = []
+        for i in range(model.evaluation.shape[1]):
+            if model.evaluation[0, i] is None:
+                loc.append(i)
+                model.transition[i, i] = 0.0
+                model.evaluation[0, i] = 0.0
+        return loc
+
+    def _recoverTransitionAndEvaluation(self, model, loc):
+        """
+        We recover the transition and evaluation use the results from 
+        _modifyTransitionAccordingToMissingValue
+
+        """
+        for i in loc:
+            model.evaluation[0, i] = None
+            model.transition[i, i] = 1.0
+            

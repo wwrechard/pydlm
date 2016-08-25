@@ -724,11 +724,19 @@ class dlm(_dlm):
 
 #================================ control options ==================================
     def showOptions(self):
+        """
+        Print out all the option values
+
+        """
         allItems = vars(self.options)
         for item in allItems:
-            print item + ': ' + allItems[item]
+            print item + ': ' + str(allItems[item])
 
     def stableMode(self, use = True):
+        """
+        Turn on the stable mode, i.e., using the renew strategy
+
+        """
         if self.options.stable != use:
             self.initialized = False
         self.options.stable = use

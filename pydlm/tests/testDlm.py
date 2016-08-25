@@ -129,6 +129,20 @@ class testDlm(unittest.TestCase):
         # The two chain should have the same filtered obs
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)
+
+    def testTrunOn(self):
+        pass
+
+    def testTurnOff(self):
+        pass
+
+    def testSetColor(self):
+        pass
+
+    def testSetConfidence(self):
+        pass
+
+    
 unittest.main()
 
 
