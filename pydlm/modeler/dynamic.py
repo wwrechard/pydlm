@@ -47,6 +47,7 @@ class dynamic(component):
         checkDimensions: if user supplies their own covPrior and meanPrior, this can 
                          be used to check if the dimension matches
         updateEvaluation: update the evaluation matrix to a specific date
+        appendNewData: append new feature data to the component
 
     Examples:
           # create a dynamic component:
@@ -76,6 +77,9 @@ class dynamic(component):
         self.createTransition()
         self.createCovPrior()
         self.createMeanPrior()
+
+        # record current step in case of lost
+        self.step = 0
 
     def createEvaluation(self, step):
         """
@@ -117,5 +121,14 @@ class dynamic(component):
         """
         if step < self.n:
             self.evaluation = np.matrix([self.features[step]])
+            self.step = step
         else:
             raise NameError('The step is out of range')
+
+    def appendNewData(self, newData):
+        """
+        For updating feature matrix when new data is added
+
+        """
+        self.features.extend(tl.duplicateList(newData))
+        self.n = len(self.features)

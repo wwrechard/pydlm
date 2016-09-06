@@ -49,15 +49,13 @@ class trend(component):
         > ctrend.createMeanPrior(mean = 1)
     
     """
-
-    # class variable specify the component type
-    componentType = 'trend'
     
     def __init__(self, degree = 1, discount = 0.99, name = 'trend'):
         if degree <= 0:
             raise NameError('degree has to be positive')
         self.d = degree
         self.name = name
+        self.componentType = 'trend'
         self.discount = np.ones(self.d) * discount
         
         # Initialize all basic quantities
