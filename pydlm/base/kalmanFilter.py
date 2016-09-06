@@ -61,7 +61,7 @@ class kalmanFilter:
 
         #self.shrinkageMatrix = np.dot(np.dot(self.discount, self.shrinkageMatrix), \
         #                              self.discount) - self.shrinkageMatrix
-    def predict(self, model, dealWithMissingValue = True):
+    def predict(self, model, dealWithMissingEvaluation = False):
         """ 
         Predict the next states of the model by one step
 
@@ -75,7 +75,7 @@ class kalmanFilter:
 
         """
         # check whether evaluation has missing data, if so, we need to take care of it
-        if dealWithMissingValue:
+        if dealWithMissingEvaluation:
             loc = self._modifyTransitionAccordingToMissingValue(model)
         
         # if the step number == 0, we use result from the model state
@@ -110,10 +110,10 @@ class kalmanFilter:
             model.prediction.step += 1
 
         # recover the evaluation and the transition matrix
-        if dealWithMissingValue:
+        if dealWithMissingEvaluation:
             self._recoverTransitionAndEvaluation(model, loc)
 
-    def forwardFilter(self, model, y):
+    def forwardFilter(self, model, y, dealWithMissingEvaluation = False):
         """ 
         The forwardFilter used to run one step filtering given new data
 
@@ -126,10 +126,11 @@ class kalmanFilter:
 
         """
         # check whether evaluation has missing data, if so, we need to take care of it
-        loc = self._modifyTransitionAccordingToMissingValue(model)
+        if dealWithMissingEvaluation:
+            loc = self._modifyTransitionAccordingToMissingValue(model)
 
         # since we have delt with the missing value, we don't need to double treat it.
-        self.predict(model, dealWithMissingValue = False)
+        self.predict(model, dealWithMissingEvaluation = False)
         
         # when y is not a missing data
         if y is not None:
@@ -181,7 +182,8 @@ class kalmanFilter:
             model.obsVar = model.prediction.obsVar
 
         # recover the evaluation and the transition matrix
-        self._recoverTransitionAndEvaluation(model, loc)
+        if dealWithMissingEvaluation:
+            self._recoverTransitionAndEvaluation(model, loc)
         
     # The backward smoother for a given unsmoothed states at time t
     # what model should store:

@@ -119,7 +119,7 @@ class testKalmanFilter(unittest.TestCase):
         dlm.initialize()
        
         dlm.model.evaluation = np.matrix([[None]])
-        self.kf1.forwardFilter(dlm.model, 1.0)
+        self.kf1.forwardFilter(dlm.model, 1.0, dealWithMissingEvaluation = True)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
         self.assertAlmostEqual(dlm.model.transition, 1.0)
         
