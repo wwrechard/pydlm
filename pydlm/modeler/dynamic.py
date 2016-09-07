@@ -132,3 +132,11 @@ class dynamic(component):
         """
         self.features.extend(tl.duplicateList(newData))
         self.n = len(self.features)
+
+    def popout(self, date):
+        """
+        For deleting the feature data of a specific date
+
+        """
+        self.features.pop(date)
+        self.n -= 1
