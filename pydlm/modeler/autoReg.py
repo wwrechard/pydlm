@@ -1,6 +1,39 @@
+"""
+===========================================================================
+
+The code for autoregressive components
+
+===========================================================================
+
+This code implements the autoregressive component as a sub-class of dynamic.
+Different from the dynamic component, the features in the autoReg is generated
+from the data, and updated according to the data. All other features are similar
+to @dynamic.
+
+"""
+
 from dynamic import dynamic
 
 class autoReg(dynamic):
+    """
+    The autoReg class alows user to add an autoregressive component to the dlm.
+
+    Members:
+        default member of @dynamic
+        degree: the degree of autoregressive, i.e., how many days to look back
+        data: the time series data used for constructing the autoregressive features
+        discount factor: the discounting factor
+        name: the name of the component
+        padding: either 0 or None. The number to be padded for the first degree days,
+                 as no previous data is observed to form the feature matrix
+
+    Methods:
+       default methods of @dynamic
+       checkDataLength: check whether the degree is less than the time series
+       createFeatureMatrix: use data to create the feature matrix
+       appendNewData: override the same method in @dynamic.
+       popout: override the same method in @dynamic
+    """
 
     def __init__(self,
                  degree = 2,
@@ -29,6 +62,10 @@ class autoReg(dynamic):
         self.lastDay = data[-1]
         
     def createFeatureMatrix(self, degree, data):
+        """
+        Create the feature matrix based on the supplied data and the degree
+
+        """
         
         # initialize feature matrix
         features = []
@@ -40,11 +77,23 @@ class autoReg(dynamic):
 
     # the degree cannot be longer than data
     def checkDataLength(self):
+        """
+        Check whether the degree is less than the time series length
+
+        """
         if self.d >= self.n:
             raise NameError('The degree cannot be longer than the data series')
         
     # override
     def appendNewData(self, newData):
+        """
+        Append new data to the existing features. Overriding the same method in
+        @dynamic
+
+        Args:
+            newData: a list of new data
+
+        """
         # fetch the last entry of the feature
         previousDays = self.features[-1]
         fakeData = [num for num in previousDays] + [self.lastDay] + \
@@ -60,6 +109,10 @@ class autoReg(dynamic):
 
     # override
     def popout(self, date):
+        """
+        Pop out the data of a specific date and rewrite the correct feature matrix
+
+        """
 
         # if what popped out is the last day, we need to update last day
         if date == self.n - 1:

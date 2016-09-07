@@ -48,10 +48,11 @@ class dynamic(component):
                          be used to check if the dimension matches
         updateEvaluation: update the evaluation matrix to a specific date
         appendNewData: append new feature data to the component
+        popout: pop out the feature data of a specific date
 
     Examples:
           # create a dynamic component:
-        > features = numpy.random.random((2, 10))
+        > features = numpy.random.random((2, 10)).toList()
         > ctrend = dynamic(features = features, name = 'random', discount = 0.99)
           # change the ctrend to have covariance with diagonals are 2 and state 1
         > ctrend.createCovPrior(cov = 2)
