@@ -6,3 +6,4 @@
 *_flymake.py
 .#*
 *.rst~
+build/
