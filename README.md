@@ -36,9 +36,9 @@ Users can then analyze the data with the constructed model
   >>> myDLM.fitBackwardSmoother()
   >>>
 ```
-and plot the results easily
 
-<img align="right" src="/doc/source/img/readmePlot1.png" width="500"/>
+and plot the results easily
+<img align="right" src="/doc/source/img/readmePlot1.png" width="400"/>
 ```
   >>> #plot the results
   >>> myDLM.plot()
@@ -47,11 +47,16 @@ and plot the results easily
   >>> #plot only the filtered results
   >>> myDLM.turnOff('smoothed plot')
   >>> myDLM.plot()
-  >>>
+```
+```
   >>> #plot in one figure
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 ```
+<p align="center">
+<img src="/doc/source/img/readmePlot2.png" width="400"/>
+<img src="/doc/source/img/readmePlot3.png" width="400"/>
+</p>
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit
 ```
   >>> myDLM = myDLM + seasonality(4)
