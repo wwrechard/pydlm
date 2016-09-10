@@ -52,6 +52,7 @@ and plot the results easily.
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit
 ```
   >>> myDLM = myDLM + seasonality(4)
+  >>> myDLM.ls()
   >>> myDLM.fit()
 ```
 `pydlm` supports missing observations
