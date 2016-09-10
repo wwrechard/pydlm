@@ -35,6 +35,9 @@ Users can then analyze the data with the constructed model
   >>> #fit backward smoother
   >>> myDLM.fitBackwardSmoother()
   >>>
+  >>> # get the filtered and smoothed results
+  >>> filteredObs = myDLM.getFilteredObs()
+  >>> smoothedObs = myDLM.getSmoothedObs()
 ```
 
 and plot the results easily
@@ -80,11 +83,11 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM = myDLM + trend(2, discount = 0.9)
   >>> myDLM.fit()
   >>> myDLM.plot()
-  >>>
-  >>> # get the filtered and smoothed results
-  >>> filteredObs = myDLM.getFilteredObs()
-  >>> smoothedObs = myDLM.getSmoothedObs()
 ```
+<p align="center">
+<img src="/doc/source/img/readmePlot4.png" width="430"/>
+<img src="/doc/source/img/readmePlot5.png" width="430"/>
+</p>
 For online updates
 ```
   >>> myDLM = dlm([]) + trend(2) + seasonality(7)
