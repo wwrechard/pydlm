@@ -1,8 +1,8 @@
 =======================================================
-PyDLM
+[PyDLM]
 =======================================================
 
-Welcome to PyDLM, a flexible, user-friendly and rich functionality time series modeling library for python. This package implementes the Bayesian dynamic linear model for time series data. All modeling functionality is integrated in the :class:`dlm`::
+Welcome to [pydlm], a flexible, user-friendly and rich functionality time series modeling library for python. This package implementes the Bayesian dynamic linear model for time series data. All modeling functionality is integrated in the `dlm`
 
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
@@ -42,13 +42,13 @@ Welcome to PyDLM, a flexible, user-friendly and rich functionality time series m
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 
-It supports missing observations::
+It supports missing observations
 
   >>> data = [1, 0, 0, 1, 0, 0, None, 0, 1, None, None, 0, 0]
   >>> myDLM = dlm(data) + trend(2)
   >>> myDLM.fit() #fit() will fit both forward filter and backward smoother
 
-It also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data::
+It also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data
 
   >>> data = [0] * 100 + [3] * 100
   >>> myDLM = dlm(data) + trend(2, discount = 1.0)
@@ -64,7 +64,7 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> filteredObs = myDLM.getFilteredObs()
   >>> smoothedObs = myDLM.getSmoothedObs()
 
-For online updates::
+For online updates
 
   >>> myDLM = dlm([]) + trend(2) + seasonality(7)
   >>> for t in range(0, len(data)):
@@ -76,12 +76,18 @@ For online updates::
 Installation
 ------------
 
-For now you can get the latest and greatest from `github
-<https://github.com/wwrechard/PyDLM>`_::
+For now you can get the latest and greatest from [github]
+(https://github.com/wwrechard/PyDLM)
 
       $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
       $ cd PyDLM
       $ sudo python setup.py install
 
 In the future (after adding the multivariate case), the package will
-be up on `PyPI`.
+be up on `PyPI`. 
+
+`pydlm` depends on the following modules,
+
+* `numpy`     (for core functionality)
+* `Sphinx`    (for generating documentation)
+* `unittest`  (for testing)
