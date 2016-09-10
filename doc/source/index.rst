@@ -2,7 +2,11 @@
 PyDLM
 =======================================================
 
-Welcome to PyDLM, a flexible, user-friendly and rich functionality time series modeling library for python. All modeling functionality is integrated in the :class:`dlm`::
+Welcome to PyDLM, a flexible, user-friendly and rich functionality
+time series modeling library for python. All modeling functionality is
+integrated in the :class:`dlm`.
+
+Modeling is the key feature of :class:`pydlm`. Complex models can be constructed via simple operations::
 
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
@@ -24,13 +28,17 @@ Welcome to PyDLM, a flexible, user-friendly and rich functionality time series m
   >>> #delete unwanted component
   >>> myDLM.delete('ar3')
   >>> myDLM.ls()
-  >>>
+
+Users can then analyze the data with the constructed model::
+  
   >>> #fit forward filter
   >>> myDLM.fitForwardFilter()
   >>>
   >>> #fit backward smoother
   >>> myDLM.fitBackwardSmoother()
-  >>>
+
+and plot the results easily::
+
   >>> #plot the results
   >>> myDLM.plot()
   >>>
@@ -42,7 +50,13 @@ Welcome to PyDLM, a flexible, user-friendly and rich functionality time series m
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 
-It supports missing observations::
+If users are unsatisfied with the model results, they can simply reconstruct the model and refit::
+
+  >>> myDLM = myDLM + seasonality(4)
+  >>> myDLM.ls()
+  >>> myDLM.fit()
+
+`pydlm` supports missing observations::
 
   >>> data = [1, 0, 0, 1, 0, 0, None, 0, 1, None, None, 0, 0]
   >>> myDLM = dlm(data) + trend(2)
@@ -76,9 +90,18 @@ For online updates::
 Installation
 ------------
 
-So far you can get the latest and greatest from `github
+For now you can get the latest and greatest from `github
 <https://github.com/wwrechard/PyDLM>`_::
 
       $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
       $ cd PyDLM
       $ sudo python setup.py install
+
+In the future (after adding the multivariate case), the package will
+be up on `PyPI`.
+
+:mod:`pydlm` depends on the following modules,
+
+* :mod:`numpy`     (for core functionality)
+* :mod:`Sphinx`    (for generating documentation)
+* :mod:`unittest`  (for tests)
