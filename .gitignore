@@ -5,3 +5,4 @@
 *.py#
 *_flymake.py
 .#*
+*.rst~
