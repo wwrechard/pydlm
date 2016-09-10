@@ -3,7 +3,7 @@
 =======================================================
 
 Welcome to [pydlm], a flexible, user-friendly and rich functionality time series modeling library for python. This package implementes the Bayesian dynamic linear model for time series data. All modeling functionality is integrated in the `dlm`
-
+```
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
   >>>
@@ -41,15 +41,15 @@ Welcome to [pydlm], a flexible, user-friendly and rich functionality time series
   >>> #plot in one figure
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
-
+```
 It supports missing observations
-
+```
   >>> data = [1, 0, 0, 1, 0, 0, None, 0, 1, None, None, 0, 0]
   >>> myDLM = dlm(data) + trend(2)
   >>> myDLM.fit() #fit() will fit both forward filter and backward smoother
-
+```
 It also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data
-
+```
   >>> data = [0] * 100 + [3] * 100
   >>> myDLM = dlm(data) + trend(2, discount = 1.0)
   >>> myDLM.fit()
@@ -63,15 +63,15 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> # get the filtered and smoothed results
   >>> filteredObs = myDLM.getFilteredObs()
   >>> smoothedObs = myDLM.getSmoothedObs()
-
+```
 For online updates
-
+```
   >>> myDLM = dlm([]) + trend(2) + seasonality(7)
   >>> for t in range(0, len(data)):
   ...     myDLM.append([data[t]])
   ...     myDLM.fitForwardFilter()
   >>> filteredObs = myDLM.getFilteredObs()
-  
+```  
 ------------
 Installation
 ------------
