@@ -80,7 +80,7 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.plot()
   >>>
   >>> myDLM.delete('trend')
-  >>> myDLM = myDLM + trend(2, discount = 0.9)
+  >>> myDLM = myDLM + trend(2, discount = 0.8)
   >>> myDLM.fit()
   >>> myDLM.plot()
 ```
