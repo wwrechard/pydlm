@@ -36,11 +36,14 @@ Users can then analyze the data with the constructed model
   >>> myDLM.fitBackwardSmoother()
   >>>
 ```
-and plot the results easily. 
+and plot the results easily
+
+<img align="right" src="/doc/source/img/readmePlot1.png" width="500"/>
 ```
   >>> #plot the results
   >>> myDLM.plot()
-  >>>
+```
+```
   >>> #plot only the filtered results
   >>> myDLM.turnOff('smoothed plot')
   >>> myDLM.plot()
