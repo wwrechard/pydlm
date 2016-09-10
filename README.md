@@ -3,6 +3,8 @@
 =======================================================
 
 Welcome to [pydlm](https://github.com/wwrechard/PyDLM), a flexible, user-friendly and rich functionality time series modeling library for python. This package implementes the Bayesian dynamic linear model for time series data. All modeling functionality is integrated in the `dlm`
+
+Modeling is the key feature of `pydlm`. Complex models can be constructed via simple operations
 ```
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
@@ -24,13 +26,18 @@ Welcome to [pydlm](https://github.com/wwrechard/PyDLM), a flexible, user-friendl
   >>> #delete unwanted component
   >>> myDLM.delete('ar3')
   >>> myDLM.ls()
-  >>>
+```
+Users can then analyze the data with the constructed model
+```
   >>> #fit forward filter
   >>> myDLM.fitForwardFilter()
   >>>
   >>> #fit backward smoother
   >>> myDLM.fitBackwardSmoother()
   >>>
+```
+and plot the results easily. 
+```
   >>> #plot the results
   >>> myDLM.plot()
   >>>
@@ -42,13 +49,18 @@ Welcome to [pydlm](https://github.com/wwrechard/PyDLM), a flexible, user-friendl
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 ```
-It supports missing observations
+If users are unsatisfied with the model results, they can simply reconstruct the model and refit
+```
+  >>> myDLM = myDLM + seasonality(4)
+  >>> myDLM.fit()
+```
+`pydlm` supports missing observations
 ```
   >>> data = [1, 0, 0, 1, 0, 0, None, 0, 1, None, None, 0, 0]
   >>> myDLM = dlm(data) + trend(2)
   >>> myDLM.fit() #fit() will fit both forward filter and backward smoother
 ```
-It also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data
+It also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data (More details will be provided in the documentation)
 ```
   >>> data = [0] * 100 + [3] * 100
   >>> myDLM = dlm(data) + trend(2, discount = 1.0)
