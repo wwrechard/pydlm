@@ -17,8 +17,7 @@ from abc import ABCMeta, abstractmethod
 # trend, seasonality and other structures
 
 class component:
-    """
-    The abstract class provides the basic structure for all model components
+    """ The abstract class provides the basic structure for all model components
     
     Methods:
         createEvaluation: create the initial evaluation matrix
@@ -34,39 +33,34 @@ class component:
     # define the evaluation matrix for the component
     @abstractmethod
     def createEvaluation(self): pass
-    """
-    Create the evaluation matrix
+    """ Create the evaluation matrix
 
     """
     
     # define the transition matrix for the component
     @abstractmethod
     def createTransition(self): pass
-    """
-    Create the transition matrix
+    """ Create the transition matrix
 
     """
     
     # define the prior distribution for the covariance for the component
     @abstractmethod
     def createCovPrior(self): pass
-    """
-    Create the prior covariance matrix for the latent states
+    """ Create the prior covariance matrix for the latent states
 
     """
 
     # define the prior distribution for the mean vector for the component
     @abstractmethod
     def createMeanPrior(self): pass
-    """
-    Create the prior latent state
+    """ Create the prior latent state
     
     """
     
     # check the matrix dimensions in case user supplied matrices are wrong
     @abstractmethod
     def checkDimensions(self): pass
-    """
-    Check the dimensionality of the state and covariance
+    """ Check the dimensionality of the state and covariance
 
     """

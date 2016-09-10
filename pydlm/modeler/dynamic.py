@@ -22,11 +22,10 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class dynamic(component):
-    """
-    The dynamic component that allows user to add controlled variables. It implements
+    """ The dynamic component that allows user to add controlled variables. It implements
     an abstract component class and override all the abstractmethod.
     
-    Members:
+    Attributes:
         d: the dimension of the features (number of latent states)
         n: the number of observation
         componentType: the type of the component, in this case, 'dynamic'
@@ -83,16 +82,15 @@ class dynamic(component):
         self.step = 0
 
     def createEvaluation(self, step):
-        """
-        The evaluation matrix for the dynamic component change over time.
+        """ The evaluation matrix for the dynamic component change over time.
         It equals to the value of the features or the controlled variables at a 
         given date
+
         """
         self.evaluation = np.matrix([self.features[step]])
 
     def createTransition(self):
-        """
-        For the dynamic component, the transition matrix is just the identity matrix
+        """ For the dynamic component, the transition matrix is just the identity matrix
 
         """
         self.transition = np.matrix(np.eye(self.d))
@@ -114,8 +112,7 @@ class dynamic(component):
         print 'The dimesnion looks good!'
 
     def updateEvaluation(self, step):
-        """
-        update the evaluation matrix to a specific date
+        """ update the evaluation matrix to a specific date
         This function is used when fitting the forward filter and backward smoother
         in need of updating the correct evaluation matrix
 
@@ -127,16 +124,18 @@ class dynamic(component):
             raise NameError('The step is out of range')
 
     def appendNewData(self, newData):
-        """
-        For updating feature matrix when new data is added
+        """ For updating feature matrix when new data is added.
+
+        Args:
+            newData: is a list of list. The inner list is the feature vector. The outer
+                     list may contain multiple feature vectors.
 
         """
         self.features.extend(tl.duplicateList(newData))
         self.n = len(self.features)
 
     def popout(self, date):
-        """
-        For deleting the feature data of a specific date
+        """ For deleting the feature data of a specific date
 
         """
         self.features.pop(date)

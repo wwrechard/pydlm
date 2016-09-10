@@ -16,12 +16,11 @@ from pydlm.modeler.builder import builder
 # be used by the user. Most functionality in the main dlm will be constructed
 # by using the hidden functions in this class
 class _dlm:
-    """
-    _dlm includes all hidden functions that used by the class dlm. These hidden
+    """ _dlm includes all hidden functions that used by the class dlm. These hidden
     methods provide the basic modeling, filtering, forecasting and smoothing of
     dlm.
 
-    Members:
+    Attributes:
         data: the observed time series data
         n: the length of the time series data
         result: the inner class that records the filtered and smoothed results
@@ -64,12 +63,15 @@ class _dlm:
 
     # an inner class to store all options
     class _defaultOptions:
+        """ All plotting and fitting options
+
+        """
         def __init__(self):
             self.noise = 1.0
             self.stable = True
             
             self.plotOriginalData = True
-            self.plotFilteredData = True
+            self.plotFilteredData = False
             self.plotSmoothedData = False
             self.plotPredictedData = False
             self.showDataPoint = True
@@ -84,6 +86,9 @@ class _dlm:
             
     # an inner class to store all results
     class _result:
+        """ Class to store the results
+
+        """
         # class level (static) variables to record all names
         records = ['filteredObs', 'predictedObs', 'smoothedObs', 'filteredObsVar', \
                    'predictedObsVar', 'smoothedObsVar', 'noiseVar', 'df', \
@@ -114,8 +119,7 @@ class _dlm:
                 
     # initialize the builder
     def _initialize(self):
-        """
-        Initialize the model: initialize builder and filter.
+        """ Initialize the model: initialize builder and filter.
 
         """
         self.builder.initialize(noise = self.options.noise)
@@ -141,8 +145,7 @@ class _dlm:
                        save = 'all', \
                        ForgetPrevious = False, \
                        renew = False):
-        """
-        Running forwardFilter for the data for a given start and end date
+        """ Running forwardFilter for the data for a given start and end date
         
         Args:
             start: the start date
@@ -219,8 +222,7 @@ class _dlm:
     # start: the last date of the backward filtering chain
     # days: number of days to go back from start 
     def _backwardSmoother(self, start = None, days = None, ignoreFuture = False):
-        """
-        Backward smooth over filtered results for a specific start and number of days
+        """ Backward smooth over filtered results for a specific start and number of days
 
         Args:
             start: the start date
@@ -289,8 +291,7 @@ class _dlm:
 
     # Forecast the result based on filtered chains
     def _predict(self, date = None, days = 1):
-        """
-        Predict the model's status based on the model of a specific day
+        """ Predict the model's status based on the model of a specific day
         
         Args:
             date: the date the prediction is based on
@@ -320,8 +321,8 @@ class _dlm:
 
     # to set model to a specific date
     def _setModelStatus(self, date = 0):
-        """
-        Set the model status to a specific date (the date mush have been filtered)
+        """ Set the model status to a specific date (the date mush have been filtered)
+
         """
         if date < self.result.filteredSteps[0] or date > self.result.filteredSteps[1]:
             raise NameError('The date has yet to be filtered yet. Check the <filteredSteps> in <result> object.')
@@ -332,8 +333,7 @@ class _dlm:
         
     # reset model to initial status
     def _resetModelStatus(self):
-        """
-        Reset the model to the prior status
+        """ Reset the model to the prior status
 
         """
         self.builder.model.state = self.builder.statePrior
@@ -344,8 +344,7 @@ class _dlm:
                    
     # a function used to copy result from the model to the result
     def _copy(self, model, result, step, filterType):
-        """
-        Copy result from the model to _result class
+        """ Copy result from the model to _result class
 
         """
         
@@ -368,8 +367,7 @@ class _dlm:
             result.smoothedObsVar[step] = model.obsVar
 
     def _reverseCopy(self, model, result, step):
-        """
-        Copy result from _result class to the model
+        """ Copy result from _result class to the model
 
         """
         
@@ -386,8 +384,8 @@ class _dlm:
 
     # check if the data size matches the dynamic features
     def _checkFeatureSize(self):
-        """
-        Check features's n matches the data's n
+        """ Check features's n matches the data's n
+
         """
         if len(self.builder.dynamicComponents) > 0:
             for name in self.builder.dynamicComponents:

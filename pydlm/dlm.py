@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 ===============================================================================
 
@@ -31,15 +32,15 @@ Example:
 
 #from pydlm.modeler.builder import builder
 from pydlm.func._dlm import _dlm
-from pydlm.base.tools import duplicateList
+#from pydlm.base.tools import duplicateList
 from pydlm.base.tools import getInterval
 
 class dlm(_dlm):
-    """
-    The main class of the dynamic linear model. Provide functionality for modeling,
-    filtering, forecasting and smoothing.
+    """ The main class of the dynamic linear model. 
 
-    Members:
+    Provide functionality for modeling, filtering, forecasting and smoothing.
+
+    Attributes:
        See the members for @_dlm
 
     Methods:
@@ -95,8 +96,7 @@ class dlm(_dlm):
 
     # add component
     def add(self, component):
-        """
-        Add new modeling component to the dlm. Currently support: trend, seasonality
+        """ Add new modeling component to the dlm. Currently support: trend, seasonality
         and dynamic component.
 
         """
@@ -109,16 +109,15 @@ class dlm(_dlm):
 
     # list all components
     def ls(self):
-        """
-        List out all existing components
+        """ List out all existing components
 
         """
         self.builder.ls()
 
     # delete one component
     def delete(self, name):
-        """
-        Delete model component by its name
+        """ Delete model component by its name
+
         """
         self.builder.delete(name)
         self.initialized = False
@@ -126,15 +125,13 @@ class dlm(_dlm):
 #====================== result components ====================
 
     def getAll(self):
-        """
-        get all the _result class which contains all results
+        """ get all the _result class which contains all results
 
         """
         return self.result
 
     def getFilteredObs(self):
-        """       
-        get the filtered observations. If the filtered dates are not (0, self.n - 1),
+        """ get the filtered observations. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -147,9 +144,11 @@ class dlm(_dlm):
         return self._1DmatrixToArray(self.result.filteredObs[start:end])
 
     def getFilteredObsVar(self):
-        """
-        get the filtered observation variance. If the filtered dates are not 
-        (0, self.n - 1), then a warning will prompt stating the actual filtered dates.
+        """ get the filtered observation variance. 
+
+        If the filtered dates are not (0, self.n - 1), then a warning will prompt stating
+        the actual filtered dates.
+
         """
         if self.result.filteredSteps != [0, self.n - 1]:
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
@@ -159,9 +158,9 @@ class dlm(_dlm):
         return self._1DmatrixToArray(self.result.filteredObsVar[start:end])
 
     def getFilteredInterval(self, p):
-        """
-        get the filtered confidence interval. If the filtered dates are not 
+        """ get the filtered confidence interval. If the filtered dates are not 
         (0, self.n - 1), then a warning will prompt stating the actual filtered dates.
+
         """
         if self.result.filteredSteps != [0, self.n - 1]:
             print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
@@ -173,8 +172,7 @@ class dlm(_dlm):
         return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
 
     def getSmoothedObs(self):
-        """       
-        get the smoothed observations. If the filtered dates are not (0, self.n - 1),
+        """ get the smoothed observations. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -186,8 +184,7 @@ class dlm(_dlm):
         return self._1DmatrixToArray(self.result.smoothedObs[start:end])
 
     def getSmoothedObsVar(self):
-        """       
-        get the smoothed variance. If the filtered dates are not (0, self.n - 1),
+        """ get the smoothed variance. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -199,9 +196,9 @@ class dlm(_dlm):
         return self._1DmatrixToArray(self.result.smoothedObsVar[start:end])
 
     def getSmoothedInterval(self, p):
-        """
-        get the smoothed confidence interval. If the filtered dates are not 
+        """ get the smoothed confidence interval. If the filtered dates are not 
         (0, self.n - 1), then a warning will prompt stating the actual smoothed dates.
+
         """
         if self.result.smoothedSteps != [0, self.n - 1]:
             print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
@@ -213,9 +210,8 @@ class dlm(_dlm):
         return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
     
     def getPredictedObs(self):
-        """       
-        get the predicted observations. An array of numbers. a[k] shows the prediction on 
-        that the date k given all the data up to k - 1.
+        """ get the predicted observations. An array of numbers. 
+        a[k] shows the prediction on that the date k given all the data up to k - 1.
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
@@ -226,8 +222,7 @@ class dlm(_dlm):
         return self._1DmatrixToArray(self.result.predictedObs[start : end])
 
     def getPredictedObsVar(self):
-        """       
-        get the predicted variance. An array of numbers. a[k] shows the prediction on 
+        """ get the predicted variance. An array of numbers. a[k] shows the prediction on 
         that the date k given all the data up to k - 1.
 
         """
@@ -239,9 +234,9 @@ class dlm(_dlm):
         return self._1DmatrixToArray(self.result.predictedObsVar[start : end])
 
     def getPredictedInterval(self, p):
-        """
-        get the predicted confidence interval. If the predicted dates are not 
+        """ get the predicted confidence interval. If the predicted dates are not 
         (0, self.n - 1), then a warning will prompt stating the actual predicted dates.
+
         """
         if self.result.filteredSteps != [0, self.n - 1]:
             print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
@@ -253,8 +248,7 @@ class dlm(_dlm):
         return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
 
     def getFilteredState(self, name = 'all'):
-        """
-        get the filtered states. If the filtered dates are not (0, self.n - 1),
+        """ get the filtered states. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -276,8 +270,7 @@ class dlm(_dlm):
             raise NameError('Such component does not exist!')
 
     def getSmoothedState(self, name = 'all'):
-        """       
-        get the smoothed latent states. If the filtered dates are not (0, self.n - 1),
+        """ get the smoothed latent states. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -299,8 +292,7 @@ class dlm(_dlm):
             raise NameError('Such component does not exist!')
 
     def getFilteredCov(self, name = 'all'):
-        """
-        get the filtered covariance. If the filtered dates are not (0, self.n - 1),
+        """ get the filtered covariance. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -323,8 +315,7 @@ class dlm(_dlm):
             raise NameError('Such component does not exist!')
 
     def getSmoothedCov(self, name = 'all'):
-        """       
-        get the smoothed covariance. If the filtered dates are not (0, self.n - 1),
+        """ get the smoothed covariance. If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         """
@@ -349,8 +340,9 @@ class dlm(_dlm):
 #========================== model training component =======================
 
     def fitForwardFilter(self, useRollingWindow = False, windowLength = 3):
-        """
-        Fit forward filter on the available data. User can choose use rolling windowFront
+        """ Fit forward filter on the available data. 
+
+        User can choose use rolling windowFront
         or not. If user choose not to use the rolling window, then the filtering
         will be based on all the previous data. If rolling window is used, then the
         filtering for a particular date will only consider previous dates that are
@@ -399,12 +391,14 @@ class dlm(_dlm):
                                     end = day, \
                                     save = day, \
                                     ForgetPrevious = True)
-        self.result.filteredSteps = [0, self.n - 1]
+                
+        self.result.filteredSteps = [0, self.n - 1]        
+        self.turnOn('filtered plot')
+        self.turnOn('predict plot')
         print 'Forward fitering completed.'
     
     def fitBackwardSmoother(self, backLength = None):
-        """
-        Fit backward smoothing on the data. Starting from the last observed date.
+        """ Fit backward smoothing on the data. Starting from the last observed date.
         
         Args:
             backLength: integer, indicating how many days the backward smoother
@@ -439,12 +433,12 @@ class dlm(_dlm):
             self._backwardSmoother(start = self.n - 1, days = backLength)
 
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
+        self.turnOn('smoothed plot')
         print 'Backward smoothing completed.'
             
 
     def fit(self):
-        """
-        An easy caller for fitting both the forward filter and backward smoother.
+        """ An easy caller for fitting both the forward filter and backward smoother.
 
         """
         self.fitForwardFilter()
@@ -454,8 +448,7 @@ class dlm(_dlm):
 
     # The prediction function
     def predict(self, date = None, days = 1):
-        """
-        Predict based on all the current data for a specific future days
+        """ Predict based on all the current data for a specific future days
 
         Args:
             days: number of days ahead to predict
@@ -475,8 +468,7 @@ class dlm(_dlm):
 
     # Append new data or features to the dlm
     def append(self, data, component = 'main'):
-        """
-        Append the new data to the main data or the components (new feature data)
+        """ Append the new data to the main data or the components (new feature data)
 
         Args:
             data: the new data
@@ -495,8 +487,7 @@ class dlm(_dlm):
 
         elif component in self.builder.dynamicComponents:
             comp = self.builder.dynamicComponents[component]
-            comp.features.extend(duplicateList(data))
-            comp.n += len(data)
+            comp.appendNewData(data)
 
         else:
             raise NameError('Such dynamic component does not exist.')
@@ -504,8 +495,7 @@ class dlm(_dlm):
 
     # pop the data of a specific date out
     def popout(self, date):
-        """
-        Pop out the data for a given date
+        """ Pop out the data for a given date
         
         Args:
             date: the index indicates which date to be popped out.
@@ -521,8 +511,7 @@ class dlm(_dlm):
         # pop out the feature at date
         for name in self.builder.dynamicComponents:
             comp = self.builder.dynamicComponents[name]
-            comp.features.pop(date)
-            comp.n -= 1
+            comp.popout(date)
 
         # pop out the results at date
         self.result._popout(date)
@@ -540,8 +529,7 @@ class dlm(_dlm):
 
     # alter the data of a specific days
     def alter(self, date, data, component = 'main'):
-        """
-        To alter the data for a specific date and a specific component.
+        """ To alter the data for a specific date and a specific component.
 
         Args:
             date: the date of the altering data
@@ -579,8 +567,7 @@ class dlm(_dlm):
 
     # ignore the data of a given date
     def ignore(self, date):
-        """
-        Ignore the data for a specific day. treat it as missing data
+        """ Ignore the data for a specific day. treat it as missing data
 
         Args:
             date: the date to ignore.
@@ -594,8 +581,7 @@ class dlm(_dlm):
 #============================= plot component ====================================
 
     def turnOn(self, switch):
-        """
-        "turn on" Operation for the dlm plotting options.
+        """ "turn on" Operation for the dlm plotting options.
 
         Args:
             switch: key word. Controls over filtered/smoothed/predicted results, 
@@ -620,8 +606,7 @@ class dlm(_dlm):
             raise NameError('no such options')
 
     def turnOff(self, switch):
-        """
-        "turn off" Operation for the dlm plotting options.
+        """ "turn off" Operation for the dlm plotting options.
 
         Args:
             switch: key word. Controls over filtered/smoothed/predicted results, 
@@ -646,8 +631,7 @@ class dlm(_dlm):
             raise NameError('no such options')
 
     def setColor(self, switch, color):
-        """
-        "set" Operation for the dlm plotting colors
+        """ "set" Operation for the dlm plotting colors
 
         Args:
             switch: key word. Controls over filtered/smoothed/predicted results, 
@@ -665,20 +649,18 @@ class dlm(_dlm):
             raise NameError('no such options')
 
     def setConfidence(self, p = 0.95):
-        """
-        Set the confidence interval for the plot
+        """ Set the confidence interval for the plot
 
         """
         assert p >= 0 and p <= 1
         self.options.confidence = p
         
     def resetPlotOptions(self):
-        """
-        Reset the plotting option for the dlm class
+        """ Reset the plotting option for the dlm class
 
         """
         self.options.plotOriginalData = True
-        self.options.plotFilteredData = True
+        self.options.plotFilteredData = False
         self.options.plotSmoothedData = False
         self.options.plotPredictedData = False
         self.options.showDataPoint = True
@@ -693,8 +675,7 @@ class dlm(_dlm):
         
     # plot the result according to the options
     def plot(self):
-        """
-        The main plot function. The dlmPlot and the matplotlib will only be loaded
+        """ The main plot function. The dlmPlot and the matplotlib will only be loaded
         when necessary.
 
         """
@@ -724,8 +705,7 @@ class dlm(_dlm):
 
 #================================ control options ==================================
     def showOptions(self):
-        """
-        Print out all the option values
+        """ Print out all the option values
 
         """
         allItems = vars(self.options)
@@ -733,8 +713,7 @@ class dlm(_dlm):
             print item + ': ' + str(allItems[item])
 
     def stableMode(self, use = True):
-        """
-        Turn on the stable mode, i.e., using the renew strategy
+        """ Turn on the stable mode, i.e., using the renew strategy
 
         """
         if self.options.stable != use:

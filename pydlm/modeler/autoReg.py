@@ -15,10 +15,9 @@ to @dynamic.
 from dynamic import dynamic
 
 class autoReg(dynamic):
-    """
-    The autoReg class alows user to add an autoregressive component to the dlm.
+    """ The autoReg class alows user to add an autoregressive component to the dlm.
 
-    Members:
+    Attributes:
         default member of @dynamic
         degree: the degree of autoregressive, i.e., how many days to look back
         data: the time series data used for constructing the autoregressive features
@@ -62,8 +61,7 @@ class autoReg(dynamic):
         self.lastDay = data[-1]
         
     def createFeatureMatrix(self, degree, data):
-        """
-        Create the feature matrix based on the supplied data and the degree
+        """ Create the feature matrix based on the supplied data and the degree
 
         """
         
@@ -77,8 +75,7 @@ class autoReg(dynamic):
 
     # the degree cannot be longer than data
     def checkDataLength(self):
-        """
-        Check whether the degree is less than the time series length
+        """ Check whether the degree is less than the time series length
 
         """
         if self.d >= self.n:
@@ -86,8 +83,7 @@ class autoReg(dynamic):
         
     # override
     def appendNewData(self, newData):
-        """
-        Append new data to the existing features. Overriding the same method in
+        """ Append new data to the existing features. Overriding the same method in
         @dynamic
 
         Args:
@@ -109,8 +105,7 @@ class autoReg(dynamic):
 
     # override
     def popout(self, date):
-        """
-        Pop out the data of a specific date and rewrite the correct feature matrix
+        """ Pop out the data of a specific date and rewrite the correct feature matrix
 
         """
 

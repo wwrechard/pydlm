@@ -20,10 +20,9 @@ import tools as tl
 # backward smoother and backward sampler for one-step move
 
 class kalmanFilter:
-    """ 
-    The kalmanFilter class the provide the basic functionalities
+    """ The kalmanFilter class the provide the basic functionalities
 
-    Members:
+    Attributes:
         discount: the discounting factor determining how much information to carry on
         updateInnovation: indicate whether the innovation matrix should be updated.
                           default to True.
@@ -40,8 +39,7 @@ class kalmanFilter:
 
     def __init__(self, discount = [0.99], \
                  updateInnovation = True):
-        """ 
-        Initializing the kalmanFilter class
+        """ Initializing the kalmanFilter class
 
         Args:
             discount: the discounting factor, could be a vector
@@ -62,8 +60,7 @@ class kalmanFilter:
         #self.shrinkageMatrix = np.dot(np.dot(self.discount, self.shrinkageMatrix), \
         #                              self.discount) - self.shrinkageMatrix
     def predict(self, model, dealWithMissingEvaluation = False):
-        """ 
-        Predict the next states of the model by one step
+        """ Predict the next states of the model by one step
 
         Args:
             model: the @baseModel class provided all necessary information
@@ -114,8 +111,7 @@ class kalmanFilter:
             self._recoverTransitionAndEvaluation(model, loc)
 
     def forwardFilter(self, model, y, dealWithMissingEvaluation = False):
-        """ 
-        The forwardFilter used to run one step filtering given new data
+        """ The forwardFilter used to run one step filtering given new data
 
         Args:
             model: the @baseModel provided the basic information
@@ -196,8 +192,7 @@ class kalmanFilter:
     #      rawState: the unsmoothed state at time t
     #      rawSysVar: the unsmoothed system variance at time t
     def backwardSmoother(self, model, rawState, rawSysVar):
-        """ 
-        The backwardSmoother for one step backward smoothing
+        """ The backwardSmoother for one step backward smoothing
 
         Args:
             model: the @baseModel used for backward smoothing, the model shall store
@@ -239,8 +234,7 @@ class kalmanFilter:
         self._recoverTransitionAndEvaluation(model, loc)
         
     def backwardSampler(self, model, rawState, rawSysVar):
-        """ 
-        The backwardSampler for one step backward sampling
+        """ The backwardSampler for one step backward sampling
 
         Args:
             model: the @baseModel used for backward sampling, the model shall store
@@ -280,8 +274,7 @@ class kalmanFilter:
 
     # for updating the discounting factor
     def updateDiscount(self, newDiscount):
-        """ 
-        For updating the discounting factor
+        """ For updating the discounting factor
 
         Args:
             newDiscount: the new discount factor
@@ -291,8 +284,8 @@ class kalmanFilter:
         self.discount = np.matrix(np.diag(1 / np.sqrt(newDiscount)))
         
     def __checkDiscount__(self, discount):
-        """
-        Check whether the discount fact is within (0, 1)
+        """ Check whether the discount fact is within (0, 1)
+
         """
         
         for i in range(len(discount)):
@@ -302,8 +295,8 @@ class kalmanFilter:
 
     # update the innovation
     def __updateInnovation__(self, model):
-        """
-        update the innovation matrix of the model
+        """ update the innovation matrix of the model
+
         """
         
         model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
@@ -312,8 +305,7 @@ class kalmanFilter:
 
     # a generalized inverse of matrix A
     def _gInverse(self, A):
-        """
-        A generalized inverse of matrix A
+        """ A generalized inverse of matrix A
 
         """
         U, s, V = np.linalg.svd(A)
@@ -323,8 +315,7 @@ class kalmanFilter:
         return np.dot(U, np.dot(S, V))
 
     def _modifyTransitionAccordingToMissingValue(self, model):
-        """
-        When evaluation contains None value, we modify the corresponding entries
+        """ When evaluation contains None value, we modify the corresponding entries
         in the transition to deal with the missing value
 
         """
@@ -337,8 +328,7 @@ class kalmanFilter:
         return loc
 
     def _recoverTransitionAndEvaluation(self, model, loc):
-        """
-        We recover the transition and evaluation use the results from 
+        """ We recover the transition and evaluation use the results from 
         _modifyTransitionAccordingToMissingValue
 
         """

@@ -25,13 +25,12 @@ from matrixTools import matrixTools as mt
 # the other variables that might have impact on the time series
 # We need to update this vector as time going forward
 class builder:
-    """
-    The main modeling part of a dynamic linear model. It allows the users to
+    """ The main modeling part of a dynamic linear model. It allows the users to
     custemize their own model. User can add, delete any components like trend or
     seasonality to the builder, or view the existing components. Builder will finally
     assemble all components to a big model for further training and inference.
 
-    Members:
+    Attributes:
         model: the model structure from @baseModel, stores all the necessary quantities
         initialized: indicates whether the model has been built
         staticComponents: stores all the static components (trend and seasonality)
@@ -89,8 +88,7 @@ class builder:
 
     # The function that allows the user to add components
     def add(self, component):
-        """
-        Add a new model component to the builder.
+        """ Add a new model component to the builder.
         
         Args:
             component: a model component, any class implements @component class
@@ -121,8 +119,7 @@ class builder:
 
     # print all components to the client
     def ls(self):
-        """
-        List out all the existing components to the model
+        """ List out all the existing components to the model
 
         """
         
@@ -146,8 +143,7 @@ class builder:
 
     # delete the componet that pointed out by the client
     def delete(self, name):
-        """
-        Delete a specific component from dlm by its name.
+        """ Delete a specific component from dlm by its name.
 
         Args:
             name: the name of the component. Can be read from ls()
@@ -166,8 +162,7 @@ class builder:
     # initialize model for all the quantities
     # noise is the prior guess of the variance of the observed data
     def initialize(self, noise = 1):
-        """
-        Initialize the model. It construct the baseModel by assembling all
+        """ Initialize the model. It construct the baseModel by assembling all
         quantities from the components.
 
         Args:
@@ -240,8 +235,7 @@ class builder:
     # so that the model can handle control variables
     # This function should be called only when dynamicComponents is not empty
     def updateEvaluation(self, step):
-        """
-        Update the evaluation matrix of the model to a specific date. It loops over all
+        """ Update the evaluation matrix of the model to a specific date. It loops over all
         dynamic components and update their evaluation matrix and then reconstruct the 
         model evaluation matrix by incorporating the new evaluations
 

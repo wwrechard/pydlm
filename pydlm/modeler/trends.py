@@ -17,11 +17,10 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class trend(component):
-    """
-    The trend component that features the polynomial trending. It implements
+    """ The trend component that features the polynomial trending. It implements
     an abstract component class and override all the abstractmethod.
     
-    Members:
+    Attributes:
         d: the degree of the polynomial trend
         componentType: the type of the component, in this case, 'trend'
         name: the name of the trend component, to be supplied by user

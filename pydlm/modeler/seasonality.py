@@ -21,11 +21,10 @@ import pydlm.base.tools as tl
 # We create the seasonality using the component class
 
 class seasonality(component):
-    """
-    The seasonality component that features the periodicity behavior. It implements
+    """The seasonality component that features the periodicity behavior. It implements
     an abstract component class and override all the abstractmethod.
     
-    Members:
+    Attributes:
         d: the period of the seasonality
         componentType: the type of the component, in this case, 'seasonality'
         name: the name of the seasonality component, to be supplied by user
@@ -91,8 +90,7 @@ class seasonality(component):
     # So everyt time, when G * G, we rotate the vector once, which results
     # in the seasonality performance
     def createTransition(self):
-        """
-        According to Hurrison and West (1999), the transition matrix of seasonality
+        """ According to Hurrison and West (1999), the transition matrix of seasonality
         takes a form of
 
         [0 1 0 0]
@@ -114,8 +112,7 @@ class seasonality(component):
     # We use the formular from "Bayesian forecasting and dynamic linear models"
     # Page 242
     def freeForm(self):
-        """
-        The technique used in Hurrison and West (1999). After calling this method,
+        """ The technique used in Hurrison and West (1999). After calling this method,
         The latent states sum up to 0 and the covariance matrix is degenerate to have
         rank d - 1, so that the sum of the latent states will never change when the
         system evolves

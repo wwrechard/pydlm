@@ -15,10 +15,9 @@ import tools as tl
 
 # define the basic structure for a dlm model
 class baseModel:
-    """
-    The baseModel class that provides the basic model structure for dlm. 
+    """ The baseModel class that provides the basic model structure for dlm. 
 
-    Members:
+    Attributes:
         transition: the transition matrix G
         evaluation: the evaluation F
         noiseVar: the variance of the observation noise
@@ -52,8 +51,7 @@ class baseModel:
 
     # initialize the observation mean and variance
     def initializeObservation(self):
-        """
-        Initialize the value of obs and obsVar
+        """ Initialize the value of obs and obsVar
 
         """
         self.validation()
@@ -63,8 +61,7 @@ class baseModel:
         
     # checking if the dimension matches with each other
     def validation(self):
-        """
-        Validate the model components are consistent
+        """ Validate the model components are consistent
 
         """
         # check symmetric
