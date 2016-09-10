@@ -43,49 +43,6 @@ class dlm(_dlm):
     Attributes:
        See the members for @_dlm
 
-    Methods:
-       add/+: add new modeling component
-       ls: list out all existing model components and names
-       delete: delete one existing model components by its name
-       
-       getAll: get all the _result class which contains all results
-       getFilteredObs: get the filtered observations
-       getFilteredObsVar: get the filtered observation variance
-       getFilteredState: get the filtered latent states
-       getFilteredCov: get the filtered covariance matrix
-       getSmoothedObs: get the smoothed observation
-       getSmoothedObsVar: get the smoothed observation variance
-       getSmoothedState: get the smoothed latent states
-       getSmoothedCov: get the smoothed covariance matrix
-       getPredictedObs: get the predicted observations (array of one-day ahead prediction)
-       getPredictedObsVar: get the predicted variance (array of one-day ahead prediction)
-
-       fitForwardFilter: fit the forward filter on the data
-       fitBackwardSmoother: fit the backward smoother on the data
-       fit: fit both the forward filter and the backward smoother
-       predict: make prediction based on all the data
-
-       append: append new data and features to the current 
-       popout: pop out existing data of a particular days
-       alter: alter the data of a specific date
-       ignore: ignore the data of a specific date, treated as missing data
-
-       turnOn: turn on for plot options
-       turnOff: turn off for plot options
-       setColor: set the color for different results in plot
-       setConfidence: set the confidence level in plot confidence interval
-       resetPlotOptions: reset options to default
-       plot: plot the result
-
-       showOptions: show all the options values
-       stableMode: indicate whether the renew strategy should be used to add numerical
-                   stability. When the filter goes over certain steps,
-                   the information contribution of the previous data has decayed to minimum.
-                   In the stable mode, We then ignore those days and refit the time series 
-                   starting from current - renewTerm, where renewTerm is computed according
-                   to the discount. Thus, the effective sample size of the dlm is twice
-                   renewTerm. When discount = 1, there will be no renewTerm, since all the
-                   information will be passed along.
     """
     # define the basic members
     # initialize the result
@@ -594,7 +551,7 @@ class dlm(_dlm):
             self.options.plotSmoothedData = True
         elif switch in set(['predict plot', 'predict', 'predicted results', 'prediction']):
             self.options.plotPredictedData = True
-        elif switch in set(['confidence Interval', 'confidence', 'interval', 'CI', 'ci']):
+        elif switch in set(['confidence interval', 'confidence', 'interval', 'CI', 'ci']):
             self.options.showConfidenceInterval = True
         elif switch in set(['data points', 'data point', 'points', 'data']):
             self.options.showDataPoint = True
@@ -660,9 +617,9 @@ class dlm(_dlm):
 
         """
         self.options.plotOriginalData = True
-        self.options.plotFilteredData = False
-        self.options.plotSmoothedData = False
-        self.options.plotPredictedData = False
+        self.options.plotFilteredData = True
+        self.options.plotSmoothedData = True
+        self.options.plotPredictedData = True
         self.options.showDataPoint = True
         self.options.showFittedPoint = False
         self.options.showConfidenceInterval = True
@@ -688,7 +645,15 @@ class dlm(_dlm):
 
         # initialize the figure
         dlmPlot.plotInitialize()
-        
+
+        # change option setting if some results are not available
+        if self.result.filteredSteps[1] == -1:
+            self.options.plotFilteredData = False
+            self.options.plotPredictedData = False
+
+        if self.result.smoothedSteps[1] == -1:
+            self.options.plotSmoothedData = False
+            
         # if we just need one plot
         if self.options.separatePlot is not True:
             dlmPlot.plotInOneFigure(time = time, \
@@ -715,6 +680,14 @@ class dlm(_dlm):
     def stableMode(self, use = True):
         """ Turn on the stable mode, i.e., using the renew strategy
 
+            indicate whether the renew strategy should be used to add numerical
+            stability. When the filter goes over certain steps,
+            the information contribution of the previous data has decayed to minimum.
+            In the stable mode, We then ignore those days and refit the time series 
+            starting from current - renewTerm, where renewTerm is computed according
+            to the discount. Thus, the effective sample size of the dlm is twice
+            renewTerm. When discount = 1, there will be no renewTerm, since all the
+            information will be passed along.
         """
         if self.options.stable != use:
             self.initialized = False

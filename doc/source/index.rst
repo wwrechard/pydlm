@@ -105,3 +105,15 @@ be up on `PyPI`.
 * :mod:`numpy`     (for core functionality)
 * :mod:`Sphinx`    (for generating documentation)
 * :mod:`unittest`  (for tests)
+
+--------------------------
+Dynamic linear models --- user manual
+--------------------------
+
+.. include:: pydlm_user_guide.rst
+
+---------------
+Class Reference
+---------------
+
+.. include:: class_ref.rst

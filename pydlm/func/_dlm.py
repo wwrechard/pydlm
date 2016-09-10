@@ -71,9 +71,9 @@ class _dlm:
             self.stable = True
             
             self.plotOriginalData = True
-            self.plotFilteredData = False
-            self.plotSmoothedData = False
-            self.plotPredictedData = False
+            self.plotFilteredData = True
+            self.plotSmoothedData = True
+            self.plotPredictedData = True
             self.showDataPoint = True
             self.showFittedPoint = False
             self.showConfidenceInterval = True

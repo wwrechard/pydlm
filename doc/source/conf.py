@@ -16,7 +16,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
+# import os
 import sys
 # sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, '/Users/samuel/Documents/Github/PyDLM')
@@ -95,7 +95,7 @@ exclude_patterns = []
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 #
-# add_function_parentheses = True
+add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
