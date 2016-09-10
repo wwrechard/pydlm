@@ -79,6 +79,6 @@ Installation
 So far you can get the latest and greatest from `github
 <https://github.com/wwrechard/PyDLM>`_::
 
-      $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
+      $ git clone git@github.com:wwrechard/pykalman.git PyDLM
       $ cd PyDLM
       $ sudo python setup.py install
