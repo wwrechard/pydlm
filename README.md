@@ -57,8 +57,8 @@ and plot the results easily
   >>> myDLM.plot()
 ```
 <p align="center">
-<img src="/doc/source/img/readmePlot2.png" width="430"/>
-<img src="/doc/source/img/readmePlot3.png" width="430"/>
+<img src="/doc/source/img/readmePlot2.png" width="435"/>
+<img src="/doc/source/img/readmePlot3.png" width="422"/>
 </p>
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit
 ```
@@ -85,8 +85,8 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.plot()
 ```
 <p align="center">
-<img src="/doc/source/img/readmePlot4.png" width="430"/>
-<img src="/doc/source/img/readmePlot5.png" width="430"/>
+<img src="/doc/source/img/readmePlot4.png" width="416"/>
+<img src="/doc/source/img/readmePlot5.png" width="446"/>
 </p>
 For online updates
 ```
