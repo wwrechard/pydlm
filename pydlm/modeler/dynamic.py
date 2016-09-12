@@ -22,9 +22,21 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class dynamic(component):
-    """ The dynamic component that allows user to add controlled variables. It implements
-    an abstract component class and override all the abstractmethod.
-    
+    """ The dynamic component that allows user to add controlled variables, 
+    providing one building block for the dynamic linear model.
+    It decribes a dynamic component in the time series data. It basically allows
+    user to supply covariate or controlled variable into the dlm, 
+    and the coefficients of the features will be trained as the latent states. 
+    Examples are holiday indicators, other observed variables and so on.
+ 
+    Examples:
+        >>>  # create a dynamic component:
+        >>> features = [[1.0, 2.0] for i in range(10)]
+        >>> ctrend = dynamic(features = features, name = 'random', discount = 0.99)
+        >>>  # change the ctrend to have covariance with diagonals are 2 and state 1
+        >>> ctrend.createCovPrior(cov = 2)
+        >>> ctrend.createMeanPrior(mean = 1)
+   
     Attributes:
         d: the dimension of the features (number of latent states)
         n: the number of observation
@@ -37,25 +49,6 @@ class dynamic(component):
         transition: the transition matrix for this component
         covPrior: the prior guess of the covariance matrix of the latent states
         meanPrior: the prior guess of the latent states
-    
-    Methods:
-        createEvaluation: create the initial evaluation matrix
-        createTransition: create the initial transition matrix
-        createCovPrior: create a simple prior covariance matrix
-        createMeanPrior: create a simple prior latent state
-        checkDimensions: if user supplies their own covPrior and meanPrior, this can 
-                         be used to check if the dimension matches
-        updateEvaluation: update the evaluation matrix to a specific date
-        appendNewData: append new feature data to the component
-        popout: pop out the feature data of a specific date
-
-    Examples:
-          # create a dynamic component:
-        > features = numpy.random.random((2, 10)).toList()
-        > ctrend = dynamic(features = features, name = 'random', discount = 0.99)
-          # change the ctrend to have covariance with diagonals are 2 and state 1
-        > ctrend.createCovPrior(cov = 2)
-        > ctrend.createMeanPrior(mean = 1)
     
     """
     def __init__(self, features = None, discount = 0.99, name = 'dynamic'):
@@ -90,24 +83,36 @@ class dynamic(component):
         self.evaluation = np.matrix([self.features[step]])
 
     def createTransition(self):
-        """ For the dynamic component, the transition matrix is just the identity matrix
+        """ Create the transition matrix.
+
+        For the dynamic component, the transition matrix is just the identity matrix
 
         """
         self.transition = np.matrix(np.eye(self.d))
         
     def createCovPrior(self, cov = None, scale = 1):
+        """ Create the prior covariance matrix for the latent states
+
+        """
         if cov is None:
             self.covPrior = np.matrix(np.eye(self.d)) * scale
         else:
             self.covPrior = cov * scale
 
     def createMeanPrior(self, mean = None, scale = 1):
+        """ Create the prior latent state
+        
+        """
         if mean is None:
             self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
         else:
             self.meanPrior = mean * scale
 
     def checkDimensions(self):
+        """ if user supplies their own covPrior and meanPrior, this can 
+        be used to check if the dimension matches
+
+        """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print 'The dimesnion looks good!'
 
@@ -135,7 +140,10 @@ class dynamic(component):
         self.n = len(self.features)
 
     def popout(self, date):
-        """ For deleting the feature data of a specific date
+        """ For deleting the feature data of a specific date.
+        
+        Args:
+            date: the index of which to be deleted.
 
         """
         self.features.pop(date)

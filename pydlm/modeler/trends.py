@@ -6,7 +6,7 @@ Code for the trend component
 =========================================================================
 
 This piece of code provide one building block for the dynamic linear model.
-It decribes a latent polynomial trending in the time series data
+It decribes a latent polynomial trending in the time series data.
 
 """
 import numpy as np
@@ -17,8 +17,16 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class trend(component):
-    """ The trend component that features the polynomial trending. It implements
-    an abstract component class and override all the abstractmethod.
+    """ The trend component that features the polynomial trending, 
+    providing one building block for the dynamic linear model.
+    It decribes a latent polynomial trending in the time series data.
+
+    Examples:
+        >>>  # create a constant trend
+        >>> ctrend = trend(degree = 1, name = 'Const', discount = 0.99)
+        >>>  # change the ctrend to have covariance with diagonals are 2 and state 1
+        >>> ctrend.createCovPrior(cov = 2)
+        >>> ctrend.createMeanPrior(mean = 1)
     
     Attributes:
         d: the degree of the polynomial trend
@@ -31,21 +39,6 @@ class trend(component):
         transition: the transition matrix for this component
         covPrior: the prior guess of the covariance matrix of the latent states
         meanPrior: the prior guess of the latent states
-    
-    Methods:
-        createEvaluation: create the initial evaluation matrix
-        createTransition: create the initial transition matrix
-        createCovPrior: create a simple prior covariance matrix
-        createMeanPrior: create a simple prior latent state
-        checkDimensions: if user supplies their own covPrior and meanPrior, this can 
-                         be used to check if the dimension matches
-
-    Examples:
-          # create a constant trend:
-        > ctrend = trend(degree = 1, name = 'Const', discount = 0.99)
-          # change the ctrend to have covariance with diagonals are 2 and state 1
-        > ctrend.createCovPrior(cov = 2)
-        > ctrend.createMeanPrior(mean = 1)
     
     """
     
@@ -70,29 +63,43 @@ class trend(component):
         self.createMeanPrior()
 
     def createEvaluation(self):
+        """ Create the evaluation matrix
+
+        """
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
 
     def createTransition(self):
-        """
-        According Hurrison and West (1999), the transition matrix of trend takes
-        a form of 
+        """Create the transition matrix
 
-        [1 1 1 1]
-        [0 1 1 1]
-        [0 0 1 1]
-        [0 0 0 1]
+        According Hurrison and West (1999), the transition matrix of trend takes
+        a form of \n
+
+        [[1 1 1 1],\n
+        [0 1 1 1],\n
+        [0 0 1 1],\n
+        [0 0 0 1]]
 
         """
         self.transition = np.matrix(np.zeros((self.d, self.d)))
         self.transition[np.triu_indices(self.d)] = 1
         
     def createCovPrior(self, cov = 1):
+        """Create the prior covariance matrix for the latent states.
+
+        """
         self.covPrior = np.matrix(np.eye(self.d)) * cov
 
     def createMeanPrior(self, mean = 0):
+        """ Create the prior latent state
+    
+        """
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
 
     def checkDimensions(self):
+        """ if user supplies their own covPrior and meanPrior, this can 
+        be used to check if the dimension matches
+
+        """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print 'The dimesnion looks good!'

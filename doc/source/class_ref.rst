@@ -31,10 +31,3 @@
 
 .. autoclass:: pydlm.autoReg
     :members:
-
-       
-:class:`dlmPlot`
-=====================
-
-.. autoclass:: pydlm.plot.dlmPlot.dlmPlot
-    :members:

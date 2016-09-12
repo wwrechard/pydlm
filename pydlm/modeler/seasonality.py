@@ -21,9 +21,22 @@ import pydlm.base.tools as tl
 # We create the seasonality using the component class
 
 class seasonality(component):
-    """The seasonality component that features the periodicity behavior. It implements
-    an abstract component class and override all the abstractmethod.
-    
+    """The seasonality component that features the periodicity behavior,
+    providing one building block for the dynamic linear model.
+    It decribes a latent seasonality trending in the time series data. The user
+    can use this class to construct any periodicy component to the model, for
+    instance, the hourly, weekly or monthly behavior. Different from the Fourier
+    series, the seasonality components are nonparametric, i.e., there is no sin
+    or cos relationship between each state. They can be arbitrarily valued.
+ 
+    Examples:
+        >>>  # create a 7-day seasonality:
+        >>> ctrend = seasonality(period = 7, name = 'weekly', discount = 0.99)
+        >>>  # change the ctrend to have covariance with diagonals are 2 and state 1
+        >>> ctrend.createCovPrior(cov = 2)
+        >>> ctrend.createMeanPrior(mean = 1)
+        >>> ctrend.freeForm()
+   
     Attributes:
         d: the period of the seasonality
         componentType: the type of the component, in this case, 'seasonality'
@@ -35,25 +48,7 @@ class seasonality(component):
         transition: the transition matrix for this component
         covPrior: the prior guess of the covariance matrix of the latent states
         meanPrior: the prior guess of the latent states
-    
-    Methods:
-        createEvaluation: create the initial evaluation matrix
-        createTransition: create the initial transition matrix
-        createCovPrior: create a simple prior covariance matrix
-        createMeanPrior: create a simple prior latent state
-        freeForm: makes the latent states sum up to 0 and the covariance matrix to
-                  be rank deficient (d - 1), so that the sum of the latent states
-                  maintain at 0 and never change.
-        checkDimensions: if user supplies their own covPrior and meanPrior, this can 
-                         be used to check if the dimension matches
 
-    Examples:
-          # create a 7-day seasonality:
-        > ctrend = seasonality(period = 7, name = 'weekly', discount = 0.99)
-          # change the ctrend to have covariance with diagonals are 2 and state 1
-        > ctrend.createCovPrior(cov = 2)
-        > ctrend.createMeanPrior(mean = 1)
-        > ctrend.freeForm()
     
     """
     def __init__(self, period = 7, discount = 0.99, name = 'seasonality'):
@@ -80,6 +75,9 @@ class seasonality(component):
         self.freeForm()
 
     def createEvaluation(self):
+        """ Create the evaluation matrix
+        
+        """
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
 
@@ -90,22 +88,30 @@ class seasonality(component):
     # So everyt time, when G * G, we rotate the vector once, which results
     # in the seasonality performance
     def createTransition(self):
-        """ According to Hurrison and West (1999), the transition matrix of seasonality
-        takes a form of
+        """ Create the transition matrix.
+        
+        According to Hurrison and West (1999), the transition matrix of seasonality
+        takes a form of\n
 
-        [0 1 0 0]
-        [0 0 1 0]
-        [0 0 0 1]
-        [1 0 0 0]
+        [[0 1 0 0],\n
+        [0 0 1 0],\n
+        [0 0 0 1],\n
+        [1 0 0 0]]
 
         """
         self.transition = np.matrix(np.diag(np.ones(self.d - 1), 1))
         self.transition[self.d - 1, 0] = 1
         
     def createCovPrior(self, cov = 1):
+        """Create the prior covariance matrix for the latent states.
+        
+        """
         self.covPrior = np.matrix(np.eye(self.d)) * cov
 
     def createMeanPrior(self, mean = 0):
+        """ Create the prior latent state
+    
+        """
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
 
     # Form free seasonality component ensures that sum(mean) = 0
@@ -127,5 +133,9 @@ class seasonality(component):
             self.covPrior = self.covPrior - np.dot(A, A.T) * u
         
     def checkDimensions(self):
+        """ if user supplies their own covPrior and meanPrior, this can 
+        be used to check if the dimension matches
+
+        """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print 'The dimension looks good!'

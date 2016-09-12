@@ -51,8 +51,8 @@ The disadvantage of `pydlm`:
     + only for Gaussian noise
 
 
-Modeling functionality
-======================
+Modeling
+========
 
 As discussed in the beginning, the modeling process is very simple
 with `pydlm`, most modeling functions are integrated in the class
@@ -65,6 +65,11 @@ linear trend, 7-day seasonality and another control variable::
   range(100)]
   >>> myDLM = dlm(data) + trend(2) + seasonality(7) +
   dyanmic(control)
+
+The imput :attr:`data` must an 1d array or a list, since the current
+:class:`dlm` only supports one dimensional time series. Supporting for
+multivariate time series will be built upon this one dimensional class
+and added in the future.
 
 Now the variable `myDLM` contains the data and the modeling
 information. It will construct the corresponding transition,
@@ -86,7 +91,7 @@ We can also easily delete the unwanted component by using `delete`::
   >>> myDLM.delete('day4')
 
 
-Modeling components
+Model components
 ===================
 
 There are four model components provided with this
@@ -100,8 +105,7 @@ can all be captured by :class:`trend`. The degree argument specifics
 the shape of the trend and the discounting factor will be explained
 later in next section::
 
-  >>> linearTrend = trend(degree = 2, discount = 0.99, name =
-  'trend1')
+  >>> linearTrend = trend(degree = 2, discount = 0.99, name = 'trend1')
 
 Seasonality
 -----------
@@ -110,9 +114,13 @@ data. Compared to the sine or cosine periodic curves,
 :class:`seasonality` in this packages is more flexible, since it can
 turn into any shapes, much broader than the triangular families::
 
-  >>> weekPeriod = seasonality(period = 7, discount = 0.99, name =
-  'week')
+  >>> weekPeriod = seasonality(period = 7, discount = 0.99, name = 'week')
 
+In the package, we implements the seasonality component in a
+`form-free` way (Harrison and West, 1999) to avoid the identifiability
+issue. The states of one seasonality component are always summed up to
+zero, so that it will not tangle with the :class:`trend` component.
+  
 Dynamic
 -------
 The :class:`dynamic` class offers the modeling ability to add any additional
@@ -124,6 +132,13 @@ time::
 
   >>> SP500 = dynamic(features = SP500Index, discount = 0.99, name =
   'SP500')
+
+The input :attr:`features` for :class:`dynamic` should be a list of
+lists, since multi-dimension features are allowed. Following is one
+simple example::
+
+  >>> Features = [[1.0, 2.0], [1.0, 3.0], [3.0, 3.0]]
+
 
 Auto-regression
 ---------------
@@ -181,7 +196,26 @@ smoothed results from :class:`dlm`::
   >>> myDLM.getSmoothedObs()
   >>> myDLM.getFilteredVar()
 
-For more detail, please refer to the class documentation.
+The :class:`dlm` recomputes a wide variety of model quantities that
+can be extracted by the user. For example, user can get the filtered
+states and covariance by typing::
+
+  >>> myDLM.getFilteredState()
+  >>> myDLM.getFilteredCov()
+
+This can be specified into individual component. For example, assume the
+model contains a :class:`trend` component with a name of `trend1`, we
+can extract the corresponding latent state only for `trend1` as::
+
+  >>> myDLM.getFilteredState(name = 'trend1')
+  >>> myDLM.getFilteredCov(name = 'trend1')
+
+One can also get the confidence interval on the filtered time series::
+
+  >>> myDLM.getFilteredInterval(p = 0.99)
+
+There are also corresponding methods for smoothed and predicted
+results. For more detail, please refer to the class documentation.
 
 
 Model amending
@@ -238,10 +272,9 @@ change. This difference is important when preriodicy is
 concerned. Changing of time counts will have high impacts on
 :class:`seasonality` components.
 
-:func:`dlm.ignore` simply set the data of a specific date to be
-      `None`::
+:func:`dlm.ignore` simply set the data of a specific date to be None::
 	
-   >>> myDLM.ignore(2)
+  >>> myDLM.ignore(2)
 
 modify data
 -----------
@@ -255,3 +288,61 @@ future extension to interactive anomaly detection and data debugging::
 Model plotting
 ==============
 
+This package offers rich ploting options for illustrating the
+results. User can simply call :func:`dlm.plot` to directly plot the
+results once the models are fitted::
+
+  >>> myDLM.plot()
+
+User can choose which results to plot via :func:`dlm.turnOn` and
+:func:`dlm.turnOff`::
+
+   >>> myDLM.turnOn('filtered plot')
+   >>> myDLM.turnOff('predict plot')
+   >>> myDLM.turnOff('smoothed plot')
+
+User can also choose whether to plot the confidence interval and
+whether plot the results in one figure or separate figures. The
+default is to plot the confidence interval and in separate plots. To
+change that::
+
+  >>> myDLM.turnOff('confidence')
+  >>> myDLM.turnOff('multiple plots')
+
+The quantile of the confidence interval can be set via
+:func:`dlm.setConfidence`::
+
+  >>> myDLM.setConfidence(p = 0.95)
+
+The default colors for the plots are:
+
+    + original data: black
+    + filtered results: blue
+    + one-step ahead prediction: green
+    + smoothed results: red
+
+User can change the color setting via :func:`dlm.setColor`. The color
+space is the same as the `matplotlib`::
+
+  >>> myDLM.setColor('filtered plot', yellow)
+  >>> myDLM.setColor('data', blue)
+
+If user decide to go back to the original setting, they can use
+:func:`dlm.resetPlotOptions` to reset all the plot option::
+
+  >>> myDLM.resetPlotOptions()
+
+
+Advanced Settings
+=================
+
+This part of settings closely relate to the algorithm behavior and
+offers some advanced features, some of which are still under
+developing. Currently embedded is the :func:`dlm.stableMode` function,
+which help increase the numerical stability of the :class:`dlm` when
+discounting factor is used. Details about discounting factor will be
+covered in next section.
+
+In the future, following functionalities are planned to be added:
+feature selection among dynamic components, factor models for high
+dimensional latent states.

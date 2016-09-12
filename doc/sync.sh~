@@ -1,0 +1,9 @@
+rm -r -f ~/Documents/Github/pydlm_page/pydlm.github.io/
+cp -r ~/Documents/Github/PyDLM/doc/source/ ~/Documents/Github/pydlm_page/pydlm.github.io/
+echo "$PWD" > ~/Documents/Github/pydlm_page/temp.txt
+cd ~/Documents/Github/pydlm_page/pydlm.github.io/
+git add .
+git commit -m 'sync to source file'
+git push
+cat ../temp.txt > cd
+rm ~/Documents/Github/pydlm_page/temp.txt

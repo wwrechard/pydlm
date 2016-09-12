@@ -15,10 +15,13 @@ to @dynamic.
 from dynamic import dynamic
 
 class autoReg(dynamic):
-    """ The autoReg class alows user to add an autoregressive component to the dlm.
+    """ The autoReg class alows user to add an autoregressive component to the dlm. 
+    This code implements the autoregressive component as a sub-class of dynamic.
+    Different from the dynamic component, the features in the autoReg is generated
+    from the data, and updated according to the data. All other features are similar
+    to @dynamic.
 
     Attributes:
-        default member of @dynamic
         degree: the degree of autoregressive, i.e., how many days to look back
         data: the time series data used for constructing the autoregressive features
         discount factor: the discounting factor
@@ -26,12 +29,6 @@ class autoReg(dynamic):
         padding: either 0 or None. The number to be padded for the first degree days,
                  as no previous data is observed to form the feature matrix
 
-    Methods:
-       default methods of @dynamic
-       checkDataLength: check whether the degree is less than the time series
-       createFeatureMatrix: use data to create the feature matrix
-       appendNewData: override the same method in @dynamic.
-       popout: override the same method in @dynamic
     """
 
     def __init__(self,
@@ -61,8 +58,11 @@ class autoReg(dynamic):
         self.lastDay = data[-1]
         
     def createFeatureMatrix(self, degree, data):
-        """ Create the feature matrix based on the supplied data and the degree
+        """ Create the feature matrix based on the supplied data and the degree.
 
+        Args:
+            degree: the auto-regressive dependency length.
+            data: the raw time series data of the model.
         """
         
         # initialize feature matrix
@@ -105,7 +105,10 @@ class autoReg(dynamic):
 
     # override
     def popout(self, date):
-        """ Pop out the data of a specific date and rewrite the correct feature matrix
+        """ Pop out the data of a specific date and rewrite the correct feature matrix.
+
+        Args:
+            date: the index of which to be deleted.
 
         """
 

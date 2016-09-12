@@ -1,12 +1,13 @@
 =======================================================
-PyDLM
+`PyDLM <https://github.com/wwrechard/PyDLM>`_
 =======================================================
 
-Welcome to PyDLM, a flexible, user-friendly and rich functionality
-time series modeling library for python. All modeling functionality is
-integrated in the :class:`dlm`.
-
-Modeling is the key feature of :class:`pydlm`. Complex models can be constructed via simple operations::
+Welcome to `PyDLM <https://github.com/wwrechard/PyDLM>`_, a flexible,
+user-friendly and rich functionality 
+time series modeling library for python. This package implementes the
+Bayesian dynamic linear model (Harrison and West, 1999) for time
+series data analysis. Modeling and fitting is simple and easy with `pydlm`.
+Complex models can be constructed via simple operations::
 
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
@@ -106,12 +107,19 @@ be up on `PyPI`.
 * :mod:`Sphinx`    (for generating documentation)
 * :mod:`unittest`  (for tests)
 
---------------------------
+-------------------------------------
 Dynamic linear models --- user manual
---------------------------
+-------------------------------------
 
 .. include:: pydlm_user_guide.rst
 
+
+---------------------
+The discouting factor
+---------------------
+
+.. include:: discounting.rst
+	     
 ---------------
 Class Reference
 ---------------
