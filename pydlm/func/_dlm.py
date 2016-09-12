@@ -266,7 +266,7 @@ class _dlm:
         self.builder.model.sysVar = self.result.smoothedCov[start + 1]
         
         # we smooth the result sequantially from start - 1 to end
-        dates = range(end, start + 1)
+        dates = list(range(end, start + 1))
         dates.reverse()
         for day in dates:
             # we first update the model to be correct status before smooth

@@ -1,3 +1,3 @@
-__all__ = ['dlmPlot']
+#__all__ = ['dlmPlot']
 
-import dlmPlot
+#import pydlm.plot.dlmPlot as dlmPlot

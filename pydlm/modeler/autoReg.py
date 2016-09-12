@@ -12,7 +12,7 @@ to @dynamic.
 
 """
 
-from dynamic import dynamic
+from .dynamic import dynamic
 
 class autoReg(dynamic):
     """ The autoReg class alows user to add an autoregressive component to the dlm. 
@@ -119,7 +119,7 @@ class autoReg(dynamic):
         # else  change start from date + 1 to date + degree
         # we should reverse the order when shifting
         else:
-            order = range(date + 1, date + self.d + 1)
+            order = list(range(date + 1, date + self.d + 1))
             order.reverse()
         
             for step in order:

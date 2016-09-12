@@ -11,7 +11,7 @@ It stores all the necessary components for kalmanFilter and save the results
 """
 # dependencies
 import numpy as np
-import tools as tl
+import pydlm.base.tools as tl
 
 # define the basic structure for a dlm model
 class baseModel:

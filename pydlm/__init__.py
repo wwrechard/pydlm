@@ -2,8 +2,8 @@
 
 __all__ = ['dlm', 'trend', 'seasonality', 'dynamic', 'autoReg']
 
-from dlm import dlm
-from modeler.trends import trend
-from modeler.seasonality import seasonality
-from modeler.dynamic import dynamic
-from modeler.autoReg import autoReg
+from pydlm.dlm import dlm
+from pydlm.modeler.trends import trend
+from pydlm.modeler.seasonality import seasonality
+from pydlm.modeler.dynamic import dynamic
+from pydlm.modeler.autoReg import autoReg

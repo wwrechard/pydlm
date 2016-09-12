@@ -14,7 +14,7 @@ or cos relationship between each state. They can be arbitrarily valued.
 
 """
 import numpy as np
-from component import component
+from .component import component
 import pydlm.base.tools as tl
 
 # create seasonality component
@@ -138,4 +138,4 @@ class seasonality(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print 'The dimension looks good!'
+        print('The dimension looks good!')

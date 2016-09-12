@@ -14,7 +14,7 @@ a final big model.
 # this class provide all the model building operations for constructing customized model
 import numpy as np
 from pydlm.base.baseModel import baseModel
-from matrixTools import matrixTools as mt
+from pydlm.modeler.matrixTools import matrixTools as mt
 
 # The builder will be the main class for construting dlm
 # it featues two types of evaluation matrix and evaluation matrix
@@ -124,22 +124,22 @@ class builder:
         """
         
         if len(self.staticComponents) > 0:
-            print 'The static components are'
+            print('The static components are')
             for name in self.staticComponents:
                 comp = self.staticComponents[name]
-                print comp.name + ' (degree = ' + str(comp.d) + ')'
-            print ' '
+                print(comp.name + ' (degree = ' + str(comp.d) + ')')
+            print(' ')
         else:
-            print 'There is no static component.'
-            print ' '
+            print('There is no static component.')
+            print(' ')
 
         if len(self.dynamicComponents) > 0:
-            print 'The dynamic components are'
+            print('The dynamic components are')
             for name in self.dynamicComponents:
                 comp = self.dynamicComponents[name]
-                print comp.name + ' (dimension = ' + str(comp.d) + ')'
+                print(comp.name + ' (dimension = ' + str(comp.d) + ')')
         else:
-            print 'There is no dynamic component.'
+            print('There is no dynamic component.')
 
     # delete the componet that pointed out by the client
     def delete(self, name):
@@ -173,7 +173,7 @@ class builder:
             raise NameError('The model must contain at least one static component')
         
         # construct transition, evaluation, prior state, prior covariance
-        print 'Initializing models...'
+        print('Initializing models...')
         transition = None
         evaluation = None
         state = None
@@ -229,7 +229,7 @@ class builder:
                              / np.log(self.renewDiscount)
             
         self.initialized = True
-        print 'Initialization finished.'
+        print('Initialization finished.')
 
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables

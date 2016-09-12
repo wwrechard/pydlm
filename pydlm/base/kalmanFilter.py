@@ -14,7 +14,7 @@ provided)
 """
 # This code take care of the Kalman filter
 import numpy as np
-import tools as tl
+import pydlm.base.tools as tl
 
 # Define the class of Kalman filter which offers a forward filter
 # backward smoother and backward sampler for one-step move

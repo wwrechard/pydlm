@@ -128,8 +128,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         start = self.result.filteredSteps[0]
         end = self.result.filteredSteps[1] + 1
         # get out of the matrix form
@@ -146,8 +146,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         start = self.result.filteredSteps[0]
         end = self.result.filteredSteps[1] + 1
         return self._1DmatrixToArray(self.result.filteredObsVar[start:end])
@@ -167,8 +167,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         start = self.result.filteredSteps[0]
         end = self.result.filteredSteps[1] + 1
         upper, lower =  getInterval(self.result.filteredObs[start : end], \
@@ -186,8 +186,8 @@ class dlm(_dlm):
 
         """
         if self.result.smoothedSteps != [0, self.n - 1]:
-            print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
-                ' to ' + str(self.result.smoothedSteps[1])
+            print('The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
+                ' to ' + str(self.result.smoothedSteps[1]))
         start = self.result.smoothedSteps[0]
         end = self.result.smoothedSteps[1] + 1
         return self._1DmatrixToArray(self.result.smoothedObs[start:end])
@@ -203,8 +203,8 @@ class dlm(_dlm):
 
         """
         if self.result.smoothedSteps != [0, self.n - 1]:
-            print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
-                ' to ' + str(self.result.smoothedSteps[1])
+            print('The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
+                ' to ' + str(self.result.smoothedSteps[1]))
         start = self.result.smoothedSteps[0]
         end = self.result.smoothedSteps[1] + 1
         return self._1DmatrixToArray(self.result.smoothedObsVar[start:end])
@@ -224,8 +224,8 @@ class dlm(_dlm):
 
         """
         if self.result.smoothedSteps != [0, self.n - 1]:
-            print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
-                ' to ' + str(self.result.smoothedSteps[1])
+            print('The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
+                ' to ' + str(self.result.smoothedSteps[1]))
         start = self.result.smoothedSteps[0]
         end = self.result.smoothedSteps[1] + 1
         upper, lower = getInterval(self.result.smoothedObs[start : end], \
@@ -243,8 +243,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         start = self.result.filteredSteps[0]
         end = self.result.filteredSteps[1] + 1
         return self._1DmatrixToArray(self.result.predictedObs[start : end])
@@ -260,8 +260,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         start = self.result.filteredSteps[0]
         end = self.result.filteredSteps[1] + 1
         return self._1DmatrixToArray(self.result.predictedObsVar[start : end])
@@ -281,8 +281,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The predicted dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         start = self.result.filteredSteps[0]
         end = self.result.filteredSteps[1] + 1
         upper, lower = getInterval(self.result.predictedObs[start : end], \
@@ -304,8 +304,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         if name == 'all':
             return self.result.filteredState
 
@@ -335,8 +335,8 @@ class dlm(_dlm):
         
         """
         if self.result.smootehdSteps != [0, self.n - 1]:
-            print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
-                ' to ' + str(self.result.smoothedSteps[1])
+            print('The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
+                ' to ' + str(self.result.smoothedSteps[1]))
         if name == 'all':
             return self.result.smoothedState
 
@@ -366,8 +366,8 @@ class dlm(_dlm):
 
         """
         if self.result.filteredSteps != [0, self.n - 1]:
-            print 'The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
-                ' to ' + str(self.result.filteredSteps[1])
+            print('The fitlered dates are from ' + str(self.result.filteredSteps[0]) + \
+                ' to ' + str(self.result.filteredSteps[1]))
         if name == 'all':
             return self.result.filteredCov
 
@@ -398,8 +398,8 @@ class dlm(_dlm):
 
         """
         if self.result.smootehdSteps != [0, self.n - 1]:
-            print 'The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
-                ' to ' + str(self.result.smoothedSteps[1])
+            print('The smoothed dates are from ' + str(self.result.smoothedSteps[0]) + \
+                ' to ' + str(self.result.smoothedSteps[1]))
         if name == 'all':
             return self.result.smoothedCov
 
@@ -438,7 +438,7 @@ class dlm(_dlm):
         if not self.initialized:
             self._initialize()
 
-        print 'Starting forward filtering...'
+        print('Starting forward filtering...')
         if not useRollingWindow:
             # we start from the last step of previous fitering
             if self.result.filteredType == 'non-rolling':
@@ -473,7 +473,7 @@ class dlm(_dlm):
         self.result.filteredSteps = [0, self.n - 1]        
         self.turnOn('filtered plot')
         self.turnOn('predict plot')
-        print 'Forward fitering completed.'
+        print('Forward fitering completed.')
     
     def fitBackwardSmoother(self, backLength = None):
         """ Fit backward smoothing on the data. Starting from the last observed date.
@@ -495,7 +495,7 @@ class dlm(_dlm):
         if backLength is None:
             backLength = self.n
 
-        print 'Starting backward smoothing...'
+        print('Starting backward smoothing...')
         # if the smoothed dates has already been done, we do nothing
         if self.result.smoothedSteps[1] == self.n - 1 and \
            self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
@@ -512,7 +512,7 @@ class dlm(_dlm):
 
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
         self.turnOn('smoothed plot')
-        print 'Backward smoothing completed.'
+        print('Backward smoothing completed.')
             
 
     def fit(self):
@@ -814,7 +814,7 @@ class dlm(_dlm):
         """
         allItems = vars(self.options)
         for item in allItems:
-            print item + ': ' + str(allItems[item])
+            print(item + ': ' + str(allItems[item]))
 
     def stableMode(self, use = True):
         """ Turn on the stable mode, i.e., using the renewal strategy.

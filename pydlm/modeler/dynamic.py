@@ -15,7 +15,7 @@ The name dynamic means that the features are changing over time.
 
 """
 import numpy as np
-from component import component
+from .component import component
 import pydlm.base.tools as tl
 
 # create trend component
@@ -114,7 +114,7 @@ class dynamic(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print 'The dimesnion looks good!'
+        print('The dimesnion looks good!')
 
     def updateEvaluation(self, step):
         """ update the evaluation matrix to a specific date

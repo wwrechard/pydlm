@@ -10,7 +10,7 @@ It decribes a latent polynomial trending in the time series data.
 
 """
 import numpy as np
-from component import component
+from .component import component
 import pydlm.base.tools as tl
 
 # create trend component
@@ -102,4 +102,4 @@ class trend(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print 'The dimesnion looks good!'
+        print('The dimesnion looks good!')
