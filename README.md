@@ -2,9 +2,7 @@
 [PyDLM](https://github.com/wwrechard/PyDLM)
 =======================================================
 
-Welcome to [pydlm](https://github.com/wwrechard/PyDLM), a flexible, user-friendly and rich functionality time series modeling library for python. This package implementes the Bayesian dynamic linear model for time series data. All modeling functionality is integrated in the `dlm`
-
-Modeling is the key feature of `pydlm`. Complex models can be constructed via simple operations
+Welcome to [pydlm](https://github.com/wwrechard/PyDLM), a flexible, user-friendly and rich functionality time series modeling library for python. This package implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`. Complex models can be constructed via simple operations
 ```
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
@@ -35,20 +33,31 @@ Users can then analyze the data with the constructed model
   >>> #fit backward smoother
   >>> myDLM.fitBackwardSmoother()
   >>>
+  >>> # get the filtered and smoothed results
+  >>> filteredObs = myDLM.getFilteredObs()
+  >>> smoothedObs = myDLM.getSmoothedObs()
 ```
-and plot the results easily. 
+
+and plot the results easily
+<img align="right" src="/doc/source/img/readmePlot1.png" width="430"/>
 ```
   >>> #plot the results
   >>> myDLM.plot()
-  >>>
+```
+```
   >>> #plot only the filtered results
   >>> myDLM.turnOff('smoothed plot')
   >>> myDLM.plot()
-  >>>
+```
+```
   >>> #plot in one figure
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 ```
+<p align="center">
+<img src="/doc/source/img/readmePlot2.png" width="435"/>
+<img src="/doc/source/img/readmePlot3.png" width="422"/>
+</p>
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit
 ```
   >>> myDLM = myDLM + seasonality(4)
@@ -69,14 +78,14 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.plot()
   >>>
   >>> myDLM.delete('trend')
-  >>> myDLM = myDLM + trend(2, discount = 0.9)
+  >>> myDLM = myDLM + trend(2, discount = 0.8)
   >>> myDLM.fit()
   >>> myDLM.plot()
-  >>>
-  >>> # get the filtered and smoothed results
-  >>> filteredObs = myDLM.getFilteredObs()
-  >>> smoothedObs = myDLM.getSmoothedObs()
 ```
+<p align="center">
+<img src="/doc/source/img/readmePlot4.png" width="416"/>
+<img src="/doc/source/img/readmePlot5.png" width="446"/>
+</p>
 For online updates
 ```
   >>> myDLM = dlm([]) + trend(2) + seasonality(7)
