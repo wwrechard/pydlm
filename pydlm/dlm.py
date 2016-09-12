@@ -787,7 +787,7 @@ class dlm(_dlm):
 
         # change option setting if some results are not available
         if not self.initialized:
-            self._initialize()
+            raise NameError('The model must be constructed and fitted before ploting.')
             
         if self.result.filteredSteps[1] == -1:
             self.options.plotFilteredData = False
