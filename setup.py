@@ -11,7 +11,6 @@ setup(
     keywords = 'dlm bayes bayesian kalman filter smoothing dynamic model',
     url = 'http://wwrechard.github.com/PyDLM',
     packages = find_packages(),
-    #package_data={'pykalman': ['datasets/descr/robot.rst', 'datasets/data/robot.mat']},
     classifiers = [
       'Development Status :: 3 - Alpha',
       'Intended Audience :: Science/Research',
