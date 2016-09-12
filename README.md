@@ -39,7 +39,7 @@ Users can then analyze the data with the constructed model
 ```
 
 and plot the results easily
-<img align="right" src="/doc/source/img/readmePlot1.png" width="430"/>
+<img align="right" src="/doc/source/img/readmePlot1.png" width="420"/>
 ```
   >>> #plot the results
   >>> myDLM.plot()
@@ -55,7 +55,7 @@ and plot the results easily
   >>> myDLM.plot()
 ```
 <p align="center">
-<img src="/doc/source/img/readmePlot2.png" width="435"/>
+<img src="/doc/source/img/readmePlot2.png" width="430"/>
 <img src="/doc/source/img/readmePlot3.png" width="422"/>
 </p>
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit
