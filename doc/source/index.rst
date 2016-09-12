@@ -103,9 +103,10 @@ be up on `PyPI`.
 
 :mod:`pydlm` depends on the following modules,
 
-* :mod:`numpy`     (for core functionality)
-* :mod:`Sphinx`    (for generating documentation)
-* :mod:`unittest`  (for tests)
+* :mod:`numpy`      (for core functionality)
+* :mod:`matplotlib` (for plotting results)
+* :mod:`Sphinx`     (for generating documentation)
+* :mod:`unittest`   (for tests)
 
 -------------------------------------
 Dynamic linear models --- user manual

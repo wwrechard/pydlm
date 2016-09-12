@@ -48,7 +48,7 @@ can have different discounting factors::
 
 
 Numerical stability and the renewal strategy
---------------------------------------------
+============================================
 
 One big caveat for using discounting factor is its numerical
 instability. The original kalman filter already suffers from the

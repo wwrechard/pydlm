@@ -316,10 +316,10 @@ The quantile of the confidence interval can be set via
 
 The default colors for the plots are:
 
-    + original data: black
-    + filtered results: blue
-    + one-step ahead prediction: green
-    + smoothed results: red
+    + original data: 'black'
+    + filtered results: 'blue'
+    + one-step ahead prediction: 'green'
+    + smoothed results: 'red'
 
 User can change the color setting via :func:`dlm.setColor`. The color
 space is the same as the `matplotlib`::

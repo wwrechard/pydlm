@@ -297,7 +297,7 @@ class _dlm:
             date: the date the prediction is based on
             day: number of days forward that are need to be predicted.
         
-        Return:
+        Returns:
             A tuple. (Predicted observation, variance of the predicted observation)
 
         """
