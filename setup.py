@@ -13,12 +13,12 @@ setup(
     packages = find_packages(),
     #package_data={'pykalman': ['datasets/descr/robot.rst', 'datasets/data/robot.mat']},
     classifiers = [
-      'Development Status :: 1 - Beta',
+      'Development Status :: 3 - Alpha',
       'Intended Audience :: Science/Research',
       'License :: OSI Approved :: BSD License',
       'Operating System :: OS Independent',
       'Programming Language :: Python',
-      'Programming Language :: Python :: 3 (not test yet)',
+      'Programming Language :: Python :: 3',
       'Topic :: Time series analysis :: Scientific/Engineering :: Artificial Intelligence'
     ],
     include_package_data = False,
