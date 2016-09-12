@@ -111,7 +111,7 @@ be up on `PyPI`.
 `pydlm` depends on the following modules,
 
 * `numpy`     (for core functionality)
-*  matplotlib (for plotting results)
+*  `matplotlib` (for plotting results)
 * `Sphinx`    (for generating documentation)
 * `unittest`  (for testing)
 
