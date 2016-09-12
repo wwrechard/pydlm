@@ -324,8 +324,8 @@ The default colors for the plots are:
 User can change the color setting via :func:`dlm.setColor`. The color
 space is the same as the `matplotlib`::
 
-  >>> myDLM.setColor('filtered plot', yellow)
-  >>> myDLM.setColor('data', blue)
+  >>> myDLM.setColor('filtered plot', 'yellow')
+  >>> myDLM.setColor('data', 'blue')
 
 If user decide to go back to the original setting, they can use
 :func:`dlm.resetPlotOptions` to reset all the plot option::
