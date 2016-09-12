@@ -21,7 +21,7 @@ Complex models can be constructed via simple operations::
   >>> #adding model components
   >>> myDLM = myDLM + trend(2, name = 'lineTrend') #add a second-order trend (linear trending)
   >>> myDLM = myDLM + seasonality(7, name = 'day7') #add a 7 day seasonality
-  >>> myDLM = myDLM + autoReg(3, name = 'ar3') #add a 3 step auto regression
+  >>> myDLM = myDLM + autoReg(3, data = data, name = 'ar3') #add a 3 step auto regression
   >>>
   >>> #show the added components
   >>> myDLM.ls()
@@ -50,6 +50,9 @@ and plot the results easily::
   >>> #plot in one figure
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
+
+..image:: 
+
 
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit::
 

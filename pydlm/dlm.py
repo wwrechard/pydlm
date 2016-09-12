@@ -786,6 +786,9 @@ class dlm(_dlm):
         dlmPlot.plotInitialize()
 
         # change option setting if some results are not available
+        if not self.initialized:
+            self._initialize()
+            
         if self.result.filteredSteps[1] == -1:
             self.options.plotFilteredData = False
             self.options.plotPredictedData = False

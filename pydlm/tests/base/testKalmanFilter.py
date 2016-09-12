@@ -122,7 +122,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf1.forwardFilter(dlm.model, 1.0, dealWithMissingEvaluation = True)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
         self.assertAlmostEqual(dlm.model.transition, 1.0)
-        
+
 unittest.main()
 #kf1 = kalmanFilter(discount = [1])
 #kf0 = kalmanFilter(discount = [0.01])

@@ -147,7 +147,7 @@ the model, i.e., the direct linear or non-linear dependency between
 the current observation and the previous days. User needs to specify
 the number of days of the dependency::
 
-  >>> AR3 = autoReg(degree = 3, discount = 0.99, name = 'ar3')
+  >>> AR3 = autoReg(degree = 3, data = data, discount = 0.99, name = 'ar3')
 
 These four classes of model components offer abundant modeling
 possiblities of the Bayesian dynamic linear model. Users can construct
