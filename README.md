@@ -117,4 +117,4 @@ be up on `PyPI`.
 -------------
 Documentation
 -------------
-Detailed documentation is provided in [PyDLM](https://pydlm.github.io/)
+Detailed documentation is provided in [PyDLM](https://pydlm.github.io/) with special attention to the [User manual](https://pydlm.github.io/#dynamic-linear-models-user-manual).
