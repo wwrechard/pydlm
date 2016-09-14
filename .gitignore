@@ -9,3 +9,5 @@
 build/
 *.sh
 *.sh~
+dist/
+pydlm.egg-info/
