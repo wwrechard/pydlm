@@ -98,8 +98,8 @@ You can now get the package from `PyPI`::
 You can also get the latest from `github
 <https://github.com/wwrechard/PyDLM>`_::
 
-      $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
-      $ cd PyDLM
+      $ git clone git@github.com:wwrechard/pydlm.git pydlm
+      $ cd pydlm
       $ sudo python setup.py install
 
 :mod:`pydlm` depends on the following modules,
