@@ -6,7 +6,7 @@ Welcome to `PyDLM <https://github.com/wwrechard/PyDLM>`_, a flexible,
 user-friendly and rich functionality 
 time series modeling library for python. This package implementes the
 Bayesian dynamic linear model (Harrison and West, 1999) for time
-series data analysis. Modeling and fitting is simple and easy with `pydlm`.
+series data analysis. Modeling and fitting is simple and easy with :mod:`pydlm`.
 Complex models can be constructed via simple operations::
 
   >>> #import dlm and its modeling components
@@ -51,8 +51,6 @@ and plot the results easily::
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 
-..image:: 
-
 
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit::
 
@@ -93,16 +91,16 @@ For online updates::
 ------------
 Installation
 ------------
+You can now get the package from `PyPI`::
 
-For now you can get the latest and greatest from `github
+  $ pip install pydlm
+  
+You can also get the latest from `github
 <https://github.com/wwrechard/PyDLM>`_::
 
       $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
       $ cd PyDLM
       $ sudo python setup.py install
-
-In the future (after adding the multivariate case), the package will
-be up on `PyPI`.
 
 :mod:`pydlm` depends on the following modules,
 

@@ -9,7 +9,7 @@ setup(
       'model for time series modeling'),
     license = 'BSD',
     keywords = 'dlm bayes bayesian kalman filter smoothing dynamic model',
-    url = 'http://wwrechard.github.com/PyDLM',
+    url = 'https://github.com/wwrechard/pydlm',
     packages = find_packages(),
     classifiers = [
       'Development Status :: 4 - Beta',

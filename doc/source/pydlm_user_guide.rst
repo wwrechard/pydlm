@@ -38,7 +38,7 @@ data and for to forecast into the future. So the key output from the
 model are the filtered time series, smoothed time series and one-step
 ahead prediction. We will cover this topic later in this section.
 
-The advantage of `pydlm`:
+The advantage of :mod:`pydlm`:
 
     + flexibility in constructing complicated models
 
@@ -46,7 +46,7 @@ The advantage of `pydlm`:
 
     + user-specific adjustment on the adaptive property of the model
 
-The disadvantage of `pydlm`:
+The disadvantage of :mod:`pydlm`:
 
     + only for Gaussian noise
 
@@ -55,7 +55,7 @@ Modeling
 ========
 
 As discussed in the beginning, the modeling process is very simple
-with `pydlm`, most modeling functions are integrated in the class
+with :mod:`pydlm`, most modeling functions are integrated in the class
 :class:`dlm`. Following is an example for constructing a dlm with
 linear trend, 7-day seasonality and another control variable::
 
