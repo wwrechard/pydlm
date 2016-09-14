@@ -104,8 +104,8 @@ You can currently get the package from `pypi` by
 You can also get the latest from [github]
 (https://github.com/wwrechard/PyDLM)
 
-      $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
-      $ cd PyDLM
+      $ git clone git@github.com:wwrechard/pydlm.git PyDLM
+      $ cd pydlm
       $ sudo python setup.py install
 
 `pydlm` depends on the following modules,
