@@ -97,16 +97,16 @@ For online updates
 ------------
 Installation
 ------------
+You can currently get the package from `pypi` by
 
-For now you can get the latest and greatest from [github]
+      $ pip install pydlm
+
+You can also get the latest from [github]
 (https://github.com/wwrechard/PyDLM)
 
       $ git clone git@github.com:wwrechard/PyDLM.git PyDLM
       $ cd PyDLM
       $ sudo python setup.py install
-
-In the future (after adding the multivariate case), the package will
-be up on `PyPI`. 
 
 `pydlm` depends on the following modules,
 
