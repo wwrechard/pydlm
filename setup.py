@@ -18,7 +18,7 @@ setup(
       'Operating System :: OS Independent',
       'Programming Language :: Python',
       'Programming Language :: Python :: 3',
-      'Topic :: Time series analysis :: Scientific/Engineering :: Artificial Intelligence'
+      'Topic :: Scientific/Engineering :: Artificial Intelligence'
     ],
     include_package_data = False,
     install_requires = [
