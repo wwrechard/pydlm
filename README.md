@@ -16,7 +16,7 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich
   >>> #adding model components
   >>> myDLM = myDLM + trend(2, name = 'lineTrend') #add a second-order trend (linear trending)
   >>> myDLM = myDLM + seasonality(7, name = 'day7') #add a 7 day seasonality
-  >>> myDLM = myDLM + autoReg(3, name = 'ar3') #add a 3 step auto regression
+  >>> myDLM = myDLM + autoReg(3, data = data, name = 'ar3') #add a 3 step auto regression
   >>>
   >>> #show the added components
   >>> myDLM.ls()
