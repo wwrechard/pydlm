@@ -307,7 +307,7 @@ class builder:
 
         """
 
-        if len(self.dynamicComponents) == 0 or \
+        if len(self.dynamicComponents) == 0 and \
            len(self.automaticComponents) == 0:
             raise NameError('This shall only be used when there' +
                             ' are dynamic or automatic components!')

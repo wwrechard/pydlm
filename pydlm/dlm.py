@@ -70,7 +70,7 @@ class dlm(_dlm):
 
     # add component
     def add(self, component):
-        """ Add new modeling component to the dlm. 
+        """ Add new modeling component to the dlm.
 
         Currently support: trend, seasonality, autoregression
         and dynamic component.
@@ -101,7 +101,7 @@ class dlm(_dlm):
     # delete one component
     def delete(self, name):
         """ Delete model component by its name
-        
+
         Args:
             name: the name of the component.
 
@@ -223,7 +223,7 @@ class dlm(_dlm):
     def getSmoothedInterval(self, p):
         """ get the smoothed confidence interval.
 
-        If the filtered dates are not 
+        If the filtered dates are not
         (0, self.n - 1), then a warning will prompt stating the
         actual smoothed dates.
 
@@ -244,7 +244,7 @@ class dlm(_dlm):
         upper, lower = getInterval(self.result.smoothedObs[start:end],
                                    self.result.smoothedObsVar[start:end], p)
         return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
-    
+
     def getPredictedObs(self):
         """ get the predicted observations.
 
@@ -351,7 +351,7 @@ class dlm(_dlm):
 
         Returns:
             A list of numpy matrices, standing for the smoothed latent states.
-        
+
         """
         if self.result.smootehdSteps != [0, self.n - 1]:
             print('The smoothed dates are from ' +
@@ -401,7 +401,7 @@ class dlm(_dlm):
                 result[i] = self.result.filteredCov[indx[0]:(indx[1] + 1),
                                                     indx[0]:(indx[1] + 1)]
             return result
-        
+
         else:
             raise NameError('Such component does not exist!')
 
@@ -435,7 +435,7 @@ class dlm(_dlm):
                 result[i] = self.result.smoothedCov[indx[0]:(indx[1] + 1),
                                                     indx[0]:(indx[1] + 1)]
             return result
-        
+
         else:
             raise NameError('Such component does not exist!')
 
@@ -458,7 +458,7 @@ class dlm(_dlm):
         """
         # check if the feature size matches the data size
         self._checkFeatureSize()
-        
+
         # see if the model has been initialized
         if not self.initialized:
             self._initialize()
@@ -494,12 +494,12 @@ class dlm(_dlm):
                                     end=day,
                                     save=day,
                                     ForgetPrevious=True)
-                
+
         self.result.filteredSteps = [0, self.n - 1]
         self.turnOn('filtered plot')
         self.turnOn('predict plot')
         print('Forward fitering completed.')
-    
+
     def fitBackwardSmoother(self, backLength=None):
         """ Fit backward smoothing on the data. Starting from the last observed date.
 
@@ -576,7 +576,7 @@ class dlm(_dlm):
         if date > self.result.filteredSteps[1]:
             raise NameError('Prediction can only be made right' +
                             ' after the filtered date')
-        
+
         return self._predict(date=date, days=days)
 
 # ======================= data appending, popping and altering ===============
@@ -593,6 +593,7 @@ class dlm(_dlm):
                        component.
 
         """
+        # if we are adding new data to the time series
         if component == 'main':
             # add the data to the self.data
             self.data.extend(list(data))
@@ -601,6 +602,17 @@ class dlm(_dlm):
             self.n += len(data)
             self.result._appendResult(len(data))
 
+            # update the automatic components as well
+            for component in self.builder.automaticComponents:
+                comp = self.builder.automaticComponents[component]
+                comp.append(data)
+
+            # give a warning to remind to append dynamic components
+            if len(self.builder.dynamicComponents) > 0:
+                print('Remember to append the new features for the' +
+                      ' dynamic components as well')
+
+        # if we are adding new data to the features of dynamic components
         elif component in self.builder.dynamicComponents:
             comp = self.builder.dynamicComponents[component]
             comp.appendNewData(data)
@@ -611,7 +623,7 @@ class dlm(_dlm):
     # pop the data of a specific date out
     def popout(self, date):
         """ Pop out the data for a given date
-        
+
         Args:
             date: the index indicates which date to be popped out.
 
@@ -668,10 +680,10 @@ class dlm(_dlm):
         elif component in self.builder.dynamicComponents:
             comp = self.builder.dynamicComponents[component]
             comp.features[component] = data
-            
+
         else:
             raise NameError('Such dynamic component does not exist.')
-        
+
         # update the filtered and the smoothed steps
         self.result.filteredSteps[1] = date - 1
         self.result.smoothedSteps[1] = date - 1
@@ -806,7 +818,7 @@ class dlm(_dlm):
         """
         assert p >= 0 and p <= 1
         self.options.confidence = p
-        
+
     def resetPlotOptions(self):
         """ Reset the plotting option for the dlm class
 
@@ -824,7 +836,7 @@ class dlm(_dlm):
         self.options.smoothedColor = 'red'
         self.options.separatePlot = True
         self.options.confidence = 0.95
-        
+
     # plot the result according to the options
     def plot(self):
         """ The main plot function. The dlmPlot and the matplotlib will only be loaded
@@ -834,7 +846,7 @@ class dlm(_dlm):
 
         # load the library only when needed
         import pydlm.plot.dlmPlot as dlmPlot
-        
+
         if self.time is None:
             time = range(len(self.data))
 
@@ -845,14 +857,14 @@ class dlm(_dlm):
         if not self.initialized:
             raise NameError('The model must be constructed and' +
                             ' fitted before ploting.')
-            
+
         if self.result.filteredSteps[1] == -1:
             self.options.plotFilteredData = False
             self.options.plotPredictedData = False
 
         if self.result.smoothedSteps[1] == -1:
             self.options.plotSmoothedData = False
-            
+
         # if we just need one plot
         if self.options.separatePlot is not True:
             dlmPlot.plotInOneFigure(time=time,
