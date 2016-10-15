@@ -4,6 +4,7 @@ import unittest
 from pydlm.modeler.trends import trend
 from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.dynamic import dynamic
+from pydlm.modeler.autoReg import autoReg
 from pydlm.dlm import dlm
 
 class testDlm(unittest.TestCase):
@@ -64,7 +65,7 @@ class testDlm(unittest.TestCase):
 
     def testAppendDynamic(self):
         # we feed the data to dlm4 via two segments
-        dlm4 = dlm(self.data[0:11])        
+        dlm4 = dlm(self.data[0:11])
         dlm4 + trend(degree = 1, discount = 1) + dynamic(features = self.features[0:11], \
                                                          discount = 1)
         dlm4.fitForwardFilter()
@@ -78,7 +79,26 @@ class testDlm(unittest.TestCase):
                                                          discount = 1)
         dlm5.fitForwardFilter()
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
-                                      np.array(dlm5.result.filteredObs)), 0.0)       
+                                      np.array(dlm5.result.filteredObs)), 0.0)
+
+    def testAppendAutomatic(self):
+        # we feed the data to dlm4 via two segments
+        dlm4 = dlm(self.data[0:11])
+        dlm4 + trend(degree = 1, discount = 1) + autoReg(degree = 3,
+                                                         data = self.data[0:11],
+                                                         discount = 1)
+        dlm4.fitForwardFilter()
+        dlm4.append(self.data[11 : 20])
+        dlm4.fitForwardFilter()
+
+        # we feed the data to dlm5 all at once
+        dlm5 = dlm(self.data)
+        dlm5 + trend(degree = 1, discount = 1) + autoReg(degree = 3,
+                                                         data = self.data[0:11],
+                                                         discount = 1)
+        dlm5.fitForwardFilter()
+        self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
+                                      np.array(dlm5.result.filteredObs)), 0.0)
 
     def testPopout(self):
         dlm4 = dlm(self.data)
@@ -130,7 +150,7 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)
 
-    def testTrunOn(self):
+    def testTurnOn(self):
         pass
 
     def testTurnOff(self):
@@ -142,7 +162,7 @@ class testDlm(unittest.TestCase):
     def testSetConfidence(self):
         pass
 
-    
+
 unittest.main()
 
 
