@@ -6,12 +6,13 @@ Code for builder of a dynamic linear model
 ==============================================================================
 
 This piece of code provides the basic functionality for constructing the model
-of a dlm. It allows flexible modeling by users. User can add to, delete and view
-componets of a given dlm. Builder will finally assemble all the components to
-a final big model.
+of a dlm. It allows flexible modeling by users. User can add to, delete and
+view componets of a given dlm. Builder will finally assemble all the components
+ to a final big model.
 
 """
-# this class provide all the model building operations for constructing customized model
+# this class provide all the model building operations for constructing
+# customized model
 import numpy as np
 from pydlm.base.baseModel import baseModel
 from pydlm.modeler.matrixTools import matrixTools as mt
@@ -24,32 +25,39 @@ from pydlm.modeler.matrixTools import matrixTools as mt
 # The dynamic evaluation vector changes over time, it is basically
 # the other variables that might have impact on the time series
 # We need to update this vector as time going forward
+
+
 class builder:
     """ The main modeling part of a dynamic linear model. It allows the users to
-    custemize their own model. User can add, delete any components like trend or
-    seasonality to the builder, or view the existing components. Builder will finally
-    assemble all components to a big model for further training and inference.
+    custemize their own model. User can add, delete any components like trend
+    or seasonality to the builder, or view the existing components. Builder
+    will finally assemble all components to a big model for further training
+    and inference.
 
     Attributes:
-        model: the model structure from @baseModel, stores all the necessary quantities
-        initialized: indicates whether the model has been built
-        staticComponents: stores all the static components (trend and seasonality)
+        model: the model structure from @baseModel, stores all the necessary
+        quantities initialized: indicates whether the model has been built
+        staticComponents: stores all the static components (trend and
+                          seasonality)
         dynamicComponents: stores all the dynamic components
         componentIndex: the location of each component in the latent states
         statePrior: the prior mean of the latent state
         sysVarPrior: the prior of the covariance of the latent states
         noiseVar: the prior of the observation noise
-        discount: the discounting factor, please refer to @kalmanFilter for more details
-        renewTerm: used for aiding the stability of the model. The renewTerm is computed
-                   according to the discount fact. When the filter goes over certain steps,
-                   the information contribution of the previous data has decayed to minimum.
-                   We then ignore those days and refit the time series starting from 
-                   current - renewTerm. Thus, the effective sample size of the dlm is twice
-                   renewTerm. When discount = 1, there will be no renewTerm, since all the
-                   information will be passed along.
-        renewDiscount: the minimum discount of seasonality component, or if there is no
-                       seasonality, this will be the minimum discount of all components.
-                       Used for computing renewTerm.
+        discount: the discounting factor, please refer to @kalmanFilter for
+                  more details
+        renewTerm: used for aiding the stability of the model. The renewTerm
+                   is computed according to the discount fact. When the filter
+                   goes over certain steps, the information contribution of the
+                   previous data has decayed to minimum. We then ignore those
+                   days and refit the time series starting from current -
+                   renewTerm. Thus, the effective sample size of the dlm is
+                   twice renewTerm. When discount = 1, there will be no
+                   renewTerm, since all the information will be passed along.
+        renewDiscount: the minimum discount of seasonality component,
+                       or if there is no seasonality, this will be the minimum
+                       discount of all components. Used for computing
+                       renewTerm.
 
     Methods:
         add: add new component
@@ -58,7 +66,7 @@ class builder:
         initialize: assemble all the component to construt a big model
         updateEvaluation: update the valuation matrix of the big model
     """
-    
+
     # create members
     def __init__(self):
 
@@ -68,8 +76,24 @@ class builder:
 
         # to store all components. Separate the two as the evaluation
         # for dynamic component needs update each iteration
+        # (new) added the third category, which is dynamic but the
+        # features can be automatically computed from the data
+
+        # store all the static components, i.e., the evaluation vector
+        # do not change over time
         self.staticComponents = {}
+
+        # store all the dynamic components, i.e., the evaluation vector
+        # changes over time
         self.dynamicComponents = {}
+
+        # store all the components that are dynamic, but the evaluation
+        # vector can be inferred directly from the main data instead
+        # of other sources
+        self.automaticComponents = {}
+
+        # store the index (location in the latent states) of all components
+        # can be used to extract information for each componnet
         self.componentIndex = {}
 
         # record the prior guess on the latent state and system covariance
@@ -81,39 +105,49 @@ class builder:
         self.discount = None
 
         # renew term used to indicate the effective length of data, i.e.,
-        # for days before this length will have little impact on the current result
+        # for days before this length will have little impact on
+        # the current result
         self.renewTerm = -1.0
-        self.renewDiscount = None # used for adjusting renewTerm
-
+        self.renewDiscount = None  # used for adjusting renewTerm
 
     # The function that allows the user to add components
     def add(self, component):
         """ Add a new model component to the builder.
-        
+
         Args:
             component: a model component, any class implements @component class
 
         """
-        
+
         self.__add__(component)
-        
+
     def __add__(self, component):
         if component.componentType == 'dynamic':
             if component.name in self.dynamicComponents:
-                raise NameError('Please rename the component to a different name.')
+                raise NameError('Please rename the component to a'
+                                + ' different name.')
             self.dynamicComponents[component.name] = component
-            
-        if component.componentType == 'trend' or component.componentType == 'seasonality':
+
+        if component.componentType == 'autoReg':
+            if component.name in self.automaticComponents:
+                raise NameError('Please rename the component to a'
+                                + ' different name.')
+            self.automaticComponents[component.name] = component
+
+        if component.componentType == 'trend' \
+           or component.componentType == 'seasonality':
             if component.name in self.staticComponents:
-                raise NameError('Please rename the component to a different name.')
+                raise NameError('Please rename the component' +
+                                ' to a different name.')
             self.staticComponents[component.name] = component
 
             # we use seasonality's discount to adjust the renewTerm
             if component.componentType == 'seasonality':
                 if self.renewDiscount is None:
                     self.renewDiscount = 1.0
-                self.renewDiscount = min(self.renewDiscount, min(component.discount))
-                
+                self.renewDiscount = min(self.renewDiscount,
+                                         min(component.discount))
+
         self.initialized = False
         return self
 
@@ -122,7 +156,7 @@ class builder:
         """ List out all the existing components to the model
 
         """
-        
+
         if len(self.staticComponents) > 0:
             print('The static components are')
             for name in self.staticComponents:
@@ -141,6 +175,14 @@ class builder:
         else:
             print('There is no dynamic component.')
 
+        if len(self.automaticComponents) > 0:
+            print('The automatic components are')
+            for name in self.automaticComponents:
+                comp = self.automaticComponents[name]
+                print(comp.name + ' (dimension = ' + str(comp.d) + ')')
+        else:
+            print('There is no automatic component.')
+
     # delete the componet that pointed out by the client
     def delete(self, name):
         """ Delete a specific component from dlm by its name.
@@ -149,29 +191,31 @@ class builder:
             name: the name of the component. Can be read from ls()
 
         """
-        
+
         if name in self.staticComponents:
             del self.staticComponents[name]
         elif name in self.dynamicComponents:
             del self.dynamicComponents[name]
+        elif name in self.automaticComponents:
+            del self.automaticComponents[name]
         else:
             raise NameError('Such component does not exisit!')
-            
+
         self.initialized = False
 
     # initialize model for all the quantities
     # noise is the prior guess of the variance of the observed data
-    def initialize(self, noise = 1):
+    def initialize(self, noise=1):
         """ Initialize the model. It construct the baseModel by assembling all
         quantities from the components.
 
         Args:
             noise: the initial guess of the variance of the observation noise.
         """
-        
         if len(self.staticComponents) == 0:
-            raise NameError('The model must contain at least one static component')
-        
+            raise NameError('The model must contain at least' +
+                            ' one static component')
+
         # construct transition, evaluation, prior state, prior covariance
         print('Initializing models...')
         transition = None
@@ -183,11 +227,11 @@ class builder:
         # first construct for the static components
         # the evaluation will be treated separately for static or dynamic
         # as the latter one will change over time
-        currentIndex = 0 # used for compute the index
+        currentIndex = 0  # used for compute the index
         for i in self.staticComponents:
             comp = self.staticComponents[i]
             transition = mt.matrixAddInDiag(transition, comp.transition)
-            evaluation = mt.matrixAddByCol(evaluation, \
+            evaluation = mt.matrixAddByCol(evaluation,
                                            comp.evaluation)
             state = mt.matrixAddByRow(state, comp.meanPrior)
             sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
@@ -201,33 +245,50 @@ class builder:
             for i in self.dynamicComponents:
                 comp = self.dynamicComponents[i]
                 transition = mt.matrixAddInDiag(transition, comp.transition)
-                evaluation = mt.matrixAddByCol(evaluation, \
+                evaluation = mt.matrixAddByCol(evaluation,
                                                comp.evaluation)
                 state = mt.matrixAddByRow(state, comp.meanPrior)
                 sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
                 self.discount = np.concatenate((self.discount, comp.discount))
-                self.componentIndex[i] = (currentIndex, currentIndex + comp.d - 1)
+                self.componentIndex[i] = (currentIndex,
+                                          currentIndex + comp.d - 1)
                 currentIndex += comp.d
-        
+
+        # if the model contains the automatic dynamic part, we add
+        # them to the builder
+        if len(self.automaticComponents) > 0:
+            self.automaticEvaluation = None
+            for i in self.automaticComponents:
+                comp = self.automaticComponents[i]
+                transition = mt.matrixAddInDiag(transition, comp.transition)
+                evaluation = mt.matrixAddByCol(evaluation,
+                                               comp.evaluation)
+                state = mt.matrixAddByRow(state, comp.meanPrior)
+                sysVar = mt.matrixAddInDiag(sysVar, comp.covPrior)
+                self.discount = np.concatenate((self.discount, comp.discount))
+                self.componentIndex[i] = (currentIndex,
+                                          currentIndex + comp.d - 1)
+                currentIndex += comp.d
+
         self.statePrior = state
         self.sysVarPrior = sysVar
         self.noiseVar = np.matrix(noise)
-        self.model = baseModel(transition = transition, \
-                               evaluation = evaluation, \
-                               noiseVar = np.matrix(noise), \
-                               sysVar = sysVar, \
-                               state = state, \
-                               df = 1)
+        self.model = baseModel(transition=transition,
+                               evaluation=evaluation,
+                               noiseVar=np.matrix(noise),
+                               sysVar=sysVar,
+                               state=state,
+                               df=1)
         self.model.initializeObservation()
-        
+
         # compute the renew period
         if self.renewDiscount is None:
             self.renewDiscount = np.min(self.discount)
-        
+
         if self.renewDiscount < 1.0 - 1e-8:
             self.renewTerm = np.log(0.001 * (1 - self.renewDiscount)) \
                              / np.log(self.renewDiscount)
-            
+
         self.initialized = True
         print('Initialization finished.')
 
@@ -235,22 +296,30 @@ class builder:
     # so that the model can handle control variables
     # This function should be called only when dynamicComponents is not empty
     def updateEvaluation(self, step):
-        """ Update the evaluation matrix of the model to a specific date. It loops over all
-        dynamic components and update their evaluation matrix and then reconstruct the 
-        model evaluation matrix by incorporating the new evaluations
+        """ Update the evaluation matrix of the model to a specific date.
+        It loops over all dynamic components and update their evaluation
+        matrix and then reconstruct the model evaluation matrix by
+        incorporating the new evaluations
 
         Arges:
             step: the date at which the evaluation matrix is needed.
 
         """
-        
-        if len(self.dynamicComponents) == 0:
-            raise NameError('This shall only be used when there are dynamic components!')
+
+        if len(self.dynamicComponents) == 0 or len(self.automaticComponents):
+            raise NameError('This shall only be used when there' +
+                            ' are dynamic or automatic components!')
 
         # update the dynamic evaluation vector
         # We need first update all dynamic components by 1 step
         for i in self.dynamicComponents:
             comp = self.dynamicComponents[i]
             comp.updateEvaluation(step)
-            self.model.evaluation[0, self.componentIndex[i][0] : \
+            self.model.evaluation[0, self.componentIndex[i][0]:
+                                  (self.componentIndex[i][1] + 1)] = comp.evaluation
+
+        for i in self.automaticComponents:
+            comp = self.automaticComponents[i]
+            comp.updateEvaluation(step)
+            self.model.evaluation[0, self.componentIndex[i][0]:
                                   (self.componentIndex[i][1] + 1)] = comp.evaluation
