@@ -174,6 +174,7 @@ class builder:
                 print(comp.name + ' (dimension = ' + str(comp.d) + ')')
         else:
             print('There is no dynamic component.')
+            print(' ')
 
         if len(self.automaticComponents) > 0:
             print('The automatic components are')
@@ -306,7 +307,8 @@ class builder:
 
         """
 
-        if len(self.dynamicComponents) == 0 or len(self.automaticComponents):
+        if len(self.dynamicComponents) == 0 or \
+           len(self.automaticComponents) == 0:
             raise NameError('This shall only be used when there' +
                             ' are dynamic or automatic components!')
 
