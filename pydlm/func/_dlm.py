@@ -342,7 +342,7 @@ class _dlm:
 
         return (predictedObs, predictedObsVar)
 
-#=======================================================================
+# =======================================================================
 
     # to set model to a specific date
     def _setModelStatus(self, date=0):
