@@ -64,9 +64,9 @@ class longSeason(dynamic):
         # create features. nextState and state are used to
         # remember the next feature shap
         features, self.nextState = self.createFeatureMatrix(period=period,
-                                                               stay=stay,
-                                                               n=len(data),
-                                                               state=[0, 0])
+                                                            stay=stay,
+                                                            n=len(data),
+                                                            state=[0, 0])
 
         dynamic.__init__(self,
                          features=features,
