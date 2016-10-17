@@ -61,8 +61,9 @@ class longSeason(dynamic):
         self.period = period
         self.stay = stay
 
-        # create features
-        features, self.currentState = self.createFeatureMatrix(period=period,
+        # create features. nextState and state are used to
+        # remember the next feature shap
+        features, self.nextState = self.createFeatureMatrix(period=period,
                                                                stay=stay,
                                                                n=len(data),
                                                                state=[0, 0])
@@ -86,19 +87,24 @@ class longSeason(dynamic):
         """
 
         # initialize feature matrix
-        currentState = state
+        nextState = state
         features = []
+
         count = 0
         while count < n:
-            currentState[1] = (currentState[1] + 1) % stay
-            if currentState == 0:
-                currentState[0] = (currentState[0] + 1) % period
+            # create new feature for next state
             new_feature = [0] * period
-            new_feature[currentState[0]] = 1
+            new_feature[nextState[0]] = 1
             features.append(new_feature)
+
+            # update the state
+            nextState[1] = (nextState[1] + 1) % stay
+            if nextState[1] == 0:
+                nextState[0] = (nextState[0] + 1) % period
+
             count += 1
 
-        return features, currentState
+        return features, nextState
 
     # the degree cannot be longer than data
     def checkDataLength(self):
@@ -118,10 +124,11 @@ class longSeason(dynamic):
 
         """
         # create the new features
-        newFeatures = self.createFeatureMatrix(period=self.period,
-                                               stay=self.stay,
-                                               n=len(newData),
-                                               state=self.currentState)
+        newFeatures, \
+            self.nextState = self.createFeatureMatrix(period=self.period,
+                                                      stay=self.stay,
+                                                      n=len(newData),
+                                                      state=self.nextState)
         self.features.extend(newFeatures)
         self.n = len(self.features)
 
@@ -155,11 +162,11 @@ class longSeason(dynamic):
 
         # push currentState back by 1 day. Need to take care of all
         # corner cases.
-        if self.currentState[1] == 0:
-            self.currentState[1] = self.stay - 1
-            if self.currentState[0] == 0:
-                self.currentState[0] = self.period - 1
+        if self.nextState[1] == 0:
+            self.nextState[1] = self.stay - 1
+            if self.nextState[0] == 0:
+                self.nextState[0] = self.period - 1
             else:
-                self.currentState[0] -= 1
+                self.nextState[0] -= 1
         else:
-            self.currentState[1] -= 1
+            self.nextState[1] -= 1
