@@ -35,8 +35,8 @@ class autoReg(dynamic):
     """
 
     def __init__(self,
-                 degree=2,
                  data=None,
+                 degree=2,
                  discount=0.99,
                  name='ar2',
                  padding=0):

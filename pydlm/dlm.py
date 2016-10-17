@@ -605,7 +605,7 @@ class dlm(_dlm):
             # update the automatic components as well
             for component in self.builder.automaticComponents:
                 comp = self.builder.automaticComponents[component]
-                comp.append(data)
+                comp.appendNewData(data)
 
             # give a warning to remind to append dynamic components
             if len(self.builder.dynamicComponents) > 0:
