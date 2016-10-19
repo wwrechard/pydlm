@@ -65,6 +65,7 @@ class _dlm:
         self.initialized = False
         self.options = self._defaultOptions()
         self.time = None
+        self._printInfo = True
 
     # an inner class to store all options
     class _defaultOptions:
@@ -422,3 +423,12 @@ class _dlm:
 
     def _1DmatrixToArray(self, arrayOf1dMatrix):
         return [item.tolist()[0][0] for item in arrayOf1dMatrix]
+
+    # function to turn off printing system info
+    def _printSystemInfo(self, yes):
+        if yes:
+            self._printInfo = True
+            self.builder._printInfo = True
+        else:
+            self._printInfo = False
+            self.builder._printInfo = False

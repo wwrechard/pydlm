@@ -130,7 +130,7 @@ class dlm(_dlm):
             A list of the filtered time series observations
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The fitlered dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -150,7 +150,7 @@ class dlm(_dlm):
             A list of the filtered time series variances.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The fitlered dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -173,7 +173,7 @@ class dlm(_dlm):
             and the second being a list of the lower bounds.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The fitlered dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -194,7 +194,7 @@ class dlm(_dlm):
             A list of the smoothed time series observations.
 
         """
-        if self.result.smoothedSteps != [0, self.n - 1]:
+        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
@@ -212,7 +212,7 @@ class dlm(_dlm):
             A list of the smoothed time series variances.
 
         """
-        if self.result.smoothedSteps != [0, self.n - 1]:
+        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
@@ -235,7 +235,7 @@ class dlm(_dlm):
             and the second being a list of the lower bounds.
 
         """
-        if self.result.smoothedSteps != [0, self.n - 1]:
+        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
@@ -256,7 +256,7 @@ class dlm(_dlm):
             A list of one-day ahead predictions.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The predicted dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -274,7 +274,7 @@ class dlm(_dlm):
             A list of one-day ahead prediction variances.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The predicted dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -297,7 +297,7 @@ class dlm(_dlm):
             and the second being a list of the lower bounds.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The predicted dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -321,7 +321,7 @@ class dlm(_dlm):
             A list of numpy matrices, standing for the filtered latent states.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The fitlered dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -353,7 +353,7 @@ class dlm(_dlm):
             A list of numpy matrices, standing for the smoothed latent states.
 
         """
-        if self.result.smootehdSteps != [0, self.n - 1]:
+        if self.result.smootehdSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
@@ -386,7 +386,7 @@ class dlm(_dlm):
             covariance.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1]:
+        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
             print('The fitlered dates are from ' +
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
@@ -420,7 +420,7 @@ class dlm(_dlm):
             covariance.
 
         """
-        if self.result.smootehdSteps != [0, self.n - 1]:
+        if self.result.smootehdSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
@@ -463,7 +463,8 @@ class dlm(_dlm):
         if not self.initialized:
             self._initialize()
 
-        print('Starting forward filtering...')
+        if self._printInfo:
+            print('Starting forward filtering...')
         if not useRollingWindow:
             # we start from the last step of previous fitering
             if self.result.filteredType == 'non-rolling':
@@ -498,7 +499,8 @@ class dlm(_dlm):
         self.result.filteredSteps = [0, self.n - 1]
         self.turnOn('filtered plot')
         self.turnOn('predict plot')
-        print('Forward fitering completed.')
+        if self._printInfo:
+            print('Forward fitering completed.')
 
     def fitBackwardSmoother(self, backLength=None):
         """ Fit backward smoothing on the data. Starting from the last observed date.
@@ -522,7 +524,8 @@ class dlm(_dlm):
         if backLength is None:
             backLength = self.n
 
-        print('Starting backward smoothing...')
+        if self._printInfo:
+            print('Starting backward smoothing...')
         # if the smoothed dates has already been done, we do nothing
         if self.result.smoothedSteps[1] == self.n - 1 and \
            self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
@@ -540,7 +543,8 @@ class dlm(_dlm):
 
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
         self.turnOn('smoothed plot')
-        print('Backward smoothing completed.')
+        if self._printInfo:
+            print('Backward smoothing completed.')
 
     def fit(self):
         """ An easy caller for fitting both the forward filter and backward smoother.
@@ -561,7 +565,7 @@ class dlm(_dlm):
         Args:
             date: the index when the prediction starts. Default to the
                   last day.
-            days: number of days ahead to predict
+            days: number of days forward to predict
 
         Returns:
             A tuple. (Predicted observation, variance of the predicted

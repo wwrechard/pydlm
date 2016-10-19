@@ -110,6 +110,9 @@ class builder:
         self.renewTerm = -1.0
         self.renewDiscount = None  # used for adjusting renewTerm
 
+        # flag for determining whether the system info should be printed.
+        self._printInfo = True
+        
     # The function that allows the user to add components
     def add(self, component):
         """ Add a new model component to the builder.
@@ -218,7 +221,8 @@ class builder:
                             ' one static component')
 
         # construct transition, evaluation, prior state, prior covariance
-        print('Initializing models...')
+        if self._printInfo:
+            print('Initializing models...')
         transition = None
         evaluation = None
         state = None
@@ -291,7 +295,8 @@ class builder:
                              / np.log(self.renewDiscount)
 
         self.initialized = True
-        print('Initialization finished.')
+        if self._printInfo:
+            print('Initialization finished.')
 
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables
