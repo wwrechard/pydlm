@@ -25,6 +25,11 @@ class _mvdlm:
         # the same structure.
         if data is None:
             self.dlmType = 'heterogeneity'
+        elif len(data) == 0:
+            raise NameError('data can not be empty. It can be None type ' +
+                            '(indicating this is a heterogeneous mvdlm) ' +
+                            'or it must be a list of list containing ' +
+                            'multivariate data')
         else:
             self.dlmType = 'homogeneity'
             self._checkMultivariate(data)
