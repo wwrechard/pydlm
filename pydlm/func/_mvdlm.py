@@ -11,6 +11,7 @@ structure.
 """
 from copy import deepcopy
 from time import time
+from numpy import matrix
 from pydlm import dlm
 from pydlm.modeler.dynamic import dynamic
 
@@ -229,7 +230,180 @@ class _mvdlm:
             predictedVar.append(var)
         return (predictedObs, predictedVar)
 
-# ============================ hiden helper functions =========================
+# =========================== get the result ==================================
+    # One can get result directly from each dlms from getDLM
+    # Here, we only provide the results that are easily aggregatable.
+    # No latent result will be provided on an aggregated level.
+    # Get them from each individual dlms
+
+    # get the univariate dlms
+    def getDLM(self, name):
+        if name in self.dlms:
+            return deepcopy(self.dlms[name])
+        else:
+            raise NameError('Wrong name, no such dlm.')
+
+    # get the aggregated obs
+    def getFilteredObs(self, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            filteredObs = []
+            for dlmName in self.order:
+                filteredObs.append(self.dlms[dlmName].getFilteredObs())
+            # we need to tranpose the result to have the correct form
+            return self._transpose2dArray(filteredObs)
+
+        elif name in self.dlms:
+            return self.dlms[name].getFilteredObs()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated varirance
+    def getFilteredVar(self, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            filteredVar = []
+            for dlmName in self.order:
+                filteredVar.append(self.dlms[dlmName].getFilteredVar())
+            # we need to tranpose the result to have the correct form
+            return self._transpose2dArray(filteredVar)
+
+        elif name in self.dlms:
+            return self.dlms[name].getFilteredVar()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated confidence interval
+    def getFilteredInterval(self, p, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            filteredUpper = []
+            filteredLower = []
+            for dlmName in self.order:
+                upper, lower = self.dlms[dlmName].getFilteredInterval()
+                filteredUpper.append(upper)
+                filteredLower.append(lower)
+            # we need to tranpose the result to have the correct form
+            return (self._transpose2dArray(filteredUpper),
+                    self._transpose2dArray(filteredLower))
+
+        elif name in self.dlms:
+            return self.dlms[name].getFilteredInterval()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated obs
+    def getSmoothedObs(self, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            smoothedObs = []
+            for dlmName in self.order:
+                smoothedObs.append(self.dlms[dlmName].getSmoothedObs())
+            # we need to tranpose the result to have the correct form
+            return self._transpose2dArray(smoothedObs)
+
+        elif name in self.dlms:
+            return self.dlms[name].getSmoothedObs()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated varirance
+    def getSmoothedVar(self, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            smoothedVar = []
+            for dlmName in self.order:
+                smoothedVar.append(self.dlms[dlmName].getSmoothedVar())
+            # we need to tranpose the result to have the correct form
+            return self._transpose2dArray(smoothedVar)
+
+        elif name in self.dlms:
+            return self.dlms[name].getSmoothedVar()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated confidence interval
+    def getSmoothedInterval(self, p, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            smoothedUpper = []
+            smoothedLower = []
+            for dlmName in self.order:
+                upper, lower = self.dlms[dlmName].getSmoothedInterval()
+                smoothedUpper.append(upper)
+                smoothedLower.append(lower)
+            # we need to tranpose the result to have the correct form
+            return (self._transpose2dArray(smoothedUpper),
+                    self._transpose2dArray(smoothedLower))
+
+        elif name in self.dlms:
+            return self.dlms[name].getSmoothedInterval()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated obs
+    def getPredictedObs(self, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            predictedObs = []
+            for dlmName in self.order:
+                predictedObs.append(self.dlms[dlmName].getPredictedObs())
+            # we need to tranpose the result to have the correct form
+            return self._transpose2dArray(predictedObs)
+
+        elif name in self.dlms:
+            return self.dlms[name].getPredictedObs()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated varirance
+    def getPredictedVar(self, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            predictedVar = []
+            for dlmName in self.order:
+                predictedVar.append(self.dlms[dlmName].getPredictedVar())
+            # we need to tranpose the result to have the correct form
+            return self._transpose2dArray(predictedVar)
+
+        elif name in self.dlms:
+            return self.dlms[name].getPredictedVar()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get the aggregated confidence interval
+    def getPredictedInterval(self, p, name='all'):
+        # if name = all, we return aggregated vector result
+        if name == 'all':
+            predictedUpper = []
+            predictedLower = []
+            for dlmName in self.order:
+                upper, lower = self.dlms[dlmName].getPredictedInterval()
+                predictedUpper.append(upper)
+                predictedLower.append(lower)
+            # we need to tranpose the result to have the correct form
+            return (self._transpose2dArray(predictedUpper),
+                    self._transpose2dArray(predictedLower))
+
+        elif name in self.dlms:
+            return self.dlms[name].getPredictedInterval()
+
+        else:
+            raise NameError('No such dlm or wrong parameter value.')
+
+    # get he covariance matrix
+    def getCovariance(self, date=None, filterType='backwardSmoother'):
+        pass
+
+# ============================ hidden helper functions ========================
     # check if the data is truely multivariate
     def _checkMultivariate(self, data):
         if not all(isinstance(item, list) for item in data):
@@ -237,14 +411,14 @@ class _mvdlm:
                             ' Use the univariate dlm instead.')
 
     # copy the data or filtered result to a dlm as its feature.
-    def _copyToFeatures(self, name, which):
+    def _copyToFeatures(self, name, filterType):
         current = self.dlms[name]
 
         # if the feature has not been created,
         # we need to first add it as a feature
         if 'mvdlmFeatures' not in current.dynamicComponents:
             # initialize the new feature
-            newFeature = [[0] * len(self.order) for i in range(self.n)]
+            newFeature = [[0] * (len(self.order) - 1) for i in range(self.n)]
             current.add(dynamic(features=newFeature,
                                 name='mvdlmFeatures',
                                 discount=1.0))
@@ -257,18 +431,18 @@ class _mvdlm:
             count = 0
             for otherdlm in self.order:
                 if otherdlm != name:
-                    if which == 'forwardFilter':
+                    if filterType == 'forwardFilter':
                         theFeature[i][count] = self.dlms[otherdlm] \
                                                    .result.filteredObs[i]
-                    elif which == 'backwardSmoother':
+                    elif filterType == 'backwardSmoother':
                         theFeature[i][count] = self.dlms[otherdlm] \
                                                    .result.smoothedObs[i]
-                    elif which == 'original':
+                    elif filterType == 'original':
                         if self.dlms[otherdlm].data[i] is not None:
                             theFeature[i][count] = self.dlms[otherdlm].data[i]
                         else:
                             theFeature[i][count] = 0.0
-                count += 1
+                    count += 1
 
     # check whether the dlms contain the same data length
     def _checkDLMLengthAndUpdate(self):
@@ -281,3 +455,47 @@ class _mvdlm:
                 return False
         self.n = n
         return True
+
+    # transpose a 2d array
+    def _transpose2dArray(self, array2d):
+        if array2d is None:
+            raise NameError('The 2d array cannot be none.')
+        else:
+            n = len(array2d)
+            if n == 0:
+                return []
+            m = len(array2d[0])
+            if m == 1:
+                return array2d
+            newArray = [[0] * n for i in range(m)]
+            for i in range(n):
+                for j in range(m):
+                    newArray[j][i] = array2d[i][j]
+            return newArray
+
+    # extract the precision and the covariance matrix from mvdlm
+    # details are provided in the doc
+    def _reconstructPrecision(self, date, filterType):
+        precision = matrix([[0] * len(self.order) for i in self.order])
+        for i, name in enumerate(self.order):
+            unidlm = self.dlms[name]
+            if filterType == 'forwardFilter':
+                precision[i][i] = 1 / unidlm.result.filteredVar[date]
+                indx = unidlm.builder.componentIndex['mvdlmFeatures']
+                coefficient = unidlm.result.filteredState[date][
+                    indx[0]:(indx[1] + 1), 0]
+            elif filterType == 'backwardSmoother':
+                precision[i][i] = 1 / unidlm.result.smoothedVar[date]
+                indx = unidlm.builder.componentIndex['mvdlmFeatures']
+                coefficient = unidlm.result.smoothedState[date][
+                    indx[0]:(indx[1] + 1), 0]
+
+            for j in range(len(self.order)):
+                if j < i:
+                    precision[j][i] = - precision[i][i] * \
+                                      coefficient[j, 0]
+                elif j > i:
+                    precision[j][i] = - precision[i][i] * \
+                                      coefficient[j - 1, 0]
+
+        return precision

@@ -109,6 +109,151 @@ class dlm(_dlm):
         self.builder.delete(name)
         self.initialized = False
 
+# ========================== model training component =======================
+
+    def fitForwardFilter(self, useRollingWindow=False, windowLength=3):
+        """ Fit forward filter on the available data.
+
+        User can choose use rolling windowFront
+        or not. If user choose not to use the rolling window,
+        then the filtering will be based on all the previous data.
+        If rolling window is used, then the filtering for a particular
+        date will only consider previous dates that are
+        within the rolling window length.
+
+        Args:
+            useRollingWindow: indicate whether rolling window should be used.
+            windowLength: the length of the rolling window if used.
+
+        """
+        # check if the feature size matches the data size
+        self._checkFeatureSize()
+
+        # see if the model has been initialized
+        if not self.initialized:
+            self._initialize()
+
+        if self._printInfo:
+            print('Starting forward filtering...')
+        if not useRollingWindow:
+            # we start from the last step of previous fitering
+            if self.result.filteredType == 'non-rolling':
+                start = self.result.filteredSteps[1] + 1
+            else:
+                start = 0
+
+            # determine whether renew should be used
+            self._forwardFilter(start=start,
+                                end=self.n - 1,
+                                renew=self.options.stable)
+            self.result.filteredType = 'non-rolling'
+        else:
+            if self.result.filteredType == 'rolling':
+                windowFront = self.result.filteredSteps[1] + 1
+            else:
+                windowFront = 0
+            self.result.filteredType = 'rolling'
+            # if end is still within (0, windowLength - 1), we should run the
+            # usual ff from
+            if windowFront < windowLength:
+                self._forwardFilter(start=self.result.filteredSteps[1] + 1,
+                                    end=min(windowLength - 1, self.n - 1))
+
+            # for the remaining date, we use a rolling window
+            for day in range(max(windowFront, windowLength), self.n):
+                self._forwardFilter(start=day - windowLength + 1,
+                                    end=day,
+                                    save=day,
+                                    ForgetPrevious=True)
+
+        self.result.filteredSteps = [0, self.n - 1]
+        self.turnOn('filtered plot')
+        self.turnOn('predict plot')
+        if self._printInfo:
+            print('Forward fitering completed.')
+
+    def fitBackwardSmoother(self, backLength=None):
+        """ Fit backward smoothing on the data. Starting from the last observed date.
+
+        Args:
+            backLength: integer, indicating how many days the backward smoother
+            should go, starting from the last date.
+
+        """
+
+        # see if the model has been initialized
+        if not self.initialized:
+            raise NameError('Backward Smoother has to be run after' +
+                            ' forward filter')
+
+        if self.result.filteredSteps[1] != self.n - 1:
+            raise NameError('Forward Fiter needs to run on full data before' +
+                            'using backward Smoother')
+
+        # default value for backLength
+        if backLength is None:
+            backLength = self.n
+
+        if self._printInfo:
+            print('Starting backward smoothing...')
+        # if the smoothed dates has already been done, we do nothing
+        if self.result.smoothedSteps[1] == self.n - 1 and \
+           self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
+            return None
+
+        # if the smoothed dates start from n - 1, we just need to continue
+        elif self.result.smoothedSteps[1] == self.n - 1:
+            self._backwardSmoother(start=self.result.smoothedSteps[0] - 1,
+                                   days=backLength)
+
+        # if the smoothed dates are even earlier,
+        # we need to start from the beginning
+        elif self.result.smoothedSteps[1] < self.n - 1:
+            self._backwardSmoother(start=self.n - 1, days=backLength)
+
+        self.result.smoothedSteps = [self.n - backLength, self.n - 1]
+        self.turnOn('smoothed plot')
+        if self._printInfo:
+            print('Backward smoothing completed.')
+
+    def fit(self):
+        """ An easy caller for fitting both the forward filter and backward smoother.
+
+        """
+        self.fitForwardFilter()
+        self.fitBackwardSmoother()
+
+# =========================== model prediction ==============================
+
+    # The prediction function
+    def predict(self, date=None, days=1):
+        """ Predict based on the current data for a specific future days
+
+        The predict result is based on all the data before date and predict the
+        observation at date + days.
+
+        Args:
+            date: the index when the prediction starts. Default to the
+                  last day.
+            days: number of days forward to predict
+
+        Returns:
+            A tuple. (Predicted observation, variance of the predicted
+            observation)
+
+        """
+        # the default prediction date
+        if date is None:
+            date = self.n - 1
+
+        # check if the data on the date has been filtered
+        if date > self.result.filteredSteps[1]:
+            raise NameError('Prediction can only be made right' +
+                            ' after the filtered date')
+
+        return self._predict(date=date, days=days)
+
+
 # ====================== result components ====================
 
     def getAll(self):
@@ -333,7 +478,8 @@ class dlm(_dlm):
             indx = self.builder.componentIndex[name]
             result = [None] * self.n
             for i in range(len(result)):
-                result[i] = self.result.filteredState[indx[0]:(indx[1] + 1), 0]
+                result[i] = self.result.filteredState[i][
+                    indx[0]:(indx[1] + 1), 0]
             return result
 
         else:
@@ -365,7 +511,8 @@ class dlm(_dlm):
             indx = self.builder.componentIndex[name]
             result = [None] * self.n
             for i in range(len(result)):
-                result[i] = self.result.smoothedState[indx[0]:(indx[1] + 1), 0]
+                result[i] = self.result.smoothedState[i][
+                    indx[0]:(indx[1] + 1), 0]
             return result
 
         else:
@@ -398,8 +545,8 @@ class dlm(_dlm):
             indx = self.builder.componentIndex[name]
             result = [None] * self.n
             for i in range(len(result)):
-                result[i] = self.result.filteredCov[indx[0]:(indx[1] + 1),
-                                                    indx[0]:(indx[1] + 1)]
+                result[i] = self.result.filteredCov[i][indx[0]:(indx[1] + 1),
+                                                       indx[0]:(indx[1] + 1)]
             return result
 
         else:
@@ -432,156 +579,12 @@ class dlm(_dlm):
             indx = self.builder.componentIndex[name]
             result = [None] * self.n
             for i in range(len(result)):
-                result[i] = self.result.smoothedCov[indx[0]:(indx[1] + 1),
-                                                    indx[0]:(indx[1] + 1)]
+                result[i] = self.result.smoothedCov[i][indx[0]:(indx[1] + 1),
+                                                       indx[0]:(indx[1] + 1)]
             return result
 
         else:
             raise NameError('Such component does not exist!')
-
-# ========================== model training component =======================
-
-    def fitForwardFilter(self, useRollingWindow=False, windowLength=3):
-        """ Fit forward filter on the available data.
-
-        User can choose use rolling windowFront
-        or not. If user choose not to use the rolling window,
-        then the filtering will be based on all the previous data.
-        If rolling window is used, then the filtering for a particular
-        date will only consider previous dates that are
-        within the rolling window length.
-
-        Args:
-            useRollingWindow: indicate whether rolling window should be used.
-            windowLength: the length of the rolling window if used.
-
-        """
-        # check if the feature size matches the data size
-        self._checkFeatureSize()
-
-        # see if the model has been initialized
-        if not self.initialized:
-            self._initialize()
-
-        if self._printInfo:
-            print('Starting forward filtering...')
-        if not useRollingWindow:
-            # we start from the last step of previous fitering
-            if self.result.filteredType == 'non-rolling':
-                start = self.result.filteredSteps[1] + 1
-            else:
-                start = 0
-
-            # determine whether renew should be used
-            self._forwardFilter(start=start,
-                                end=self.n - 1,
-                                renew=self.options.stable)
-            self.result.filteredType = 'non-rolling'
-        else:
-            if self.result.filteredType == 'rolling':
-                windowFront = self.result.filteredSteps[1] + 1
-            else:
-                windowFront = 0
-            self.result.filteredType = 'rolling'
-            # if end is still within (0, windowLength - 1), we should run the
-            # usual ff from
-            if windowFront < windowLength:
-                self._forwardFilter(start=self.result.filteredSteps[1] + 1,
-                                    end=min(windowLength - 1, self.n - 1))
-
-            # for the remaining date, we use a rolling window
-            for day in range(max(windowFront, windowLength), self.n):
-                self._forwardFilter(start=day - windowLength + 1,
-                                    end=day,
-                                    save=day,
-                                    ForgetPrevious=True)
-
-        self.result.filteredSteps = [0, self.n - 1]
-        self.turnOn('filtered plot')
-        self.turnOn('predict plot')
-        if self._printInfo:
-            print('Forward fitering completed.')
-
-    def fitBackwardSmoother(self, backLength=None):
-        """ Fit backward smoothing on the data. Starting from the last observed date.
-
-        Args:
-            backLength: integer, indicating how many days the backward smoother
-            should go, starting from the last date.
-
-        """
-
-        # see if the model has been initialized
-        if not self.initialized:
-            raise NameError('Backward Smoother has to be run after' +
-                            ' forward filter')
-
-        if self.result.filteredSteps[1] != self.n - 1:
-            raise NameError('Forward Fiter needs to run on full data before' +
-                            'using backward Smoother')
-
-        # default value for backLength
-        if backLength is None:
-            backLength = self.n
-
-        if self._printInfo:
-            print('Starting backward smoothing...')
-        # if the smoothed dates has already been done, we do nothing
-        if self.result.smoothedSteps[1] == self.n - 1 and \
-           self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
-            return None
-
-        # if the smoothed dates start from n - 1, we just need to continue
-        elif self.result.smoothedSteps[1] == self.n - 1:
-            self._backwardSmoother(start=self.result.smoothedSteps[0] - 1,
-                                   days=backLength)
-
-        # if the smoothed dates are even earlier,
-        # we need to start from the beginning
-        elif self.result.smoothedSteps[1] < self.n - 1:
-            self._backwardSmoother(start=self.n - 1, days=backLength)
-
-        self.result.smoothedSteps = [self.n - backLength, self.n - 1]
-        self.turnOn('smoothed plot')
-        if self._printInfo:
-            print('Backward smoothing completed.')
-
-    def fit(self):
-        """ An easy caller for fitting both the forward filter and backward smoother.
-
-        """
-        self.fitForwardFilter()
-        self.fitBackwardSmoother()
-
-# =========================== model prediction ==============================
-
-    # The prediction function
-    def predict(self, date=None, days=1):
-        """ Predict based on the current data for a specific future days
-
-        The predict result is based on all the data before date and predict the
-        observation at date + days.
-
-        Args:
-            date: the index when the prediction starts. Default to the
-                  last day.
-            days: number of days forward to predict
-
-        Returns:
-            A tuple. (Predicted observation, variance of the predicted
-            observation)
-
-        """
-        # the default prediction date
-        if date is None:
-            date = self.n - 1
-
-        # check if the data on the date has been filtered
-        if date > self.result.filteredSteps[1]:
-            raise NameError('Prediction can only be made right' +
-                            ' after the filtered date')
-
-        return self._predict(date=date, days=days)
 
 # ======================= data appending, popping and altering ===============
 
