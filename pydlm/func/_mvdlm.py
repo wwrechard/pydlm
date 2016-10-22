@@ -12,6 +12,7 @@ structure.
 from copy import deepcopy
 from time import time
 from numpy import matrix
+from numpy.linalg import inv
 from pydlm import dlm
 from pydlm.modeler.dynamic import dynamic
 
@@ -51,7 +52,7 @@ class _mvdlm:
         self.iteration = 5
 
         # initialization status
-        self.initialized = False
+        self._initialized = False
 
         if self.dlmType == 'homogeneity':
             self.n = len(data)
@@ -399,9 +400,35 @@ class _mvdlm:
         else:
             raise NameError('No such dlm or wrong parameter value.')
 
-    # get he covariance matrix
+    # get he precision matrix
+    def getPrecision(self, date=None, filterType='backwardSmoother'):
+        if date is None:
+            date = self.n - 1
+        if not self._initialized:
+            raise NameError('You need to first train the model!')
+
+        # for filtered and predicted covariance
+        if filterType == 'forwardFilter' or filterType == 'predicted':
+            # check whether the date is within the filtered range
+            if date > self.dlms[self.order[0]].result.filteredSteps[1]:
+                raise NameError('The date is not within filtered range')
+
+        # for smoothed covariance
+        elif filterType == 'backwardSmoother':
+            # check if the date is within the smoothed range
+            if date > self.dlms[self.order[0]].result.smoothedSteps[1]:
+                raise NameError('The date is outside the smoothed range' +
+                                'or the backward smoother has yet to be run')
+
+        # for inappropriate input
+        else:
+            raise NameError('No such filter type')
+                
+        return self._reconstructPrecision(date, filterType)
+
+    # get the covariance matrix
     def getCovariance(self, date=None, filterType='backwardSmoother'):
-        pass
+        return inv(self.getPrecision(date, filterType))
 
 # ============================ hidden helper functions ========================
     # check if the data is truely multivariate
@@ -479,15 +506,17 @@ class _mvdlm:
         precision = matrix([[0] * len(self.order) for i in self.order])
         for i, name in enumerate(self.order):
             unidlm = self.dlms[name]
-            if filterType == 'forwardFilter':
-                precision[i][i] = 1 / unidlm.result.filteredVar[date]
-                indx = unidlm.builder.componentIndex['mvdlmFeatures']
+            precision[i][i] = 1 / unidlm.result.noiseVar[date]
+            indx = unidlm.builder.componentIndex['mvdlmFeatures']
+
+            if filterType == 'forwardFilter':                
                 coefficient = unidlm.result.filteredState[date][
                     indx[0]:(indx[1] + 1), 0]
             elif filterType == 'backwardSmoother':
-                precision[i][i] = 1 / unidlm.result.smoothedVar[date]
-                indx = unidlm.builder.componentIndex['mvdlmFeatures']
                 coefficient = unidlm.result.smoothedState[date][
+                    indx[0]:(indx[1] + 1), 0]
+            elif filterType == 'predicted':
+                coefficient = unidlm.result.predictedState[date][
                     indx[0]:(indx[1] + 1), 0]
 
             for j in range(len(self.order)):
