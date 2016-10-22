@@ -12,6 +12,7 @@ structure.
 from copy import deepcopy
 from time import time
 from numpy import matrix
+from numpy import transpose
 from numpy.linalg import inv
 from pydlm import dlm
 from pydlm.modeler.dynamic import dynamic
@@ -430,6 +431,31 @@ class _mvdlm:
     def getCovariance(self, date=None, filterType='backwardSmoother'):
         return inv(self.getPrecision(date, filterType))
 
+    # all the alter functionality only works for homogenous mvdlm.
+    # For heterogeous mvdlm, user has to do that for each dlms
+    # append new data to the model
+    def append(self, data, component='main'):
+        self._checkHeterogeneity()
+        # if we are adding new data to the time series
+        if component == 'main':
+            # add the data to the self.data
+            for i, name in enumerate(self.order):
+                newData = [data[j][i] for j in range(len(data))]
+                # calls the append to update everything
+                self.dlms[name].append(newData)
+
+        # if we are adding new data to the features of dynamic components
+        else:
+            for name in self.order:
+                self.dlms[name].append(data, component)
+
+    def popout(self, date):
+        for name in self.order:
+            self.dlms[name].popout(date)
+
+    def alter(self, date, data, component='main'):
+        pass
+    
 # ============================ hidden helper functions ========================
     # check if the data is truely multivariate
     def _checkMultivariate(self, data):
@@ -527,4 +553,14 @@ class _mvdlm:
                     precision[j][i] = - precision[i][i] * \
                                       coefficient[j - 1, 0]
 
-        return precision
+        return (precision + transpose(precision)) / 2
+
+    # check the type for mvdlm, and raise error for heterogeneity
+    # mvdlms. Used for data alternation
+    def _checkHeterogeneity(self):
+        if self.dlmType == 'heterogeneity':
+            raise NameError('For heterogeneous mvdlms, you have to ' +
+                            'alter all univariate dlms in their ' +
+                            'own level. Any data change in the mvdlm ' +
+                            'level only applies to the homogeneity ' +
+                            'mvdlms')
