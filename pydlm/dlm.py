@@ -826,6 +826,15 @@ class dlm(_dlm):
         assert p >= 0 and p <= 1
         self.options.confidence = p
 
+    def setIntervalType(self, intervalType):
+        """ Set the confidence interval type
+
+        """
+        if intervalType == 'ribbon' or intervalType == 'line':
+            self.options.intervalType = intervalType
+        else:
+            raise NameError('No such type for confidence interval.')
+
     def resetPlotOptions(self):
         """ Reset the plotting option for the dlm class
 
@@ -843,6 +852,7 @@ class dlm(_dlm):
         self.options.smoothedColor = 'red'
         self.options.separatePlot = True
         self.options.confidence = 0.95
+        self.options.intervalType = 'ribbon'
 
     # plot the result according to the options
     def plot(self):

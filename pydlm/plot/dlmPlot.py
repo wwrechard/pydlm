@@ -23,64 +23,70 @@ def plotInOneFigure(time, data, result, options):
         options: options for the plot, for details please refer to @dlm
     """
     # plot the original data
-    plotData(time = time, data = data, showDataPoint = \
-             options.showDataPoint, color = options.dataColor, label = 'time series')
+    plotData(time=time, data=data, showDataPoint=
+             options.showDataPoint, color=options.dataColor,
+             label = 'time series')
     
     # plot fitered results if needed
     if options.plotFilteredData:
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
-        plotData(time = time[start : end], \
-                 data = to1dArray(result.filteredObs[start : end]), \
-                 showDataPoint = options.showFittedPoint, \
-                 color = options.filteredColor, \
-                 label = 'filtered series')
+        plotData(time=time[start : end], \
+                 data=to1dArray(result.filteredObs[start : end]), \
+                 showDataPoint=options.showFittedPoint, \
+                 color=options.filteredColor, \
+                 label='filtered series')
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.filteredObs[start : end], \
                                        result.filteredObsVar[start : end], \
-                                       p = options.confidence)
+                                       p=options.confidence)
                     
-            plotInterval(time = time[start : end], \
-                         upper = to1dArray(upper), lower = to1dArray(lower), \
-                         color = options.filteredColor)
+            plotInterval(time=time[start : end],
+                         upper=to1dArray(upper), lower=to1dArray(lower),
+                         intervalType=options.intervalType,
+                         color=options.filteredColor)
             
         # plot predicted results if needed
     if options.plotPredictedData:
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
-        plotData(time = time[start : end], \
-                 data = to1dArray(result.predictedObs), \
-                 showDataPoint = options.showFittedPoint, \
-                 color = options.predictedColor, \
-                 label = 'one-day prediction')
+        plotData(time=time[start : end], \
+                 data=to1dArray(result.predictedObs), \
+                 showDataPoint=options.showFittedPoint, \
+                 color=options.predictedColor, \
+                 label='one-day prediction')
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.predictedObs[start : end], \
                                        result.filteredObsVar[start : end], \
-                                       p = options.confidence)
+                                       p=options.confidence)
+
+            plotInterval(time=time[start : end],
+                         upper=to1dArray(upper), lower=to1dArray(lower),
+                         intervalType=options.intervalType,
+                         color=options.predictedColor)
             
-            plotInterval(time = time[start:end], \
-                         upper = to1dArray(upper), lower = to1dArray(lower), \
-                         color = options.predictedColor)
 
     # plot smoothed results if needed
     if options.plotSmoothedData:
         start = result.smoothedSteps[0]
         end = result.smoothedSteps[1] + 1
-        plotData(time = time[start:end], \
-                 data = to1dArray(result.smoothedObs), \
-                 showDataPoint = options.showFittedPoint, \
-                 color = options.smoothedColor, \
-                 label = 'smoothed series')
+        plotData(time=time[start:end], \
+                 data=to1dArray(result.smoothedObs), \
+                 showDataPoint=options.showFittedPoint, \
+                 color=options.smoothedColor, \
+                 label='smoothed series')
             
         if options.showConfidenceInterval:
             upper, lower = getInterval(result.smoothedObs[start : end], \
                                        result.smoothedObsVar[start : end], \
-                                       p = options.confidence)
-            plotInterval(time = time[start:end], \
-                         upper = to1dArray(upper), lower = to1dArray(lower), \
-                         color = options.smoothedColor)
+                                       p=options.confidence)
+
+            plotInterval(time=time[start : end],
+                         upper=to1dArray(upper), lower=to1dArray(lower),
+                         intervalType=options.intervalType,
+                         color=options.smoothedColor)
             
     plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')   
     
@@ -125,9 +131,10 @@ def plotInMultipleFigure(time, data, result, options):
                                            result.filteredObsVar[start : end], \
                                            p = options.confidence)
                     
-                plotInterval(time = time[start : end], \
-                             upper = to1dArray(upper), lower = to1dArray(lower), \
-                             color = options.filteredColor)
+                plotInterval(time=time[start : end],
+                             upper=to1dArray(upper), lower=to1dArray(lower),
+                             intervalType=options.intervalType,
+                             color=options.filteredColor)
         plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')
         location += 1
 
@@ -153,9 +160,10 @@ def plotInMultipleFigure(time, data, result, options):
                 upper, lower = getInterval(result.predictedObs[start : end], \
                                            result.filteredObsVar[start : end], \
                                            p = options.confidence)
-                plotInterval(time = time[start:end], \
-                             upper = to1dArray(upper), lower = to1dArray(lower), \
-                             color = options.predictedColor)
+                plotInterval(time=time[start : end],
+                             upper=to1dArray(upper), lower=to1dArray(lower),
+                             intervalType=options.intervalType,
+                             color=options.predictedColor)
         plt.legend(loc='best', shadow = True)    
         location += 1
 
@@ -181,9 +189,10 @@ def plotInMultipleFigure(time, data, result, options):
                 upper, lower = getInterval(result.smoothedObs[start : end], \
                                            result.smoothedObsVar[start : end], \
                                            p = options.confidence)
-                plotInterval(time = time[start:end], \
-                             upper = to1dArray(upper), lower = to1dArray(lower), \
-                             color = options.smoothedColor)
+                plotInterval(time=time[start : end],
+                             upper=to1dArray(upper), lower=to1dArray(lower),
+                             intervalType=options.intervalType,
+                             color=options.smoothedColor)
         plt.legend(loc='best', shadow = True)
         
 def plotData(time, data, showDataPoint = True, color = 'black', label = 'unknown'):
@@ -211,7 +220,7 @@ def plotData(time, data, showDataPoint = True, color = 'black', label = 'unknown
             plt.plot(time, data, '-', color = color, label = label)
 
  
-def plotInterval(time, upper, lower, color = 'black'):
+def plotInterval(time, upper, lower, intervalType, color = 'black'):
     """
     The function to plot confidence interval.
 
@@ -221,12 +230,21 @@ def plotInterval(time, upper, lower, color = 'black'):
         lower: the lower bound
         color: the color of the plot
     """
+    ALPHA = 0.4
     if time is None:
-        plt.plot(upper, '--', color = color)
-        plt.plot(lower, '--', color = color)
+        if intervalType == 'line':
+            plt.plot(upper, '--', color = color)
+            plt.plot(lower, '--', color = color)
+        elif intervalType == 'ribbon':
+            plt.fill_between(upper, lower, facecolor=color,
+                             alpha=ALPHA)
     else:
-        plt.plot(time, upper, '--', color = color)
-        plt.plot(time, lower, '--', color = color)
+        if intervalType == 'line':
+            plt.plot(time, upper, '--', color = color)
+            plt.plot(time, lower, '--', color = color)
+        elif intervalType == 'ribbon':
+            plt.fill_between(time, upper, lower,
+                             facecolor=color, alpha=ALPHA)
 
 
 def plotInitialize():

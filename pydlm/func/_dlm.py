@@ -89,6 +89,7 @@ class _dlm:
             self.smoothedColor = 'red'
             self.separatePlot = True
             self.confidence = 0.95
+            self.intervalType = 'ribbon'
 
     # an inner class to store all results
     class _result:
