@@ -91,7 +91,7 @@ class _mvdlm:
             raise NameError('The component must be renamed to be a' +
                             ' different one.')
 
-        for name in self.dlms:
+        for name in self.order:
             self.dlms[name].__add__(component)
 
         return self
@@ -101,8 +101,7 @@ class _mvdlm:
             raise NameError('ls can only be used for homogeneity mvdlm.' +
                             ' For heterogeneity mvdlm, please use ls' +
                             ' of each dlm itself to see the components')
-        name = self.dlms.keys()[0]
-        self.dlms[name].ls()
+        self.dlms[self.order[0]].ls()
 
     def delete(self, name):
         if self.dlmType != 'homogeneity':
@@ -238,12 +237,29 @@ class _mvdlm:
     # No latent result will be provided on an aggregated level.
     # Get them from each individual dlms
 
+    # list out all univariate dlms
+    def getNames(self):
+        print('The current model contains following univariate' +
+              'dlms, you can get them by their names using getDLMs.')
+        print(self.order)
+        return self.order
+
     # get the univariate dlms
-    def getDLM(self, name):
-        if name in self.dlms:
-            return deepcopy(self.dlms[name])
+    def getDLMs(self, names):
+        if not isinstance(names, list):
+            if names in self.dlms:
+                return deepcopy(self.dlms[names])
+            else:
+                raise NameError('No such dlm with the name ' + names)
         else:
-            raise NameError('Wrong name, no such dlm.')
+            dlmlist = []
+            for name in names:
+                if name in self.dlms:
+                    dlmlist.append(deepcopy(self.dlms[name]))
+                else:
+                    raise NameError('No such dlm with the name ' +
+                                    name)
+            return dlmlist
 
     # get the aggregated obs
     def getFilteredObs(self, name='all'):
@@ -431,6 +447,7 @@ class _mvdlm:
     def getCovariance(self, date=None, filterType='backwardSmoother'):
         return inv(self.getPrecision(date, filterType))
 
+# =================== data appending, deleting and altering =================
     # all the alter functionality only works for homogenous mvdlm.
     # For heterogeous mvdlm, user has to do that for each dlms
     # append new data to the model
@@ -454,7 +471,18 @@ class _mvdlm:
             self.dlms[name].popout(date)
 
     def alter(self, date, data, component='main'):
-        pass
+        # only apply to homogeneous mvdlm
+        self._checkHeterogeneity()
+        if component == 'main':
+            for i, name in enumerate(self.order):
+                self.dlms[name].alter(date, data[i], 'main')
+            else:
+                for name in self.order:
+                    self.dlms[name].alter(date, data, component)
+
+    def ignore(self, date):
+        for name in self.order:
+            self.dlms[name].ignore(date)
     
 # ============================ hidden helper functions ========================
     # check if the data is truely multivariate
