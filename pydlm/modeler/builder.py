@@ -131,7 +131,8 @@ class builder:
                                 + ' different name.')
             self.dynamicComponents[component.name] = component
 
-        if component.componentType == 'autoReg':
+        if component.componentType == 'autoReg' \
+           or component.componentType == 'longSeason':
             if component.name in self.automaticComponents:
                 raise NameError('Please rename the component to a'
                                 + ' different name.')

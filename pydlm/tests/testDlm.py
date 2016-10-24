@@ -19,6 +19,25 @@ class testDlm(unittest.TestCase):
         self.dlm2 + trend(degree = 1, discount = 1e-12)
         self.dlm3 + seasonality(period = 2, discount = 1)
 
+    def testAdd(self):
+        trend2 = trend(2, name='trend2')
+        self.dlm1 = self.dlm1 + trend2
+        self.assertEqual(self.dlm1.builder.staticComponents['trend2'], trend2)
+
+        dynamic2 = dynamic(features=self.features, name='d2')
+        self.dlm1 = self.dlm1 + dynamic2
+        self.assertEqual(self.dlm1.builder.dynamicComponents['d2'], dynamic2)
+
+        ar3 = autoReg(degree=3,data=self.data, name='ar3')
+        self.dlm1 = self.dlm1 + ar3
+        self.assertEqual(self.dlm1.builder.automaticComponents['ar3'], ar3)
+
+    def testDelete(self):
+        trend2 = trend(2, name='trend2')
+        self.dlm1 = self.dlm1 + trend2
+        self.dlm1.delete('trend2')
+        self.assertEqual(len(self.dlm1.builder.staticComponents), 1)
+
     def testFitForwardFilter(self):
         self.dlm1.fitForwardFilter(useRollingWindow = False)
         self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
@@ -149,18 +168,6 @@ class testDlm(unittest.TestCase):
         # The two chain should have the same filtered obs
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)
-
-    def testTurnOn(self):
-        pass
-
-    def testTurnOff(self):
-        pass
-
-    def testSetColor(self):
-        pass
-
-    def testSetConfidence(self):
-        pass
 
 
 unittest.main()
