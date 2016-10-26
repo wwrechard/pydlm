@@ -1,7 +1,7 @@
 """
 =====================================================================
 
-This code contains all hidden functions for mvdlm
+This code contains all hidden functions for mvdlm (under development)
 
 =====================================================================
 

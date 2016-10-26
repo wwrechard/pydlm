@@ -1,7 +1,7 @@
 """
 =====================================================================
 
-This implements a multivariate DLM
+This implements a multivariate DLM (under development)
 
 =====================================================================
 
