@@ -10,7 +10,6 @@ structure.
 
 """
 from copy import deepcopy
-from time import time
 from numpy.linalg import inv
 from pydlm.func._mvdlm import _mvdlm
 
@@ -102,66 +101,31 @@ class mvdlm(_mvdlm):
         return self._initialized
 
 # =============================== model training ==============================
-    # forward filter for multivariate dlm
+    # predictive filter for multivariate dlm. This is mainly for predicting
+    # purpose. It uses the predicts of each univariate dlm as the feature for
+    # the other dlms.
+    def fitPredictiveFilter(self,
+                            usingRollingWindow=False,
+                            windowLength=3,
+                            iteration=None):
+        self._forwardFilter(usingRollingWindow=usingRollingWindow,
+                            windowLength=windowLength,
+                            iteration=iteration,
+                            filterType='predicted')
+
+    # fit the regular forward filter.
     def fitForwardFilter(self,
                          usingRollingWindow=False,
                          windowLength=3,
                          iteration=None):
-
-        # check whether the model has been initialized
-        if not self._initialized:
-            print ('The multivariate dlm needs to be initialized.')
-            self.initialization()
-
-        if iteration is None:
-            iteration = self.iteration
-
-        print('Start forward filtering...')
-        startTime = time()
-        for i in range(iteration):
-            print('Total iteration: ' + str(iteration) +
-                  '. Current iteration: ' + str(i + 1) + '...')
-            for name in self.order:
-                self.dlms[name].fitForwardFilter(
-                    usingRollingWindow=usingRollingWindow,
-                    windowLength=windowLength)
-
-            for name in self.order:
-                self._copyToFeatures(name, 'forwardFilter')
-            elapsed = time() - startTime
-            print('Iteration ' + str(i + 1) + ' completed. Time elapsed: ' +
-                  str(elapsed) + '.' + 'Remaining: ' +
-                  str(elapsed / (i + 1) * (iteration - i - 1)))
-
-        print ('Forward filtering completed.')
+        self._forwardFilter(usingRollingWindow=usingRollingWindow,
+                            windowLength=windowLength,
+                            iteration=iteration)
 
     # backward smoother for multivariate dlm
     def fitBackwardSmoother(self, backLength=None, iteration=None):
 
-        # check whether the model has been initialized
-        if not self._initialized:
-            raise NameError('You need to run forward filter before ' +
-                            'running backward smoother')
-
-        if iteration is None:
-            iteration = self.iteration
-
-        print('Start backward smoothing...')
-        startTime = time()
-        for i in range(iteration):
-            print('Total iteration: ' + str(iteration) +
-                  '. Current iteration: ' + str(i + 1) + '...')
-            for name in self.order:
-                self.dlms[name].fitBackwardSmoother(backLength=backLength)
-
-            for name in self.order:
-                self._copyToFeatures(name, 'forwardFilter')
-            elapsed = time() - startTime
-            print('Iteration ' + str(i + 1) + ' completed. Time elapsed: ' +
-                  str(elapsed) + '.' + 'Remaining: ' +
-                  str(elapsed / (i + 1) * (iteration - i - 1)))
-
-        print ('Backward smoothing completed.')
+        self._backwardSmoother(backLength=backLength, iteration=iteration)
 
     # a convenient function using all default settings
     def fit(self):
@@ -170,6 +134,7 @@ class mvdlm(_mvdlm):
 
 # =============================== model prediction ============================
     # the prediction function for forcasting the future
+    # (TODO: this is wrong, fix it)
     def predict(self, date=None, days=1):
         predictedObs = []
         predictedVar = []

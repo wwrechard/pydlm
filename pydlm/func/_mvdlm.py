@@ -7,6 +7,7 @@ This code contains all hidden functions for mvdlm
 
 """
 from copy import deepcopy
+from time import time
 from numpy import matrix
 from numpy import transpose
 from pydlm import dlm
@@ -72,6 +73,68 @@ class _mvdlm:
             self.d = len(self.dlms)
 
 # ============================ hidden helper functions ========================
+    # forward filter for multivariate dlm
+    def _forwardFilter(self,
+                       usingRollingWindow=False,
+                       windowLength=3,
+                       iteration=None,
+                       filterType='forwardFilter'):
+
+        # check whether the model has been initialized
+        if not self._initialized:
+            print ('The multivariate dlm needs to be initialized.')
+            self.initialization()
+
+        if iteration is None:
+            iteration = self.iteration
+
+        print('Start forward filtering...')
+        startTime = time()
+        for i in range(iteration):
+            print('Total iteration: ' + str(iteration) +
+                  '. Current iteration: ' + str(i + 1) + '...')
+            for name in self.order:
+                self.dlms[name].fitForwardFilter(
+                    usingRollingWindow=usingRollingWindow,
+                    windowLength=windowLength)
+
+            for name in self.order:
+                self._copyToFeatures(name, filterType)
+            elapsed = time() - startTime
+            print('Iteration ' + str(i + 1) + ' completed. Time elapsed: ' +
+                  str(elapsed) + '.' + 'Remaining: ' +
+                  str(elapsed / (i + 1) * (iteration - i - 1)))
+
+        print ('Forward filtering completed.')
+
+    # backward smoother for multivariate dlm
+    def _backwardSmoother(self, backLength=None, iteration=None):
+
+        # check whether the model has been initialized
+        if not self._initialized:
+            raise NameError('You need to run forward filter before ' +
+                            'running backward smoother')
+
+        if iteration is None:
+            iteration = self.iteration
+
+        print('Start backward smoothing...')
+        startTime = time()
+        for i in range(iteration):
+            print('Total iteration: ' + str(iteration) +
+                  '. Current iteration: ' + str(i + 1) + '...')
+            for name in self.order:
+                self.dlms[name].fitBackwardSmoother(backLength=backLength)
+
+            for name in self.order:
+                self._copyToFeatures(name, 'backwordSmoother')
+            elapsed = time() - startTime
+            print('Iteration ' + str(i + 1) + ' completed. Time elapsed: ' +
+                  str(elapsed) + '.' + 'Remaining: ' +
+                  str(elapsed / (i + 1) * (iteration - i - 1)))
+
+        print ('Backward smoothing completed.')
+
     # check if the data is truely multivariate
     def _checkMultivariate(self, data):
         if not all(isinstance(item, list) for item in data):
@@ -150,7 +213,7 @@ class _mvdlm:
             precision[i][i] = 1 / unidlm.result.noiseVar[date]
             indx = unidlm.builder.componentIndex['mvdlmFeatures']
 
-            if filterType == 'forwardFilter':                
+            if filterType == 'forwardFilter':
                 coefficient = unidlm.result.filteredState[date][
                     indx[0]:(indx[1] + 1), 0]
             elif filterType == 'backwardSmoother':
