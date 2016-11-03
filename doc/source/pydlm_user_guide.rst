@@ -61,7 +61,7 @@ linear trend, 7-day seasonality and another control variable::
 
   >>> from pydlm import dlm, trend, seasonality, dynamic
   >>> data = [0] * 100 + [3] * 100
-  >>> control = [0.5 for i in range(100) + [2.6 for i in
+  >>> control = [[0.5] for i in range(100) + [[2.6] for i in
   range(100)]
   >>> myDLM = dlm(data) + trend(2) + seasonality(7) +
   dyanmic(control)
