@@ -112,10 +112,15 @@ class _dlm:
             for variable in self.records:
                 setattr(self, variable, [None] * n)
 
-            # quantity to indicate the current status
+            # record the dates that have been filtered
             self.filteredSteps = [0, -1]
+            # record the dates that have been smoothed
             self.smoothedSteps = [0, -1]
+            # record the last used filterType
             self.filteredType = None
+            # record the current prediction status in the form of
+            # [start date, current date, [predictedObs1, predictedObs2,...]]
+            self.predictStatus = None
 
         # extend the current record by n blocks
         def _appendResult(self, n):
@@ -358,52 +363,96 @@ class _dlm:
     # will first use the features provided in this feature dict, if not
     # found, it will fetch the default feature from the component. If
     # it could not find feature for some component, it returns an error
-    def _oneStepAheadPredictBasedOnModel(self,
-                                         model,
-                                         featureDict=None,
-                                         date=None):
+    def _oneDayAheadPredict(self, date, featureDict=None):
+        if date > self.n - 1:
+            raise NameError('The date is beyond the data range.')
+
+        self._setModelStatus(date=date)
+        self._constructEvaluationForPrediction(featureDict=featureDict,
+                                               date=date + 1)
+        self.builder.model.prediction.step = 0
+        self.Filter.predict(self.builder.model)
+        predictedObs = self.builder.model.prediction.obs
+        predictedObsVar = self.builder.model.prediction.obsVar
+        self.result.predictStatus = [date, date + 1, [predictedObs]]
+        return (predictedObs, predictedObsVar)
+
+    def _continuePredict(self, featureDict=None):
+        if self.result.predictStatus is None:
+            raise NameError('_continoousPredict can only be used after ' +
+                            '_oneDayAheadPredict')
+        currentDate = self.result.predictStatus[1]
+
+        # need to take care of the automaticComponents, especially the
+        # auto regressive component.
+        for name in self.builder.automaticComponents:
+            comp = self.builder.automaticComponents[name]
+            if comp.componentType != 'autoReg':
+                continue
+
+            if len(self.result.predictStatus[2]) >= comp.d:
+                feature = self.result.predictStatus[2][-comp.d:]
+            else:
+                extra = comp.d - len(self.predictStatus[2])
+                feature = self.data[(currentDate - extra + 1):
+                                    (currentDate + 1)] + self.result.predictStatus[2]
+            if featureDict is None:
+                featureDict = {}
+
+            featureDict[name] = feature
+
+        self._constructEvaluationForPrediction(featureDict=featureDict,
+                                               date=currentDate + 1)
+        self.Filter.predict(self.builder.model)
+        predictedObs = self.builder.model.prediction.obs
+        predictedObsVar = self.builder.model.prediction.obsVar
+        self.result.predictStatus[1] += 1
+        self.result.predictStatus[2].append(predictedObs)
+        return (predictedObs, predictedObsVar)
+
+    def _constructEvaluationForPrediction(self,
+                                          featureDict=None,
+                                          date=None):
 
         if featureDict is None and date is None:
             raise NameError('FeatureDict and date cannot be None ' +
                             'at the same time.')
 
+        # find the correct evaluation vector
         if featureDict is None:
-            self.builder.updateEvaluation(date + 1)
+            self.builder.updateEvaluation(date)
         else:
-            for i in self.dynamicComponents:
+            for i in self.builder.dynamicComponents:
                 if i in featureDict:
-                    self.model.evaluation[
-                        0, self.componentIndex[i][0]:
-                        (self.componentIndex[i][1] + 1)] = featureDict[i]
+                    self.builder.model.evaluation[
+                        0, self.builder.componentIndex[i][0]:
+                        (self.builder.componentIndex[i][1] + 1)] = featureDict[i]
                 else:
                     if date is None:
                         raise NameError('Both date and featureDict are ' +
                                         'not provided for component ' +
                                         i)
-                    comp = self.dynamicComponents[i]
-                    comp.updateEvaluation(date + 1)
-                    self.model.evaluation[
-                        0, self.componentIndex[i][0]:
-                        (self.componentIndex[i][1] + 1)] = comp.evaluation
+                    comp = self.builder.dynamicComponents[i]
+                    comp.updateEvaluation(date)
+                    self.builder.model.evaluation[
+                        0, self.builder.componentIndex[i][0]:
+                        (self.builder.componentIndex[i][1] + 1)] = comp.evaluation
 
-            for i in self.automaticComponents:
+            for i in self.builder.automaticComponents:
                 if i in featureDict:
-                    self.model.evaluation[
-                        0, self.componentIndex[i][0]:
-                        (self.componentIndex[i][1] + 1)] = featureDict[i]
+                    self.builder.model.evaluation[
+                        0, self.builder.componentIndex[i][0]:
+                        (self.builder.componentIndex[i][1] + 1)] = featureDict[i]
                 else:
                     if date is None:
                         raise NameError('Both date and featureDict are ' +
                                         'not provided for component ' +
                                         i)
-                    comp = self.automaticComponents[i]
-                    comp.updateEvaluation(date + 1)
-                    self.model.evaluation[
-                        0, self.componentIndex[i][0]:
-                        (self.componentIndex[i][1] + 1)] = comp.evaluation
-        model.evaluation = self.builder.model.evaluation
-        self.Filter.predict(self.builder.model)
-        return model
+                    comp = self.builder.automaticComponents[i]
+                    comp.updateEvaluation(date)
+                    self.builder.model.evaluation[
+                        0, self.builder.componentIndex[i][0]:
+                        (self.builder.componentIndex[i][1] + 1)] = comp.evaluation
 # =======================================================================
 
     # to set model to a specific date
@@ -496,3 +545,6 @@ class _dlm:
         else:
             self._printInfo = False
             self.builder._printInfo = False
+
+    def _clean(self):
+        self.result.predictStatus = None

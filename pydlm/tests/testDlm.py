@@ -15,9 +15,14 @@ class testDlm(unittest.TestCase):
         self.dlm1 = dlm(self.data)
         self.dlm2 = dlm(self.data)
         self.dlm3 = dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
+        self.dlm4 = dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        self.dlm5 = dlm(range(100))
         self.dlm1 + trend(degree = 1, discount = 1)
         self.dlm2 + trend(degree = 1, discount = 1e-12)
         self.dlm3 + seasonality(period = 2, discount = 1)
+        self.dlm4 + dynamic(features=[[0] for i in range(5)] +
+                            [[1] for i in range(5)], discount=1)
+        self.dlm5 + autoReg(degree=1, data=range(100), discount=1)
 
     def testAdd(self):
         trend2 = trend(2, name='trend2')
@@ -62,11 +67,6 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[19], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[9], 1.0)
-
-    def testPredict(self):
-        self.dlm3.fitForwardFilter()
-        (obs, var) = self.dlm3._predict(days = 1)
-        self.assertAlmostEqual(obs[0], -6.0/7)
 
     def testAppend(self):
         dlm4 = dlm(self.data[0:11])
@@ -113,7 +113,7 @@ class testDlm(unittest.TestCase):
         # we feed the data to dlm5 all at once
         dlm5 = dlm(self.data)
         dlm5 + trend(degree = 1, discount = 1) + autoReg(degree = 3,
-                                                         data = self.data[0:11],
+                                                         data = self.data,
                                                          discount = 1)
         dlm5.fitForwardFilter()
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
@@ -169,6 +169,54 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)
 
+    def testOneDayAheadPredictWithoutDynamic(self):
+        self.dlm3.fitForwardFilter()
+        (obs, var) = self.dlm3.predict(date=11)
+        self.assertAlmostEqual(obs, -6.0/7)
+        self.assertAlmostEqual(self.dlm3.result.predictStatus,
+                               [11, 12, [-6.0/7]])
+
+        (obs, var) = self.dlm3.predict(date=2)
+        self.assertAlmostEqual(obs, 3.0/5)
+        # notice that the two latent states always sum up to 0
+        self.assertAlmostEqual(self.dlm3.result.predictStatus,
+                               [2, 3, [3.0/5]])
+
+    def testOneDayAheadPredictWithDynamic(self):
+        self.dlm4.fitForwardFilter()
+        featureDict = {'dynamic': 2.0}
+        (obs, var) = self.dlm4.predict(date=9,
+                                       featureDict=featureDict)
+        self.assertAlmostEqual(obs, 5.0/6 * 2)
+
+    def testContinuePredictWithoutDynamic(self):
+        self.dlm3.fitForwardFilter()
+        (obs, var) = self.dlm3.predict(date=11)
+        self.assertAlmostEqual(self.dlm3.result.predictStatus,
+                               [11, 12, [-6.0/7]])
+        (obs, var) = self.dlm3.continuePredict()
+        self.assertAlmostEqual(self.dlm3.result.predictStatus,
+                               [11, 13, [-6.0/7, 6.0/7]])
+
+    def testContinuePredictWithDynamic(self):
+        self.dlm4.fitForwardFilter()
+        featureDict = {'dynamic': 2.0}
+        (obs, var) = self.dlm4.predict(date=9,
+                                       featureDict=featureDict)
+        self.assertAlmostEqual(self.dlm4.result.predictStatus,
+                               [9, 10, [5.0/6 * 2]])
+
+        featureDict = {'dynamic': 3.0}
+        (obs, var) = self.dlm4.continuePredict(featureDict=featureDict)
+        self.assertAlmostEqual(self.dlm4.result.predictStatus,
+                               [9, 11, [5.0/6 * 2, 5.0/6 * 3]])
+
+    def testPredictWithAutoReg(self):
+        self.dlm5.fitForwardFilter()
+        (obs, var) = self.dlm5.predict(date=99)
+        self.assertAlmostEqual(obs, 100.03682874)
+        (obs, var) = self.dlm5.continuePredict()
+        self.assertAlmostEqual(obs, 101.07480945)
 
 unittest.main()
 

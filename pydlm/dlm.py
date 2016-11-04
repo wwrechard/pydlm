@@ -169,6 +169,10 @@ class dlm(_dlm):
         self.result.filteredSteps = [0, self.n - 1]
         self.turnOn('filtered plot')
         self.turnOn('predict plot')
+
+        # reset everything that needs reset
+        self._clean()
+
         if self._printInfo:
             print('Forward fitering completed.')
 
@@ -213,6 +217,10 @@ class dlm(_dlm):
 
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
         self.turnOn('smoothed plot')
+
+        # reset everything that needs reset
+        self._clean()
+
         if self._printInfo:
             print('Backward smoothing completed.')
 
@@ -225,17 +233,22 @@ class dlm(_dlm):
 
 # =========================== model prediction ==============================
 
-    # The prediction function
-    def predict(self, date=None, days=1):
-        """ Predict based on the current data for a specific future days
+    # One day ahead prediction function
+    def predict(self, date=None, featureDict=None):
+        """ One day ahead predict based on the current data for a specific future
+        days.
 
         The predict result is based on all the data before date and predict the
         observation at date + days.
 
         Args:
-            date: the index when the prediction starts. Default to the
+            date: the index when the prediction based on. Default to the
                   last day.
-            days: number of days forward to predict
+            featureDict: the feature set for the dynamic Components, in a form
+                  of {"component_name": feature}. If the featureDict is not
+                  supplied, then the algo reuse those stored in the dynamic
+                  components. For dates beyond the last day, featureDict must
+                  be supplied.
 
         Returns:
             A tuple. (Predicted observation, variance of the predicted
@@ -251,10 +264,27 @@ class dlm(_dlm):
             raise NameError('Prediction can only be made right' +
                             ' after the filtered date')
 
-        return self._predict(date=date, days=days)
+        return self._oneDayAheadPredict(date=date, featureDict=featureDict)
 
+    def continuePredict(self, featureDict=None):
+        """ Continue prediction after the one-day ahead predict.
 
-# ====================== result components ====================
+        Args:
+            featureDict: the feature set for the dynamic components, stored
+                         in a for of {"component name": feature}. If the set
+                         was not supplied, then the algo will re-use the old
+                         feature. For days beyond the data, the featureDict
+                         for every dynamic component must be provided.
+
+        Returns:
+            A tupe. (predicted observation, variance)
+        """
+        if self.result.predictStatus is None:
+            raise NameError('continuePredict has to come after predict.')
+
+        return self._continuePredict(featureDict=featureDict)
+
+# =========================== result components =============================
 
     def getAll(self):
         """ get all the _result class which contains all results
@@ -627,6 +657,9 @@ class dlm(_dlm):
         else:
             raise NameError('Such dynamic component does not exist.')
 
+        # reset everything that needs reset
+        self._clean()
+
     # pop the data of a specific date out
     def popout(self, date):
         """ Pop out the data for a given date
@@ -661,6 +694,9 @@ class dlm(_dlm):
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
+
+        # reset everything that needs reset
+        self._clean()
 
     # alter the data of a specific days
     def alter(self, date, data, component='main'):
@@ -706,6 +742,9 @@ class dlm(_dlm):
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
+
+        # reset everything that needs reset
+        self._clean()
 
     # ignore the data of a given date
     def ignore(self, date):

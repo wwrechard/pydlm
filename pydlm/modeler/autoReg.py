@@ -11,7 +11,6 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
-from numpy import matrix
 from .dynamic import dynamic
 
 
@@ -102,7 +101,7 @@ class autoReg(dynamic):
 
     # check if there is any none data. We currently don't support missing data
     # for auto regression.
-    def hasMissingData(aList):
+    def hasMissingData(self, aList):
         """ Check whether the list contains None
 
         """
@@ -111,6 +110,15 @@ class autoReg(dynamic):
                 return True
 
         return False
+
+    # overide
+    def updateEvaluation(self, date):
+        if date < self.n:
+            self.evaluation = self.features[date]
+        elif date == self.n:
+            self.evaluation = self.features[-1][1:] + [self.lastDay]
+        else:
+            raise NameError('The step is out of range')
 
     # override
     def appendNewData(self, newData):

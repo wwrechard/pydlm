@@ -217,9 +217,12 @@ class builder:
         Args:
             noise: the initial guess of the variance of the observation noise.
         """
-        if len(self.staticComponents) == 0:
+        if len(self.staticComponents) == 0 and \
+           len(self.dynamicComponents) == 0 and \
+           len(self.automaticComponents) == 0:
+
             raise NameError('The model must contain at least' +
-                            ' one static component')
+                            ' one component')
 
         # construct transition, evaluation, prior state, prior covariance
         if self._printInfo:
