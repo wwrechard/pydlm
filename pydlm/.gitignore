@@ -1,0 +1,13 @@
+# ignore all .py~ files
+*.py~
+*.gitignore~
+*.pyc
+*.py#
+*_flymake.py
+.#*
+*.rst~
+build/
+*.sh
+*.sh~
+dist/
+pydlm.egg-info/
