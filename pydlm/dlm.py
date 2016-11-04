@@ -49,7 +49,7 @@ class dlm(_dlm):
         >>> import numpy as np
         >>> data = np.random.random((1, 1000))
         >>> # construct the dlm of a linear trend and a 7-day seasonality
-        >>> myDlm = dlm(data) + trend(degree = 2, 0.98) + seasonality(period = 7, 0.98)    
+        >>> myDlm = dlm(data) + trend(degree = 2, 0.98) + seasonality(period = 7, 0.98)
         >>> # filter the result
         >>> myDlm.fitForwardFilter()
         >>> # extract the filtered result
@@ -499,7 +499,7 @@ class dlm(_dlm):
             A list of numpy matrices, standing for the smoothed latent states.
 
         """
-        if self.result.smootehdSteps != [0, self.n - 1] and self._printInfo:
+        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
@@ -567,7 +567,7 @@ class dlm(_dlm):
             covariance.
 
         """
-        if self.result.smootehdSteps != [0, self.n - 1] and self._printInfo:
+        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
             print('The smoothed dates are from ' +
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
