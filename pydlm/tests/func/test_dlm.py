@@ -46,10 +46,10 @@ class test_dlm(unittest.TestCase):
         self.dlm1.result.filteredSteps = (0, 19)
         self.assertAlmostEqual(self.dlm1.builder.model.obs, \
                                self.dlm1.result.filteredObs[19])
-        
+
         self.dlm1._resetModelStatus()
         self.assertAlmostEqual(np.sum(self.dlm1.builder.model.state \
-                                      - self.dlm1.builder.statePrior), 0.0)        
+                                      - self.dlm1.builder.statePrior), 0.0)
     def testSetModelStatus(self):
         self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
@@ -64,7 +64,7 @@ class test_dlm(unittest.TestCase):
         filtered1 = self.dlm1.result.filteredObs
 
         self.dlm1._initialize()
-        
+
         self.dlm1._forwardFilter(start = 0, end = 13)
         self.dlm1.result.filteredSteps = (0, 13)
         self.dlm1._forwardFilter(start = 13, end = 19)
@@ -134,7 +134,7 @@ class test_dlm(unittest.TestCase):
 
     def testPredictWithAutoReg(self):
         self.dlm5._forwardFilter(start=0, end=99, renew=False)
-        self.dlm5.result.filteredSteps = (0, 99)
+        self.dlm5.result.filteredSteps = [0, 99]
         (obs, var) = self.dlm5._oneDayAheadPredict(date=99)
         self.assertAlmostEqual(obs, 100.03682874)
         (obs, var) = self.dlm5._continuePredict()

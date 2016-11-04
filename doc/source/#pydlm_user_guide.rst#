@@ -318,6 +318,12 @@ change that::
   >>> myDLM.turnOff('confidence')
   >>> myDLM.turnOff('multiple plots')
 
+The default type of confidence interval is the ribbon plot, this can
+be changed by using :func:`dlm.setIntervalType`
+
+  >>> myDLM.setIntervalType('line')
+  >>> myDLM.setIntervalType('ribbon')
+  
 The quantile of the confidence interval can be set via
 :func:`dlm.setConfidence`::
 

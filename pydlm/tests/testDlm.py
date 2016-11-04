@@ -22,7 +22,8 @@ class testDlm(unittest.TestCase):
         self.dlm3 + seasonality(period = 2, discount = 1)
         self.dlm4 + dynamic(features=[[0] for i in range(5)] +
                             [[1] for i in range(5)], discount=1)
-        self.dlm5 + autoReg(degree=1, data=range(100), discount=1)
+        self.dlm5 + trend(degree=1, discount=1) + \
+            autoReg(degree=1, data=range(100), discount=1)
 
     def testAdd(self):
         trend2 = trend(2, name='trend2')
@@ -54,7 +55,7 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(self.dlm2.result.filteredObs[0:9]), 0.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[9], 1.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[19], 0.0)
-        
+
     def testFitBackwardSmoother(self):
         self.dlm1.fitForwardFilter()
         self.dlm1.fitBackwardSmoother()
@@ -131,7 +132,7 @@ class testDlm(unittest.TestCase):
         # pop out the first date, the filtered range should be (0, -1)
         dlm4.popout(0)
         self.assertEqual(dlm4.result.filteredSteps, [0, -1])
-        
+
         dlm4.fitForwardFilter()
         dlm5 = dlm(self.data[1 : 20])
         dlm5 + trend(degree = 1, discount = 1) + dynamic(features = \

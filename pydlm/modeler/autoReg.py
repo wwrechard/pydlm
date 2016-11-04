@@ -11,6 +11,7 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
+from numpy import matrix
 from .dynamic import dynamic
 
 
@@ -114,9 +115,9 @@ class autoReg(dynamic):
     # overide
     def updateEvaluation(self, date):
         if date < self.n:
-            self.evaluation = self.features[date]
+            self.evaluation = matrix(self.features[date])
         elif date == self.n:
-            self.evaluation = self.features[-1][1:] + [self.lastDay]
+            self.evaluation = matrix(self.features[-1][1:] + [self.lastDay])
         else:
             raise NameError('The step is out of range')
 

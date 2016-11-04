@@ -253,6 +253,7 @@ class builder:
             self.dynamicEvaluation = None
             for i in self.dynamicComponents:
                 comp = self.dynamicComponents[i]
+                comp.updateEvaluation(0)
                 transition = mt.matrixAddInDiag(transition, comp.transition)
                 evaluation = mt.matrixAddByCol(evaluation,
                                                comp.evaluation)
@@ -269,6 +270,7 @@ class builder:
             self.automaticEvaluation = None
             for i in self.automaticComponents:
                 comp = self.automaticComponents[i]
+                comp.updateEvaluation(0)
                 transition = mt.matrixAddInDiag(transition, comp.transition)
                 evaluation = mt.matrixAddByCol(evaluation,
                                                comp.evaluation)

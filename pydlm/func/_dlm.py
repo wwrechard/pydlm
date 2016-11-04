@@ -10,6 +10,7 @@ It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
 from copy import deepcopy
+from numpy import matrix
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
 
@@ -453,6 +454,7 @@ class _dlm:
                     self.builder.model.evaluation[
                         0, self.builder.componentIndex[i][0]:
                         (self.builder.componentIndex[i][1] + 1)] = comp.evaluation
+        self.builder.model.evaluation = matrix(self.builder.model.evaluation)
 # =======================================================================
 
     # to set model to a specific date

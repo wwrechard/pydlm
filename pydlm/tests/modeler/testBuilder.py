@@ -62,6 +62,17 @@ class testBuilder(unittest.TestCase):
                        self.dynamic.evaluation),
                         self.autoReg.evaluation))), 0.0)
 
+    def testInitializeEvaluatoin(self):
+        self.builder1 = self.builder1 + self.trend + self.dynamic
+        self.builder1.dynamicComponents['dynamic'].updateEvaluation(8)
+        self.builder1.initialize()
+        print self.builder1.model.evaluation, mt.matrixAddByCol(self.trend.evaluation,
+                                                 self.dynamic.evaluation)
+        self.assertAlmostEqual(np.sum(
+            np.abs(self.builder1.model.evaluation -
+                   mt.matrixAddByCol(self.trend.evaluation,
+                                     self.dynamic.evaluation))), 0.0)
+
     def testUpdate(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
                         + self.autoReg

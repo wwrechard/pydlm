@@ -5,9 +5,9 @@ class matrixTools:
     @staticmethod
     def matrixAddInDiag(A, B):
         if A is None:
-            return B
+            return np.matrix(B)
         elif B is None:
-            return A
+            return np.matrix(A)
         else:
             (An, Ap) = A.shape
             (Bn, Bp) = B.shape
@@ -30,17 +30,17 @@ class matrixTools:
     @staticmethod
     def matrixAddByCol(A, B):
         if A is None:
-            return B
+            return np.matrix(B)
         elif B is None:
-            return A
+            return np.matrix(A)
         else:
             return np.concatenate((A, B), 1)
 
     @staticmethod
     def AddTwoVectors(a, b):
         if a is None:
-            return b
+            return np.array(b)
         elif b is None:
-            return a
+            return np.array(a)
         else:
             return np.concatenate((a, b))

@@ -44,7 +44,7 @@ class dlm(_dlm):
     The dlm use the @builder to construct the @baseModel based on user supplied
     @components and then run @kalmanFilter to filter the result.
 
-    Example:
+    Example 1:
         >>> # randomly generate fake data on 1000 days
         >>> import numpy as np
         >>> data = np.random.random((1, 1000))
@@ -54,6 +54,14 @@ class dlm(_dlm):
         >>> myDlm.fitForwardFilter()
         >>> # extract the filtered result
         >>> myDlm.getFilteredObs()
+
+    Example 2 (fit a linear regression):
+        >>> data = np.random.random((1, 100))
+        >>> mydlm = dlm(data) + trend(degree=1, 0.98, name='a') +
+                        dynamic(features=[[i] for i in range(100)], 1, name='b')
+        >>> mydlm.fit()
+        >>> coef_a = mydlm.getSmoothedState('a')
+        >>> coef_b = mydlm.getSmoothedState('b')
 
     Attributes:
        data: a list of doubles of the raw time series data.
@@ -501,7 +509,8 @@ class dlm(_dlm):
                   str(self.result.filteredSteps[0]) +
                   ' to ' + str(self.result.filteredSteps[1]))
         if name == 'all':
-            return self.result.filteredState
+            return [self._1DmatrixToArray(item) for item
+                    in self.result.filteredState]
 
         elif name in self.builder.staticComponents or \
              name in self.builder.dynamicComponents:
@@ -510,7 +519,7 @@ class dlm(_dlm):
             for i in range(len(result)):
                 result[i] = self.result.filteredState[i][
                     indx[0]:(indx[1] + 1), 0]
-            return result
+            return [self._1DmatrixToArray(item) for item in result]
 
         else:
             raise NameError('Such component does not exist!')
@@ -534,7 +543,8 @@ class dlm(_dlm):
                   str(self.result.smoothedSteps[0]) +
                   ' to ' + str(self.result.smoothedSteps[1]))
         if name == 'all':
-            return self.result.smoothedState
+            return [self._1DmatrixToArray(item) for item
+                    in self.result.smoothedState]
 
         elif name in self.builder.staticComponents or \
              name in self.builder.dynamicComponents:
@@ -543,7 +553,7 @@ class dlm(_dlm):
             for i in range(len(result)):
                 result[i] = self.result.smoothedState[i][
                     indx[0]:(indx[1] + 1), 0]
-            return result
+            return [self._1DmatrixToArray(item) for item in result]
 
         else:
             raise NameError('Such component does not exist!')
