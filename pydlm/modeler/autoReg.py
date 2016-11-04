@@ -11,7 +11,7 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
-
+from numpy import matrix
 from .dynamic import dynamic
 
 
@@ -32,6 +32,10 @@ class autoReg(dynamic):
                  days, as no previous data is observed to form the feature
                  matrix
 
+    (TODO: change the implementation of autoReg, so that the component uses
+     filteredObs as the feature instead of the observed data. To do this, we
+     might need pass the dlm as a parameter to autoReg, so that autoReg can
+     fetch the filtered observation on the fly)
     """
 
     def __init__(self,
@@ -73,6 +77,13 @@ class autoReg(dynamic):
             data: the raw time series data of the model.
         """
 
+        # we currently don't support missing data for auto regression
+        if self.hasMissingData(data):
+            raise NameError('The package currently do not support missing ' +
+                            'for auto regression. The support has been ' +
+                            'implemented, but deprecated due to efficiency ' +
+                            'issue. Will support this in next version.')
+
         # initialize feature matrix
         features = []
 
@@ -88,6 +99,18 @@ class autoReg(dynamic):
         """
         if self.d >= self.n:
             raise NameError('The degree cannot be longer than the data series')
+
+    # check if there is any none data. We currently don't support missing data
+    # for auto regression.
+    def hasMissingData(aList):
+        """ Check whether the list contains None
+
+        """
+        for item in aList:
+            if item is None:
+                return True
+
+        return False
 
     # override
     def appendNewData(self, newData):
@@ -131,16 +154,19 @@ class autoReg(dynamic):
         if date == self.n - 1:
             self.lastDay = self.features[-1][-1]
 
+            # pop out the corresponding feature
+            self.features.pop(self.n - 1)
+
         # else we can either remove the feature on the given date, but this
         # requires regenerate the new feature matrix, which might be costly.
         # Instead, we directly modify the affected entries in the feature
         # matrix.
-        
+
         # The change starts from date + 1 to date + degree and
         # we should do it in a reversed order
         else:
             # all the dates that are affected and need to be corrected
-            order = list(range(date + 1, date + self.d + 1))
+            order = list(range(date + 1, min(self.n, date + self.d + 1)))
 
             # we reverse the processing order
             order.reverse()
@@ -150,13 +176,49 @@ class autoReg(dynamic):
                 self.features[step].pop(self.d - (step - date))
 
                 # padding the data on the last feature to the beginning of
-                # today's feature. Note for a 3-autoReg, the feature of day4
+                # today's feature. Note for a 3-autoReg, the feature of day
                 # is in a form of [day1, day2, day3]
                 self.features[step].insert(0, self.features[step - 1][0])
 
+            # pop out the corresponding feature
+            self.features.pop(date)
+
         # popout the redundent feature and update the length
-        self.features.pop(date)
         self.n -= 1
+
+        # check if the degree is longer than the data series
+        self.checkDataLength()
+
+    def alter(self, date, dataPoint):
+        """ Alter the data of a particular date, and change the corresponding
+            feature matrix.
+
+        Args:
+           date: The date to be modified.
+           dataPoint: The new dataPoint to be filled in.
+
+        """
+        # if what modified is the last day, we need to update last day
+        if date == self.n - 1:
+            self.lastDay = dataPoint
+
+        # else we can either modify the feature on the given date, but this
+        # requires regenerate the new feature matrix, which might be costly.
+        # Instead, we directly modify the affected entries in the feature
+        # matrix.
+
+        # The change starts from date + 1 to date + degree and
+        # we should do it in a reversed order
+        else:
+            # all the dates that are affected and need to be corrected
+            order = list(range(date + 1, min(self.n, date + self.d + 1)))
+
+            # we reverse the processing order
+            order.reverse()
+
+            for step in order:
+                # popout the deleted date
+                self.features[step][self.d - (step - date)] = dataPoint
 
         # check if the degree is longer than the data series
         self.checkDataLength()

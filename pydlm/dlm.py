@@ -683,6 +683,11 @@ class dlm(_dlm):
         if component == 'main':
             self.data[date] = data
 
+            # we also automatically alter all the automatic components
+            for component in self.builder.automaticComponents:
+                comp = self.builder.automaticComponents[component]
+                comp.alter(date, data)
+
         # to alter the feature of a component
         elif component in self.builder.dynamicComponents:
             comp = self.builder.dynamicComponents[component]

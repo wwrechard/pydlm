@@ -77,9 +77,9 @@ class kalmanFilter:
         
         # if the step number == 0, we use result from the model state
         if model.prediction.step == 0:
-            model.prediction.state = np.dot(model.transition, model.state)                
+            model.prediction.state = np.dot(model.transition, model.state)
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
-            model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar), \
+            model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar),
                                              model.transition.T)
             
             # update the innovation

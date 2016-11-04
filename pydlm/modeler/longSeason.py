@@ -124,13 +124,15 @@ class longSeason(dynamic):
 
         """
         # create the new features
-        newFeatures, \
-            self.nextState = self.createFeatureMatrix(period=self.period,
-                                                      stay=self.stay,
-                                                      n=len(newData),
-                                                      state=self.nextState)
+        incrementLength = len(newData) + self.n - len(self.features)
+        if incrementLength > 0:
+            newFeatures, \
+                self.nextState = self.createFeatureMatrix(period=self.period,
+                                                          stay=self.stay,
+                                                          n=incrementLength,
+                                                          state=self.nextState)
         self.features.extend(newFeatures)
-        self.n = len(self.features)
+        self.n += len(newData)
 
     # override
     def popout(self, date):
@@ -170,3 +172,31 @@ class longSeason(dynamic):
                 self.nextState[0] -= 1
         else:
             self.nextState[1] -= 1
+
+    def alter(self, date, dataPoint):
+        """ We do nothing to longSeason, when altering the main data
+
+        """
+
+        # do nothing
+        pass
+
+    def updateEvaluation(self, step):
+        """ update the evaluation matrix to a specific date
+        This function is used when fitting the forward filter and
+        backward smoother
+        in need of updating the correct evaluation matrix
+
+        """
+        if step < len(self.features):
+            self.evaluation = self.features[step]
+        else:
+            newFeatures, \
+                self.nextState = self.createFeatureMatrix(
+                    period=self.period,
+                    stay=self.stay,
+                    n=step + 1 - len(self.features),
+                    state=self.nextState)
+            self.features.extend(newFeatures)
+            self.evaluation = self.features[step]
+        self.step = step

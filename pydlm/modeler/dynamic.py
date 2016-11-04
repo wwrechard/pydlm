@@ -109,7 +109,7 @@ class dynamic(component):
             self.meanPrior = mean * scale
 
     def checkDimensions(self):
-        """ if user supplies their own covPrior and meanPrior, this can 
+        """ if user supplies their own covPrior and meanPrior, this can
         be used to check if the dimension matches
 
         """

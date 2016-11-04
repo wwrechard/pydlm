@@ -44,4 +44,14 @@ class testLongSeason(unittest.TestCase):
         self.assertEqual(self.longSeason.nextState, [2, 3])
         self.assertEqual(self.longSeason.n, 11)
 
+    def testUpdateEvaluation(self):
+        trueFeatures = [[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0],
+                        [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0],
+                        [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0],
+                        [0, 0, 0, 1]]
+        self.longSeason.updateEvaluation(12)
+        self.assertEqual(self.longSeason.features, trueFeatures)
+        self.assertEqual(self.longSeason.nextState, [3, 1])
+        self.assertEqual(self.longSeason.n, 12)
+
 unittest.main()

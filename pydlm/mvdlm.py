@@ -120,7 +120,8 @@ class mvdlm(_mvdlm):
                          iteration=None):
         self._forwardFilter(usingRollingWindow=usingRollingWindow,
                             windowLength=windowLength,
-                            iteration=iteration)
+                            iteration=iteration,
+                            filterType='forwardFilter')
 
     # backward smoother for multivariate dlm
     def fitBackwardSmoother(self, backLength=None, iteration=None):

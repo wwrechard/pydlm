@@ -112,7 +112,7 @@ class builder:
 
         # flag for determining whether the system info should be printed.
         self._printInfo = True
-        
+
     # The function that allows the user to add components
     def add(self, component):
         """ Add a new model component to the builder.
@@ -313,10 +313,10 @@ class builder:
 
         """
 
-        if len(self.dynamicComponents) == 0 and \
-           len(self.automaticComponents) == 0:
-            raise NameError('This shall only be used when there' +
-                            ' are dynamic or automatic components!')
+        # if len(self.dynamicComponents) == 0 and \
+        #   len(self.automaticComponents) == 0:
+        #    raise NameError('This shall only be used when there' +
+        #                    ' are dynamic or automatic components!')
 
         # update the dynamic evaluation vector
         # We need first update all dynamic components by 1 step

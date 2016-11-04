@@ -9,6 +9,7 @@ This piece of code include all the hidden methods and members of the class dlm.
 It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
+from copy import deepcopy
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
 
@@ -212,7 +213,8 @@ class _dlm:
         for step in range(start, end + 1):
 
             # first check whether we need to update evaluation or not
-            if len(self.builder.dynamicComponents) > 0:
+            if len(self.builder.dynamicComponents) > 0 or \
+               len(self.builder.automaticComponents) > 0:
                 self.builder.updateEvaluation(step)
 
             # check if rewnew is needed
@@ -298,7 +300,8 @@ class _dlm:
             self.builder.model.prediction.sysVar \
                 = self.result.predictedCov[day + 1]
 
-            if len(self.builder.dynamicComponents) > 0:
+            if len(self.builder.dynamicComponents) > 0 or \
+               len(self.builder.automaticComponents) > 0:
                 self.builder.updateEvaluation(day)
 
             # then we use the backward filter to filter the result
@@ -316,12 +319,12 @@ class _dlm:
 #        self.result.smoothedSteps = (end, start)
 
     # Forecast the result based on filtered chains
-    def _predict(self, date=None, days=1):
+    def _predictInSample(self, date, days=1):
         """ Predict the model's status based on the model of a specific day
 
         Args:
             date: the date the prediction is based on
-            day: number of days forward that are need to be predicted.
+            day: number of days forward that need to be predicted.
 
         Returns:
             A tuple. (Predicted observation, variance of the predicted
@@ -329,21 +332,78 @@ class _dlm:
 
         """
 
-        if date is None:
-            date = self.n - 1
+        if date + days > self.n - 1:
+            raise NameError('The range is out of sample.')
 
         predictedObs = [None] * days
         predictedObsVar = [None] * days
         # reset the date to the date we are interested in
         self._setModelStatus(date=date)
         self.builder.model.prediction.step = 0
-        for i in range(days):
+        for i in range(1, days):
+            # update the evaluation vector
+            if len(self.builder.dynamicComponents) > 0 or \
+               len(self.builder.automaticComponents) > 0:
+                self.builder.updateEvaluation(date + i)
+
             self.Filter.predict(self.builder.model)
-            predictedObs[i] = self.builder.model.prediction.obs
-            predictedObsVar[i] = self.builder.model.prediction.obsVar
+            predictedObs[i - 1] = self.builder.model.prediction.obs
+            predictedObsVar[i - 1] = self.builder.model.prediction.obsVar
 
         return (predictedObs, predictedObsVar)
 
+    # feature set contains all the features for prediction.
+    # It is a dictionary with key equals to the name of the component and
+    # the value as the new feature (a list). The function
+    # will first use the features provided in this feature dict, if not
+    # found, it will fetch the default feature from the component. If
+    # it could not find feature for some component, it returns an error
+    def _oneStepAheadPredictBasedOnModel(self,
+                                         model,
+                                         featureDict=None,
+                                         date=None):
+
+        if featureDict is None and date is None:
+            raise NameError('FeatureDict and date cannot be None ' +
+                            'at the same time.')
+
+        if featureDict is None:
+            self.builder.updateEvaluation(date + 1)
+        else:
+            for i in self.dynamicComponents:
+                if i in featureDict:
+                    self.model.evaluation[
+                        0, self.componentIndex[i][0]:
+                        (self.componentIndex[i][1] + 1)] = featureDict[i]
+                else:
+                    if date is None:
+                        raise NameError('Both date and featureDict are ' +
+                                        'not provided for component ' +
+                                        i)
+                    comp = self.dynamicComponents[i]
+                    comp.updateEvaluation(date + 1)
+                    self.model.evaluation[
+                        0, self.componentIndex[i][0]:
+                        (self.componentIndex[i][1] + 1)] = comp.evaluation
+
+            for i in self.automaticComponents:
+                if i in featureDict:
+                    self.model.evaluation[
+                        0, self.componentIndex[i][0]:
+                        (self.componentIndex[i][1] + 1)] = featureDict[i]
+                else:
+                    if date is None:
+                        raise NameError('Both date and featureDict are ' +
+                                        'not provided for component ' +
+                                        i)
+                    comp = self.automaticComponents[i]
+                    comp.updateEvaluation(date + 1)
+                    self.model.evaluation[
+                        0, self.componentIndex[i][0]:
+                        (self.componentIndex[i][1] + 1)] = comp.evaluation
+        model.evaluation = self.builder.model.evaluation
+        self.Filter.predict(self.builder.model)
+        return model
 # =======================================================================
 
     # to set model to a specific date
@@ -359,6 +419,9 @@ class _dlm:
         self._reverseCopy(model=self.builder.model,
                           result=self.result,
                           step=date)
+        if len(self.builder.dynamicComponents) > 0 or \
+           len(self.builder.automaticComponents) > 0:
+            self.builder.updateEvaluation(date)
 
     # reset model to initial status
     def _resetModelStatus(self):
