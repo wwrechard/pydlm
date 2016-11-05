@@ -5,17 +5,19 @@ Code for plot dlm results
 
 ==================================================================================
 
-This module provide the plotting functionality for dlm 
+This module provide the plotting functionality for dlm
 
 """
 import matplotlib.pyplot as plt
 from pydlm.base.tools import getInterval
 
+# =========================== plot for main data ============================
+
 
 def plotInOneFigure(time, data, result, options):
     """
     Plot the dlm results in one figure
-    
+
     Args:
         time: the time label
         data: the original data
@@ -23,78 +25,78 @@ def plotInOneFigure(time, data, result, options):
         options: options for the plot, for details please refer to @dlm
     """
     # plot the original data
-    plotData(time=time, data=data, showDataPoint=
-             options.showDataPoint, color=options.dataColor,
-             label = 'time series')
-    
+    plotData(time=time, data=data,
+             showDataPoint=options.showDataPoint, color=options.dataColor,
+             label='time series')
+
     # plot fitered results if needed
     if options.plotFilteredData:
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
-        plotData(time=time[start : end], \
-                 data=to1dArray(result.filteredObs[start : end]), \
-                 showDataPoint=options.showFittedPoint, \
-                 color=options.filteredColor, \
+        plotData(time=time[start:end],
+                 data=to1dArray(result.filteredObs[start:end]),
+                 showDataPoint=options.showFittedPoint,
+                 color=options.filteredColor,
                  label='filtered series')
 
         if options.showConfidenceInterval:
-            upper, lower = getInterval(result.filteredObs[start : end], \
-                                       result.filteredObsVar[start : end], \
+            upper, lower = getInterval(result.filteredObs[start:end],
+                                       result.filteredObsVar[start:end],
                                        p=options.confidence)
-                    
-            plotInterval(time=time[start : end],
+
+            plotInterval(time=time[start:end],
                          upper=to1dArray(upper), lower=to1dArray(lower),
                          intervalType=options.intervalType,
                          color=options.filteredColor)
-            
+
         # plot predicted results if needed
     if options.plotPredictedData:
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
-        plotData(time=time[start : end], \
-                 data=to1dArray(result.predictedObs), \
-                 showDataPoint=options.showFittedPoint, \
-                 color=options.predictedColor, \
+        plotData(time=time[start:end],
+                 data=to1dArray(result.predictedObs),
+                 showDataPoint=options.showFittedPoint,
+                 color=options.predictedColor,
                  label='one-day prediction')
 
         if options.showConfidenceInterval:
-            upper, lower = getInterval(result.predictedObs[start : end], \
-                                       result.filteredObsVar[start : end], \
+            upper, lower = getInterval(result.predictedObs[start:end],
+                                       result.filteredObsVar[start:end],
                                        p=options.confidence)
 
-            plotInterval(time=time[start : end],
+            plotInterval(time=time[start:end],
                          upper=to1dArray(upper), lower=to1dArray(lower),
                          intervalType=options.intervalType,
                          color=options.predictedColor)
-            
 
     # plot smoothed results if needed
     if options.plotSmoothedData:
         start = result.smoothedSteps[0]
         end = result.smoothedSteps[1] + 1
-        plotData(time=time[start:end], \
-                 data=to1dArray(result.smoothedObs), \
-                 showDataPoint=options.showFittedPoint, \
-                 color=options.smoothedColor, \
+        plotData(time=time[start:end],
+                 data=to1dArray(result.smoothedObs),
+                 showDataPoint=options.showFittedPoint,
+                 color=options.smoothedColor,
                  label='smoothed series')
-            
+
         if options.showConfidenceInterval:
-            upper, lower = getInterval(result.smoothedObs[start : end], \
-                                       result.smoothedObsVar[start : end], \
+            upper, lower = getInterval(result.smoothedObs[start:end],
+                                       result.smoothedObsVar[start:end],
                                        p=options.confidence)
 
-            plotInterval(time=time[start : end],
+            plotInterval(time=time[start:end],
                          upper=to1dArray(upper), lower=to1dArray(lower),
                          intervalType=options.intervalType,
                          color=options.smoothedColor)
-            
-    plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')   
-    
+
+    plt.legend(loc='best', shadow=True)  # , fontsize = 'x-large')
+
+
 def plotInMultipleFigure(time, data, result, options):
     """
-    Plot the dlm results in multiple figure, each with one result and the original
-    data
-    
+    Plot the dlm results in multiple figure, each with one result and the
+    original data
+
     Args:
         time: the time label
         data: the original data
@@ -107,95 +109,303 @@ def plotInMultipleFigure(time, data, result, options):
     size = (numOfPlots, 1)
     location = 1
 
-    # plot all needed results   
+    # plot all needed results
     # plot fitered results if needed
     if options.plotFilteredData:
         # the location
         subplot(size, location)
-        
-        #plot original data
-        plotData(time = time, data = data, showDataPoint = \
-                 options.showDataPoint, color = options.dataColor, label = 'time series')
-        
+
+        # plot original data
+        plotData(time=time, data=data,
+                 showDataPoint=options.showDataPoint, color=options.dataColor,
+                 label='time series')
+
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
         if start < end:
-            plotData(time = time[start : end], \
-                     data = to1dArray(result.filteredObs[start : end]), \
-                     showDataPoint = options.showFittedPoint, \
-                     color = options.filteredColor, \
-                     label = 'filtered series')
+            plotData(time=time[start:end],
+                     data=to1dArray(result.filteredObs[start:end]),
+                     showDataPoint=options.showFittedPoint,
+                     color=options.filteredColor,
+                     label='filtered series')
 
             if options.showConfidenceInterval:
-                upper, lower = getInterval(result.filteredObs[start : end], \
-                                           result.filteredObsVar[start : end], \
-                                           p = options.confidence)
-                    
-                plotInterval(time=time[start : end],
+                upper, lower = getInterval(result.filteredObs[start:end],
+                                           result.filteredObsVar[start:end],
+                                           p=options.confidence)
+
+                plotInterval(time=time[start:end],
                              upper=to1dArray(upper), lower=to1dArray(lower),
                              intervalType=options.intervalType,
                              color=options.filteredColor)
-        plt.legend(loc='best', shadow = True) #, fontsize = 'x-large')
+        plt.legend(loc='best', shadow=True)  # , fontsize = 'x-large')
         location += 1
 
     # plot predicted results if needed
     if options.plotPredictedData:
         # the location
         subplot(size, location)
-        
-        #plot original data
-        plotData(time = time, data = data, showDataPoint = \
-                 options.showDataPoint, color = options.dataColor, label = 'time series')
-        
+
+        # plot original data
+        plotData(time=time, data=data,
+                 showDataPoint=options.showDataPoint,
+                 color=options.dataColor, label='time series')
+
         start = result.filteredSteps[0]
         end = result.filteredSteps[1] + 1
         if start < end:
-            plotData(time = time[start : end], \
-                     data = to1dArray(result.predictedObs), \
-                     showDataPoint = options.showFittedPoint, \
-                     color = options.predictedColor, \
-                     label = 'one-day prediction')
+            plotData(time=time[start:end],
+                     data=to1dArray(result.predictedObs),
+                     showDataPoint=options.showFittedPoint,
+                     color=options.predictedColor,
+                     label='one-day prediction')
 
             if options.showConfidenceInterval:
-                upper, lower = getInterval(result.predictedObs[start : end], \
-                                           result.filteredObsVar[start : end], \
-                                           p = options.confidence)
-                plotInterval(time=time[start : end],
+                upper, lower = getInterval(result.predictedObs[start:end],
+                                           result.filteredObsVar[start:end],
+                                           p=options.confidence)
+                plotInterval(time=time[start:end],
                              upper=to1dArray(upper), lower=to1dArray(lower),
                              intervalType=options.intervalType,
                              color=options.predictedColor)
-        plt.legend(loc='best', shadow = True)    
+        plt.legend(loc='best', shadow=True)
         location += 1
 
     # plot smoothed results if needed
     if options.plotSmoothedData:
         # the location
         subplot(size, location)
-        
-        #plot original data
-        plotData(time = time, data = data, showDataPoint = \
-                 options.showDataPoint, color = options.dataColor, label = 'time series')
-        
+
+        # plot original data
+        plotData(time=time, data=data,
+                 showDataPoint=options.showDataPoint,
+                 color=options.dataColor, label='time series')
+
         start = result.smoothedSteps[0]
         end = result.smoothedSteps[1] + 1
         if start < end:
-            plotData(time = time[start:end], \
-                     data = to1dArray(result.smoothedObs), \
-                     showDataPoint = options.showFittedPoint, \
-                     color = options.smoothedColor, \
-                     label = 'smoothed series')
-            
+            plotData(time=time[start:end],
+                     data=to1dArray(result.smoothedObs),
+                     showDataPoint=options.showFittedPoint,
+                     color=options.smoothedColor,
+                     label='smoothed series')
+
             if options.showConfidenceInterval:
-                upper, lower = getInterval(result.smoothedObs[start : end], \
-                                           result.smoothedObsVar[start : end], \
-                                           p = options.confidence)
-                plotInterval(time=time[start : end],
+                upper, lower = getInterval(result.smoothedObs[start:end],
+                                           result.smoothedObsVar[start:end],
+                                           p=options.confidence)
+                plotInterval(time=time[start:end],
                              upper=to1dArray(upper), lower=to1dArray(lower),
                              intervalType=options.intervalType,
                              color=options.smoothedColor)
-        plt.legend(loc='best', shadow = True)
-        
-def plotData(time, data, showDataPoint = True, color = 'black', label = 'unknown'):
+        plt.legend(loc='best', shadow=True)
+
+
+def plotLatentState(time, coordinates, result, options):
+    """
+    Plot the latent state for given coordinates
+
+    Args:
+        time: the time label
+        coordinates: the coordinates to plot
+        result: the fitted result from dlm class
+        options: options for the plot, for details please refer to @dlm
+    """
+    # first compute how many plots are needed
+    numOfPlots = len(coordinates)
+    size = (numOfPlots, 1)
+
+    # plot all needed results
+    for i, dim in enumerate(coordinates):
+        subplot(size, i + 1)
+        plotSingleState(time, dim, result, options)
+        plt.title('Filter result for dimension ' + str(i))
+
+# ============================ plot for latents ============================
+
+
+def plotSingleState(time, dimension, result, options):
+    """
+    Plot a single coordinate in the latent state vector
+
+    Args:
+        time: the time label
+        dimension: the coordinate of the plot
+        result: the fitted result from dlm class
+        options: options for the plot, for details please refer to @dlm
+    """
+
+    # plot fitered results if needed
+    if options.plotFilteredData:
+        start = result.filteredSteps[0]
+        end = result.filteredSteps[1] + 1
+        data = [item[dimension, 0] for item in result.filteredState[start:end]]
+        var = [abs(item[dimension, dimension])
+               for item in result.filteredCov[start:end]]
+
+        plotData(time=time[start:end],
+                 data=data,
+                 showDataPoint=options.showFittedPoint,
+                 color=options.filteredColor,
+                 label='filtered state')
+
+        if options.showConfidenceInterval:
+            upper, lower = getInterval(data, var, p=options.confidence)
+
+            plotInterval(time=time[start:end],
+                         upper=upper, lower=lower,
+                         intervalType=options.intervalType,
+                         color=options.filteredColor)
+
+    # plot predicted results if needed
+    if options.plotPredictedData:
+        start = result.filteredSteps[0]
+        end = result.filteredSteps[1] + 1
+        data = [item[dimension, 0]
+                for item in result.predictedState[start:end]]
+        var = [abs(item[dimension, dimension])
+               for item in result.predictedCov[start:end]]
+
+        plotData(time=time[start:end],
+                 data=data,
+                 showDataPoint=options.showFittedPoint,
+                 color=options.predictedColor,
+                 label='predicted state')
+
+        if options.showConfidenceInterval:
+            upper, lower = getInterval(data, var, p=options.confidence)
+
+            plotInterval(time=time[start:end],
+                         upper=upper, lower=lower,
+                         intervalType=options.intervalType,
+                         color=options.predictedColor)
+
+    # plot smoothed results if needed
+    if options.plotSmoothedData:
+        start = result.smoothedSteps[0]
+        end = result.smoothedSteps[1] + 1
+        data = [item[dimension, 0] for item in result.smoothedState[start:end]]
+        var = [abs(item[dimension, dimension])
+               for item in result.smoothedCov[start:end]]
+
+        plotData(time=time[start:end],
+                 data=data,
+                 showDataPoint=options.showFittedPoint,
+                 color=options.smoothedColor,
+                 label='smoothed state')
+
+        if options.showConfidenceInterval:
+            upper, lower = getInterval(data, var, p=options.confidence)
+
+            plotInterval(time=time[start:end],
+                         upper=upper, lower=lower,
+                         intervalType=options.intervalType,
+                         color=options.smoothedColor)
+
+    plt.legend(loc='best', shadow=True)
+
+# ============================ plot for component =============================
+
+
+def plotComponent(time, data, result, options):
+    """
+    Plot the dlm results in one figure
+
+    Args:
+        time: the time label
+        data: the original data
+        result: the fitted result from dlm class
+        options: options for the plot, for details please refer to @dlm
+    """
+
+    if options.separatePlot:
+        numOfPlots = options.plotFilteredData + options.plotPredictedData + \
+                     options.plotSmoothedData
+        size = (numOfPlots, 1)
+        location = 1
+
+    # plot fitered results if needed
+    if options.plotFilteredData:
+        if options.separatePlot:
+            subplot(size, location)
+            location += 1
+
+        start = result.filteredSteps[0]
+        end = result.filteredSteps[1] + 1
+        plotData(time=time[start:end],
+                 data=data['filteredMean'],
+                 showDataPoint=options.showFittedPoint,
+                 color=options.filteredColor,
+                 label='filtered ' + data['name'])
+
+        if options.showConfidenceInterval:
+            upper, lower = getInterval(data['filteredMean'],
+                                       map(abs, data['filteredVar']),
+                                       p=options.confidence)
+
+            plotInterval(time=time[start:end],
+                         upper=upper, lower=lower,
+                         intervalType=options.intervalType,
+                         color=options.filteredColor)
+
+        plt.legend(loc='best', shadow=True)
+
+    # plot predicted results if needed
+    if options.plotPredictedData:
+        if options.separatePlot:
+            subplot(size, location)
+            location += 1
+
+        start = result.filteredSteps[0]
+        end = result.filteredSteps[1] + 1
+        plotData(time=time[start:end],
+                 data=data['predictedMean'],
+                 showDataPoint=options.showFittedPoint,
+                 color=options.predictedColor,
+                 label='one-step predict for ' + data['name'])
+
+        if options.showConfidenceInterval:
+            upper, lower = getInterval(data['predictedMean'],
+                                       map(abs, data['predictedVar']),
+                                       p=options.confidence)
+
+            plotInterval(time=time[start:end],
+                         upper=upper, lower=lower,
+                         intervalType=options.intervalType,
+                         color=options.predictedColor)
+
+        plt.legend(loc='best', shadow=True)
+
+    # plot smoothed results if needed
+    if options.plotSmoothedData:
+        if options.separatePlot:
+            subplot(size, location)
+            location += 1
+
+        start = result.smoothedSteps[0]
+        end = result.smoothedSteps[1] + 1
+        plotData(time=time[start:end],
+                 data=data['smoothedMean'],
+                 showDataPoint=options.showFittedPoint,
+                 color=options.smoothedColor,
+                 label='smoothed ' + data['name'])
+
+        if options.showConfidenceInterval:
+            upper, lower = getInterval(data['smoothedMean'],
+                                       map(abs, data['smoothedVar']),
+                                       p=options.confidence)
+
+            plotInterval(time=time[start:end],
+                         upper=upper, lower=lower,
+                         intervalType=options.intervalType,
+                         color=options.smoothedColor)
+
+        plt.legend(loc='best', shadow=True)
+
+# =========================== basic functions ============================
+
+
+def plotData(time, data, showDataPoint=True, color='black', label='unknown'):
     """
     The function to plot data points.
 
@@ -208,19 +418,19 @@ def plotData(time, data, showDataPoint = True, color = 'black', label = 'unknown
     """
     if time is None:
         if showDataPoint:
-            plt.plot(data, 'o', color = color)
-            plt.plot(data, '-', color = color, label = label)
+            plt.plot(data, 'o', color=color)
+            plt.plot(data, '-', color=color, label=label)
         else:
-            plt.plot(data, '-', color = color, label = label)
+            plt.plot(data, '-', color=color, label=label)
     else:
         if showDataPoint:
-            plt.plot(time, data, 'o', color = color)
-            plt.plot(time, data, '-', color = color, label = label)
+            plt.plot(time, data, 'o', color=color)
+            plt.plot(time, data, '-', color=color, label=label)
         else:
-            plt.plot(time, data, '-', color = color, label = label)
+            plt.plot(time, data, '-', color=color, label=label)
 
- 
-def plotInterval(time, upper, lower, intervalType, color = 'black'):
+
+def plotInterval(time, upper, lower, intervalType, color='black'):
     """
     The function to plot confidence interval.
 
@@ -233,15 +443,15 @@ def plotInterval(time, upper, lower, intervalType, color = 'black'):
     ALPHA = 0.4
     if time is None:
         if intervalType == 'line':
-            plt.plot(upper, '--', color = color)
-            plt.plot(lower, '--', color = color)
+            plt.plot(upper, '--', color=color)
+            plt.plot(lower, '--', color=color)
         elif intervalType == 'ribbon':
             plt.fill_between(upper, lower, facecolor=color,
                              alpha=ALPHA)
     else:
         if intervalType == 'line':
-            plt.plot(time, upper, '--', color = color)
-            plt.plot(time, lower, '--', color = color)
+            plt.plot(time, upper, '--', color=color)
+            plt.plot(time, lower, '--', color=color)
         elif intervalType == 'ribbon':
             plt.fill_between(time, upper, lower,
                              facecolor=color, alpha=ALPHA)
@@ -254,7 +464,7 @@ def plotInitialize():
     """
     plt.figure()
 
- 
+
 def subplot(size, location):
     """
     Used for plotting multiple figures

@@ -66,6 +66,7 @@ def normal_CDF_inverse(p):
         # F^-1(p) = G^-1(1-p)
         return rational_approximation( math.sqrt(-2.0*math.log(1.0-p)) )
 
+
 def getInterval(means, var, p):
     alpha = abs(normal_CDF_inverse(min(1 - p, p) / 2))
     upper = [0] * len(means)

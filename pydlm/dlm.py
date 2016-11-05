@@ -30,6 +30,7 @@ Example:
 # dynamic linear model. dlm is a subclass of builder, with adding the
 # Kalman filter functionality for filtering the data
 
+from copy import deepcopy
 from pydlm.func._dlm import _dlm
 from pydlm.base.tools import getInterval
 
@@ -168,10 +169,10 @@ class dlm(_dlm):
                                     end=min(windowLength - 1, self.n - 1))
 
             # for the remaining date, we use a rolling window
-            for day in range(max(windowFront, windowLength), self.n):
-                self._forwardFilter(start=day - windowLength + 1,
-                                    end=day,
-                                    save=day,
+            for today in range(max(windowFront, windowLength), self.n):
+                self._forwardFilter(start=today - windowLength + 1,
+                                    end=today,
+                                    save=today,
                                     ForgetPrevious=True)
 
         self.result.filteredSteps = [0, self.n - 1]
@@ -301,48 +302,95 @@ class dlm(_dlm):
             The @result object containing all computed results.
 
         """
-        return self.result
+        return deepcopy(self.result)
 
-    def getFilteredObs(self):
-        """ get the filtered observations.
+    def getMean(self, filterType='forwardFilter', name='main'):
+        """ get mean for data or component.
 
-        If the filtered dates are not (0, self.n - 1),
+        If the working dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
+        Args:
+            filterType: the type of mean to be returned. Could be
+                        'forwardFilter', 'backwardSmoother', and 'predict'.
+                        Default to 'forwardFilter'.
+            name: the component to get mean. When name = 'main', then it
+                  returns the filtered mean for the time series. When
+                  name = some component's name, then it returns the filtered
+                  mean for that component. Default to 'main'.
+
         Returns:
-            A list of the filtered time series observations
+            A list of the time series observations based on the choice
 
         """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The fitlered dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        start = self.result.filteredSteps[0]
-        end = self.result.filteredSteps[1] + 1
-        # get out of the matrix form
-        return self._1DmatrixToArray(self.result.filteredObs[start:end])
+        # get the working date
+        start, end = self._checkAndGetWorkingDates(filterType=filterType)
 
-    def getFilteredObsVar(self):
-        """ get the filtered observation variance.
+        # get the mean for the fitlered data
+        if name == 'main':
+            # get out of the matrix form
+            if filterType == 'forwardFilter':
+                return self._1DmatrixToArray(
+                    self.result.filteredObs[start:end])
+            elif filterType == 'backwardSmoother':
+                return self._1DmatrixToArray(
+                    self.result.smoothedObs[start:end])
+            elif filterType == 'predict':
+                return self._1DmatrixToArray(
+                    self.result.predictedObs[start:end])
+            else:
+                raise NameError('Incorrect filter type.')
+
+        # get the mean for the component
+        self._checkComponent(name)
+        return self._getComponentMean(name, filterType=filterType,
+                                      start=start, end=end)
+
+    def getVar(self, filterType='forwardFilter', name='main'):
+        """ get the variance for data or component.
 
         If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating
         the actual filtered dates.
 
+        Args:
+            filterType: the type of variance to be returned. Could be
+                        'forwardFilter', 'backwardSmoother', and 'predict'.
+                        Default to 'forwardFilter'.
+            name: the component to get variance. When name = 'main', then it
+                  returns the filtered variance for the time series. When
+                  name = some component's name, then it returns the filtered
+                  variance for that component. Default to 'main'.
+
         Returns:
-            A list of the filtered time series variances.
+            A list of the filtered variances based on the choice.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The fitlered dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        start = self.result.filteredSteps[0]
-        end = self.result.filteredSteps[1] + 1
-        return self._1DmatrixToArray(self.result.filteredObsVar[start:end])
+        # get the working date
+        start, end = self._checkAndGetWorkingDates(filterType=filterType)
 
-    def getFilteredInterval(self, p):
-        """ get the filtered confidence interval.
+        # get the variance for the time series data
+        if name == 'main':
+            # get out of the matrix form
+            if filterType == 'forwardFilter':
+                return self._1DmatrixToArray(
+                    self.result.filteredObsVar[start:end])
+            elif filterType == 'backwardSmoother':
+                return self._1DmatrixToArray(
+                    self.result.smoothedObsVar[start:end])
+            elif filterType == 'predict':
+                return self._1DmatrixToArray(
+                    self.result.predictedObsVar[start:end])
+            else:
+                raise NameError('Incorrect filter type.')
+
+        # get the variance for the component
+        self._checkComponent(name)
+        return self._getComponentVar(name, filterType=filterType,
+                                     start=start, end=end)
+
+    def getInterval(self, p=0.95, filterType='forwardFilter', name='main'):
+        """ get the confidence interval for data or component.
 
         If the filtered dates are not
         (0, self.n - 1), then a warning will prompt stating the actual
@@ -350,281 +398,140 @@ class dlm(_dlm):
 
         Args:
             p: The confidence level.
+            filterType: the type of CI to be returned. Could be
+                        'forwardFilter', 'backwardSmoother', and 'predict'.
+                        Default to 'forwardFilter'.
+            name: the component to get CI. When name = 'main', then it
+                  returns the confidence interval for the time series. When
+                  name = some component's name, then it returns the confidence
+                  interval for that component. Default to 'main'.
 
         Returns:
             A tuple with the first element being a list of upper bounds
             and the second being a list of the lower bounds.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The fitlered dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        start = self.result.filteredSteps[0]
-        end = self.result.filteredSteps[1] + 1
-        upper, lower = getInterval(
-            self.result.filteredObs[start:end],
-            self.result.filteredObsVar[start:end], p)
-        return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
+        # get the working date
+        start, end = self._checkAndGetWorkingDates(filterType=filterType)
 
-    def getSmoothedObs(self):
-        """ get the smoothed observations.
+        # get the mean and the variance for the time series data
+        if name == 'main':
+            # get out of the matrix form
+            if filterType == 'forwardFilter':
+                compMean = self._1DmatrixToArray(
+                    self.result.filteredObs[start:end])
+                compVar = self._1DmatrixToArray(
+                    self.result.filteredObsVar[start:end])
+            elif filterType == 'backwardSmoother':
+                compMean = self._1DmatrixToArray(
+                    self.result.smoothedObs[start:end])
+                compVar = self._1DmatrixToArray(
+                    self.result.smoothedObsVar[start:end])
+            elif filterType == 'predict':
+                compMean = self._1DmatrixToArray(
+                    self.result.predictedObs[start:end])
+                compVar = self._1DmatrixToArray(
+                    self.result.predictedObsVar[start:end])
+            else:
+                raise NameError('Incorrect filter type.')
 
-        If the filtered dates are not (0, self.n - 1),
-        then a warning will prompt stating the actual filtered dates.
-
-        Returns:
-            A list of the smoothed time series observations.
-
-        """
-        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
-            print('The smoothed dates are from ' +
-                  str(self.result.smoothedSteps[0]) +
-                  ' to ' + str(self.result.smoothedSteps[1]))
-        start = self.result.smoothedSteps[0]
-        end = self.result.smoothedSteps[1] + 1
-        return self._1DmatrixToArray(self.result.smoothedObs[start:end])
-
-    def getSmoothedObsVar(self):
-        """ get the smoothed variance.
-
-        If the filtered dates are not (0, self.n - 1),
-        then a warning will prompt stating the actual filtered dates.
-
-        Returns:
-            A list of the smoothed time series variances.
-
-        """
-        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
-            print('The smoothed dates are from ' +
-                  str(self.result.smoothedSteps[0]) +
-                  ' to ' + str(self.result.smoothedSteps[1]))
-        start = self.result.smoothedSteps[0]
-        end = self.result.smoothedSteps[1] + 1
-        return self._1DmatrixToArray(self.result.smoothedObsVar[start:end])
-
-    def getSmoothedInterval(self, p):
-        """ get the smoothed confidence interval.
-
-        If the filtered dates are not
-        (0, self.n - 1), then a warning will prompt stating the
-        actual smoothed dates.
-
-        Args:
-            p: The confidence level.
-
-        Returns:
-            A tuple with the first element being a list of upper bounds
-            and the second being a list of the lower bounds.
-
-        """
-        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
-            print('The smoothed dates are from ' +
-                  str(self.result.smoothedSteps[0]) +
-                  ' to ' + str(self.result.smoothedSteps[1]))
-        start = self.result.smoothedSteps[0]
-        end = self.result.smoothedSteps[1] + 1
-        upper, lower = getInterval(self.result.smoothedObs[start:end],
-                                   self.result.smoothedObsVar[start:end], p)
-        return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
-
-    def getPredictedObs(self):
-        """ get the predicted observations.
-
-        An array of numbers.
-        a[k] shows the prediction on that the date k given all the data
-        up to k - 1.
-
-        Returns:
-            A list of one-day ahead predictions.
-
-        """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The predicted dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        start = self.result.filteredSteps[0]
-        end = self.result.filteredSteps[1] + 1
-        return self._1DmatrixToArray(self.result.predictedObs[start:end])
-
-    def getPredictedObsVar(self):
-        """ get the predicted variance.
-
-        An array of numbers. a[k] shows the prediction on
-        that the date k given all the data up to k - 1.
-
-        Returns:
-            A list of one-day ahead prediction variances.
-
-        """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The predicted dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        start = self.result.filteredSteps[0]
-        end = self.result.filteredSteps[1] + 1
-        return self._1DmatrixToArray(self.result.predictedObsVar[start:end])
-
-    def getPredictedInterval(self, p):
-        """ get the predicted confidence interval.
-
-        If the predicted dates are not
-        (0, self.n - 1), then a warning will prompt stating the actual
-        predicted dates.
-
-        Args:
-            p: The confidence level.
-
-        Returns:
-            A tuple with the first element being a list of upper bounds
-            and the second being a list of the lower bounds.
-
-        """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The predicted dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        start = self.result.filteredSteps[0]
-        end = self.result.filteredSteps[1] + 1
-        upper, lower = getInterval(self.result.predictedObs[start:end],
-                                   self.result.predictedObsVar[start:end], p)
-        return (self._1DmatrixToArray(upper), self._1DmatrixToArray(lower))
-
-    def getFilteredState(self, name='all'):
-        """ get the filtered states.
-
-        If the filtered dates are not (0, self.n - 1),
-        then a warning will prompt stating the actual filtered dates.
-
-        Args:
-            name: the component name for which to get the filtered results.
-                  Default to 'all'.
-
-        Returns:
-            A list of numpy matrices, standing for the filtered latent states.
-
-        """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The fitlered dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
-        if name == 'all':
-            return [self._1DmatrixToArray(item) for item
-                    in self.result.filteredState]
-
-        elif name in self.builder.staticComponents or \
-             name in self.builder.dynamicComponents:
-            indx = self.builder.componentIndex[name]
-            result = [None] * self.n
-            for i in range(len(result)):
-                result[i] = self.result.filteredState[i][
-                    indx[0]:(indx[1] + 1), 0]
-            return [self._1DmatrixToArray(item) for item in result]
-
+        # get the mean and variance for the component
         else:
-            raise NameError('Such component does not exist!')
+            self._checkComponent(name)
+            compMean = self._getComponentMean(name, filterType=filterType,
+                                              start=start, end=end)
+            compVar = self._getComponentVar(name, filterType=filterType,
+                                            start=start, end=end)
 
-    def getSmoothedState(self, name='all'):
-        """ get the smoothed latent states.
+        # get the upper and lower bound
+        upper, lower = getInterval(compMean, compVar, p)
+        return (upper, lower)
+
+    def getLatentState(self, filterType='forwardFilter', name='all'):
+        """ get the latent states for different components and filters.
 
         If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         Args:
-            name: the component for which to get the smoothed results.
-                  Default to 'all'.
+            filterType: the type of latent states to be returned. Could be
+                        'forwardFilter', 'backwardSmoother', and 'predict'.
+                        Default to 'forwardFilter'.
+            name: the component to get latent state. When name = 'all', then it
+                  returns the latent states for the time series. When
+                  name = some component's name, then it returns the latent
+                  states for that component. Default to 'all'.
 
         Returns:
-            A list of numpy matrices, standing for the smoothed latent states.
+            A list of lists, standing for the latent states given
+            the different choices.
 
         """
-        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
-            print('The smoothed dates are from ' +
-                  str(self.result.smoothedSteps[0]) +
-                  ' to ' + str(self.result.smoothedSteps[1]))
+        # get the working dates
+        start, end = self._checkAndGetWorkingDates(filterType=filterType)
+
+        # to return the full latent states
         if name == 'all':
-            return [self._1DmatrixToArray(item) for item
-                    in self.result.smoothedState]
+            if filterType == 'forwardFilter':
+                return map(lambda x: x if x is None
+                           else self._1DmatrixToArray(x),
+                           self.result.filteredState[start:end])
+            elif filterType == 'backwardSmoother':
+                return map(lambda x: x if x is None
+                           else self._1DmatrixToArray(x),
+                           self.result.smoothedState[start:end])
+            elif filterType == 'predict':
+                return map(lambda x: x if x is None
+                           else self._1DmatrixToArray(x),
+                           self.result.smoothedState[start:end])
+            else:
+                raise NameError('Incorrect filter type.')
 
-        elif name in self.builder.staticComponents or \
-             name in self.builder.dynamicComponents:
-            indx = self.builder.componentIndex[name]
-            result = [None] * self.n
-            for i in range(len(result)):
-                result[i] = self.result.smoothedState[i][
-                    indx[0]:(indx[1] + 1), 0]
-            return [self._1DmatrixToArray(item) for item in result]
+        # to return the latent state for a given component
+        self._checkComponent(name)
+        return map(lambda x: x if x is None else self._1DmatrixToArray(x),
+                   self._getLatentState(name=name, filterType=filterType,
+                                        start=start, end=end))
 
-        else:
-            raise NameError('Such component does not exist!')
-
-    def getFilteredCov(self, name='all'):
-        """ get the filtered error covariance.
+    def getLatentCov(self, filterType='forwardFilter', name='all'):
+        """ get the error covariance for different components and
+        filters.
 
         If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
 
         Args:
-            name: the componnet name for which to ge the filtered state
-                  covariance. Default to be 'all'.
+            filterType: the type of latent covariance to be returned. Could be
+                        'forwardFilter', 'backwardSmoother', and 'predict'.
+                        Default to 'forwardFilter'.
+            name: the component to get latent cov. When name = 'all', then it
+                  returns the latent covariance for the time series. When
+                  name = some component's name, then it returns the latent
+                  covariance for that component. Default to 'all'.
 
         Returns:
             A list of numpy matrices, standing for the filtered latent
             covariance.
 
         """
-        if self.result.filteredSteps != [0, self.n - 1] and self._printInfo:
-            print('The fitlered dates are from ' +
-                  str(self.result.filteredSteps[0]) +
-                  ' to ' + str(self.result.filteredSteps[1]))
+        # get the working dates
+        start, end = self._checkAndGetWorkingDates(filterType=filterType)
+
+        # to return the full latent covariance
         if name == 'all':
-            return self.result.filteredCov
+            if filterType == 'forwardFilter':
+                return self.result.filteredCov[start:end]
+            elif filterType == 'backwardSmoother':
+                return self.result.smoothedCov[start:end]
+            elif filterType == 'predict':
+                return self.result.smoothedCov[start:end]
+            else:
+                raise NameError('Incorrect filter type.')
 
-        elif name in self.builder.staticComponents or \
-             name in self.builder.dynamicComponents:
-            indx = self.builder.componentIndex[name]
-            result = [None] * self.n
-            for i in range(len(result)):
-                result[i] = self.result.filteredCov[i][indx[0]:(indx[1] + 1),
-                                                       indx[0]:(indx[1] + 1)]
-            return result
-
-        else:
-            raise NameError('Such component does not exist!')
-
-    def getSmoothedCov(self, name='all'):
-        """ get the smoothed covariance.
-
-        If the filtered dates are not (0, self.n - 1),
-        then a warning will prompt stating the actual filtered dates.
-
-        Args:
-            name: the componnet name for which to ge the smoothed state
-                  covariance. Default to be 'all'.
-
-        Returns:
-            A list of numpy matrices, standing for the smoothed latent
-            covariance.
-
-        """
-        if self.result.smoothedSteps != [0, self.n - 1] and self._printInfo:
-            print('The smoothed dates are from ' +
-                  str(self.result.smoothedSteps[0]) +
-                  ' to ' + str(self.result.smoothedSteps[1]))
-        if name == 'all':
-            return self.result.smoothedCov
-
-        elif name in self.builder.staticComponents or \
-             name in self.builder.dynamicComponents:
-            indx = self.builder.componentIndex[name]
-            result = [None] * self.n
-            for i in range(len(result)):
-                result[i] = self.result.smoothedCov[i][indx[0]:(indx[1] + 1),
-                                                       indx[0]:(indx[1] + 1)]
-            return result
-
-        else:
-            raise NameError('Such component does not exist!')
+        # to return the latent covariance for a given component
+        self._checkComponent(name)
+        return self._getLatentState(name, filterType=filterType,
+                                    start=start, end=end)
 
 # ======================= data appending, popping and altering ===============
 
@@ -913,6 +820,17 @@ class dlm(_dlm):
         """ The main plot function. The dlmPlot and the matplotlib will only be loaded
         when necessary.
 
+        Args:
+            name: component to plot. Default to 'main', in which we plot the
+                  filtered time series. If a component name is given
+                  It plots the latent states for the component. If dimension of
+                  the given component is too high, we truncate
+                  to the first five. Or the user can supply the ideal
+                  dimensions for plot in the dimensions parameter.
+            dimensions: When name is a component, dimensions will be used
+                        as the index to plot within that component latent
+                        states.
+
         """
 
         # load the library only when needed
@@ -929,28 +847,110 @@ class dlm(_dlm):
             raise NameError('The model must be constructed and' +
                             ' fitted before ploting.')
 
+        # check the filter status and automatically turn off bad plots
+        self._checkPlotOptions()
+
+        # plot the main time series after filtering
         if name == 'main':
-            if self.result.filteredSteps[1] == -1:
-                self.options.plotFilteredData = False
-                self.options.plotPredictedData = False
-
-            if self.result.smoothedSteps[1] == -1:
-                self.options.plotSmoothedData = False
-
             # if we just need one plot
             if self.options.separatePlot is not True:
                 dlmPlot.plotInOneFigure(time=time,
                                         data=self.data,
                                         result=self.result,
                                         options=self.options)
+            # otherwise, we plot in multiple figures
             else:
                 dlmPlot.plotInMultipleFigure(time=time,
                                              data=self.data,
                                              result=self.result,
                                              options=self.options)
+
+        # plot the component after filtering
+        elif self._checkComponent(name):
+            # create the data for ploting
+            data = {}
+            if self.options.plotFilteredData:
+                data['filteredMean'] = self.getMean(
+                    filterType='forwardFilter', name=name)
+                data['filteredVar'] = self.getVar(
+                    filterType='forwardFilter', name=name)
+
+            if self.options.plotSmoothedData:
+                data['smoothedMean'] = self.getMean(
+                    filterType='backwardSmoother', name=name)
+                data['smoothedVar'] = self.getVar(
+                    filterType='backwardSmoother', name=name)
+
+            if self.options.plotPredictedData:
+                data['predictedMean'] = self.getMean(
+                    filterType='predict', name=name)
+                data['predictedVar'] = self.getVar(
+                    filterType='predict', name=name)
+
+            if len(data) == 0:
+                raise NameError('Nothing is going to be drawn, due to ' +
+                                'user choices.')
+            data['name'] = name
+            dlmPlot.plotComponent(time=time,
+                                  data=data,
+                                  result=self.result,
+                                  options=self.options)
         dlmPlot.plotout()
 
+    def plotCoef(self, name, dimensions=None):
+        """ Plot function for the latent states.
+
+        Args:
+            name: component to plot. If a component name is given
+                  It plots the latent states for the component. If dimension of
+                  the given component is too high, we truncate
+                  to the first five. Or the user can supply the ideal
+                  dimensions for plot in the dimensions parameter.
+            dimensions: When name is a component, dimensions will be used
+                        as the index to plot within that component latent
+                        states.
+        """
+        # load the library only when needed
+        import pydlm.plot.dlmPlot as dlmPlot
+
+        # provide a fake time for plotting
+        if self.time is None:
+            time = range(len(self.data))
+
+        # change option setting if some results are not available
+        if not self.initialized:
+            raise NameError('The model must be constructed and' +
+                            ' fitted before ploting.')
+
+        # check the filter status and automatically turn off bad plots
+        self._checkPlotOptions()
+
+        # plot the latent states for a given component
+        if self._checkComponent(name):
+
+            # find its coordinates in the latent state
+            indx = self.builder.componentIndex[name]
+            # get the real latent states
+            coordinates = range(indx[0], (indx[1] + 1))
+            # if user supplies the dimensions
+            if dimensions is not None:
+                coordinates = [coordinates[i] for i in dimensions]
+
+            # otherwise, if there are too many latent states, we
+            # truncated to the first five.
+            elif len(coordinates) > 5:
+                coordinates = coordinates[:5]
+
+            dlmPlot.plotLatentState(time=time,
+                                    coordinates=coordinates,
+                                    result=self.result,
+                                    options=self.options)
+        else:
+            raise NameError('No such component.')
+
+        dlmPlot.plotout()
 # ================================ control options =========================
+
     def showOptions(self):
         """ Print out all the option values
 

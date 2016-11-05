@@ -11,6 +11,7 @@ It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 """
 from copy import deepcopy
 from numpy import matrix
+from numpy import dot
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
 
@@ -390,7 +391,6 @@ class _dlm:
             comp = self.builder.automaticComponents[name]
             if comp.componentType != 'autoReg':
                 continue
-
             if len(self.result.predictStatus[2]) >= comp.d:
                 feature = self.result.predictStatus[2][-comp.d:]
             else:
@@ -455,7 +455,8 @@ class _dlm:
                         0, self.builder.componentIndex[i][0]:
                         (self.builder.componentIndex[i][1] + 1)] = comp.evaluation
         self.builder.model.evaluation = matrix(self.builder.model.evaluation)
-# =======================================================================
+
+# =========================== model helper function ==========================
 
     # to set model to a specific date
     def _setModelStatus(self, date=0):
@@ -550,3 +551,117 @@ class _dlm:
 
     def _clean(self):
         self.result.predictStatus = None
+
+    # function to judge whether a component is in the model
+    def _checkComponent(self, name):
+        if name in self.builder.staticComponents or \
+           name in self.builder.dynamicComponents or \
+           name in self.builder.automaticComponents:
+            return True
+        else:
+            raise NameError('No such component.')
+
+    # function to fetch a component
+    def _fetchComponent(self, name):
+        if name in self.builder.staticComponents:
+            comp = self.builder.staticComponents[name]
+        elif name in self.builder.dynamicComponents:
+            comp = self.builder.dynamicComponents[name]
+        elif name in self.builder.automaticComponents:
+            comp = self.builder.automaticComponents[name]
+        else:
+            raise NameError('No such component.')
+        return comp
+
+    # function to get the corresponding latent state
+    def _getLatentState(self, name, filterType, start, end):
+        indx = self.builder.componentIndex[name]
+        patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0]
+
+        if filterType == 'forwardFilter':
+            return map(patten, self.result.filteredState[start:end])
+        elif filterType == 'backwardSmoother':
+            return map(patten, self.result.smoothedState[start:end])
+        elif filterType == 'predict':
+            return map(patten, self.result.predictedState[start:end])
+        else:
+            raise NameError('Incorrect filter type')
+
+    # function to get the corresponding latent covariance
+    def _getLatentCov(self, name, filterType, start, end):
+        indx = self.builder.componentIndex[name]
+        patten = lambda x: x if x is None \
+                 else x[indx[0]:(indx[1] + 1), indx[0]:(indx[1] + 1)]
+
+        if filterType == 'forwardFilter':
+            return map(patten, self.result.filteredCov[start:end])
+        elif filterType == 'backwardSmoother':
+            return map(patten, self.result.smoothedCov[start:end])
+        elif filterType == 'predict':
+            return map(patten, self.result.predictedCov[start:end])
+        else:
+            raise NameError('Incorrect filter type')
+
+    # function to get the component mean
+    def _getComponentMean(self, name, filterType, start, end):
+        comp = self._fetchComponent(name)
+        componentState = self._getLatentState(name=name,
+                                              filterType=filterType,
+                                              start=start, end=end)
+        result = []
+        for k, i in enumerate(range(start, end)):
+            if name not in self.builder.staticComponents:
+                comp.updateEvaluation(i)
+            result.append(dot(comp.evaluation,
+                              componentState[k]).tolist()[0][0])
+        return result
+
+    # function to get the component variance
+    def _getComponentVar(self, name, filterType, start, end):
+        comp = self._fetchComponent(name)
+        componentCov = self._getLatentCov(name=name,
+                                          filterType=filterType,
+                                          start=start, end=end)
+        result = []
+        for k, i in enumerate(range(start, end)):
+            if name not in self.builder.staticComponents:
+                comp.updateEvaluation(i)
+            result.append(dot(
+                dot(comp.evaluation,
+                    componentCov[k]), comp.evaluation.T).tolist()[0][0])
+        return result
+
+    # check start and end dates that has been filtered on
+    def _checkAndGetWorkingDates(self, filterType):
+        if filterType == 'forwardFilter' or filterType == 'predict':
+            if self.result.filteredSteps != [0, self.n - 1] \
+               and self._printInfo:
+                print('The fitlered dates are from ' +
+                      str(self.result.filteredSteps[0]) +
+                      ' to ' + str(self.result.filteredSteps[1]))
+            start = self.result.filteredSteps[0]
+            end = self.result.filteredSteps[1] + 1
+
+        elif filterType == 'backwardSmoother':
+            if self.result.smoothedSteps != [0, self.n - 1] \
+               and self._printInfo:
+                print('The smoothed dates are from ' +
+                      str(self.result.smoothedSteps[0]) +
+                      ' to ' + str(self.result.smoothedSteps[1]))
+            start = self.result.smoothedSteps[0]
+            end = self.result.smoothedSteps[1] + 1
+
+        else:
+            raise NameError('Incorrect filter type.')
+
+        return (start, end)
+
+    # check the filter status and automatic turn off some plots
+    def _checkPlotOptions(self):
+        # adjust the option according to the filtering status
+        if self.result.filteredSteps[1] == -1:
+            self.options.plotFilteredData = False
+            self.options.plotPredictedData = False
+
+        if self.result.smoothedSteps[1] == -1:
+            self.options.plotSmoothedData = False

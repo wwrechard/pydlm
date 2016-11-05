@@ -219,6 +219,34 @@ class testDlm(unittest.TestCase):
         (obs, var) = self.dlm5.continuePredict()
         self.assertAlmostEqual(obs, 101.07480945)
 
+    def testGetLatentState(self):
+        self.dlm5.fitForwardFilter()
+        filteredTrend = self.dlm5.getLatentState(
+            filterType='forwardFilter', name='trend')
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(filteredTrend[i][0] -
+                        self.dlm5.result.filteredState[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+        self.dlm5.fitBackwardSmoother()
+        smoothedTrend = self.dlm5.getLatentState(
+            filterType='backwardSmoother', name='trend')
+        diff = 0.0
+        for i in range(len(smoothedTrend)):
+            diff += abs(smoothedTrend[i][0] -
+                        self.dlm5.result.smoothedState[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+    def testGetMean(self):
+        self.dlm5.fitForwardFilter()
+        filteredTrend = self.dlm5.getMean(filterType='forwardFilter')
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(filteredTrend[i] -
+                        self.dlm5.result.filteredObs[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
 unittest.main()
 
 
