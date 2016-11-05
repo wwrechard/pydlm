@@ -909,7 +909,7 @@ class dlm(_dlm):
         self.options.intervalType = 'ribbon'
 
     # plot the result according to the options
-    def plot(self):
+    def plot(self, name='main'):
         """ The main plot function. The dlmPlot and the matplotlib will only be loaded
         when necessary.
 
@@ -929,25 +929,25 @@ class dlm(_dlm):
             raise NameError('The model must be constructed and' +
                             ' fitted before ploting.')
 
-        if self.result.filteredSteps[1] == -1:
-            self.options.plotFilteredData = False
-            self.options.plotPredictedData = False
+        if name == 'main':
+            if self.result.filteredSteps[1] == -1:
+                self.options.plotFilteredData = False
+                self.options.plotPredictedData = False
 
-        if self.result.smoothedSteps[1] == -1:
-            self.options.plotSmoothedData = False
+            if self.result.smoothedSteps[1] == -1:
+                self.options.plotSmoothedData = False
 
-        # if we just need one plot
-        if self.options.separatePlot is not True:
-            dlmPlot.plotInOneFigure(time=time,
-                                    data=self.data,
-                                    result=self.result,
-                                    options=self.options)
-        else:
-            dlmPlot.plotInMultipleFigure(time=time,
-                                         data=self.data,
-                                         result=self.result,
-                                         options=self.options)
-
+            # if we just need one plot
+            if self.options.separatePlot is not True:
+                dlmPlot.plotInOneFigure(time=time,
+                                        data=self.data,
+                                        result=self.result,
+                                        options=self.options)
+            else:
+                dlmPlot.plotInMultipleFigure(time=time,
+                                             data=self.data,
+                                             result=self.result,
+                                             options=self.options)
         dlmPlot.plotout()
 
 # ================================ control options =========================
