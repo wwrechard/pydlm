@@ -21,7 +21,7 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
-
+from numpy import matrix
 from .dynamic import dynamic
 
 
@@ -191,7 +191,7 @@ class longSeason(dynamic):
 
         """
         if step < len(self.features):
-            self.evaluation = self.features[step]
+            self.evaluation = matrix(self.features[step])
         else:
             newFeatures, \
                 self.nextState = self.createFeatureMatrix(
@@ -200,5 +200,5 @@ class longSeason(dynamic):
                     n=step + 1 - len(self.features),
                     state=self.nextState)
             self.features.extend(newFeatures)
-            self.evaluation = self.features[step]
+            self.evaluation = matrix(self.features[step])
         self.step = step
