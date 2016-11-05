@@ -60,6 +60,8 @@ class longSeason(dynamic):
 
         self.period = period
         self.stay = stay
+        if data is None:
+            raise NameError('Data must be provided for longSeason.')
 
         # create features. nextState and state are used to
         # remember the next feature shap
