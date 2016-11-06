@@ -5,24 +5,24 @@
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`. Complex models can be constructed via simple operations
 ```
   >>> #import dlm and its modeling components
-  >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
+  >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
   >>>
   >>> #randomly generate data
   >>> data = [0] * 100 + [3] * 100
   >>>
   >>> #construct the base
-  >>> myDLM = dlm(data)  
+  >>> myDLM = dlm(data)
   >>>
   >>> #adding model components
-  >>> myDLM = myDLM + trend(2, name = 'lineTrend') #add a second-order trend (linear trending)
-  >>> myDLM = myDLM + seasonality(7, name = 'day7') #add a 7 day seasonality
-  >>> myDLM = myDLM + autoReg(3, data = data, name = 'ar3') #add a 3 step auto regression
+  >>> myDLM = myDLM + trend(2, name='lineTrend') # add a second-order trend (linear trending)
+  >>> myDLM = myDLM + seasonality(7, name='7day') # add a 7 day seasonality
+  >>> myDLM = myDLM + autoReg(degree=3, data=data, name='ar3') # add a 3 step auto regression
   >>>
   >>> #show the added components
   >>> myDLM.ls()
   >>>
   >>> #delete unwanted component
-  >>> myDLM.delete('ar3')
+  >>> myDLM.delete('7day')
   >>> myDLM.ls()
 ```
 Users can then analyze the data with the constructed model
@@ -32,10 +32,6 @@ Users can then analyze the data with the constructed model
   >>>
   >>> #fit backward smoother
   >>> myDLM.fitBackwardSmoother()
-  >>>
-  >>> # get the filtered and smoothed results
-  >>> filteredObs = myDLM.getFilteredObs()
-  >>> smoothedObs = myDLM.getSmoothedObs()
 ```
 
 and plot the results easily
@@ -83,8 +79,8 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.plot()
 ```
 <p align="center">
-<img src="/doc/source/img/readmePlot4.png" width="416"/>
-<img src="/doc/source/img/readmePlot5.png" width="446"/>
+<img src="/doc/source/img/intro_discount_1.png" width=49%/>
+<img src="/doc/source/img/intro_discount_09.png" width=49%/>
 </p>
 For online updates
 ```
