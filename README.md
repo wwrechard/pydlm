@@ -73,12 +73,7 @@ which result in
 <img src="/doc/source/img/intro_plot_comp_mean.png" width=49%/>
 <img src="/doc/source/img/intro_plot_state.png" width=49%/>
 </p>
-If users are unsatisfied with the model results, they can simply reconstruct the model and refit
-```
-  >>> myDLM = myDLM + seasonality(4)
-  >>> myDLM.ls()
-  >>> myDLM.fit()
-```
+
 `pydlm` supports missing observations
 ```
   >>> data = [1, 0, 0, 1, 0, 0, None, 0, 1, None, None, 0, 0]
