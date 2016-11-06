@@ -35,7 +35,6 @@ Users can then analyze the data with the constructed model
 ```
 
 and plot the results easily
-<img align="right" src="/doc/source/img/readmePlot1.png" width="420"/>
 ```
   >>> #plot the results
   >>> myDLM.plot()
@@ -50,9 +49,29 @@ and plot the results easily
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 ```
+The three images show
 <p align="center">
-<img src="/doc/source/img/readmePlot2.png" width="430"/>
-<img src="/doc/source/img/readmePlot3.png" width="422"/>
+<img src="/doc/source/img/intro_plot_all.png" width=33%/>
+<img src="/doc/source/img/intro_plot_wo_smooth.png" width=33%/>
+<img src="/doc/source/img/intro_plot_in_1.png" width=33%/>
+</p>
+User can also plot the mean of a component (the time series value that
+attributed to this component)
+```
+  >>> # plot the component mean of 'lineTrend'
+  >>> myDLM.turnOn('smoothed plot')
+  >>> myDLM.turnOff('predict')
+  >>> myDLM.plot(name='lineTrend')
+```
+and also the latent states for a given component
+```
+  >>> # plot the latent states of the 'ar3'
+  >>> myDLM.plotCoef(name='ar3')
+```
+which result in
+<p align="center">
+<img src="/doc/source/img/intro_plot_comp_mean.png" width=49%/>
+<img src="/doc/source/img/intro_plot_state.png" width=49%/>
 </p>
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit
 ```
@@ -78,10 +97,32 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.fit()
   >>> myDLM.plot()
 ```
+The two different settings give different adaptiveness
 <p align="center">
 <img src="/doc/source/img/intro_discount_1.png" width=49%/>
 <img src="/doc/source/img/intro_discount_09.png" width=49%/>
 </p>
+
+The filtered results and latent states can be retrieved easily
+```
+  >>> # get the filtered and smoothed results
+  >>> filteredMean = myDLM.getMean(filterType='forwardFilter')
+  >>> smoothedMean = myDLM.getMean(filterType='backwardSmoother')
+  >>>
+  >>> filteredVar = myDLM.getVar(filterType='forwardFilter')
+  >>> smoothedVar = myDLM.getVar(filterType='backwardSmoother')
+  >>>
+  >>> filteredCI = myDLM.getInterval(filterType='forwardFilter')
+  >>> smoothedCI = myDLM.getInterval(filterType='backwardSmoother')
+  >>>
+  >>> # get the filtered and smoothed mean for a given component
+  >>> filteredTrend = myDLM.getMean(filterType='forwardFilter', name='lineTrend')
+  >>> smoothedTrend = myDLM.getMean(filterType='backwardSmoother', name='lineTrend')
+  >>>
+  >>> # get the latent states
+  >>> allStates = myDLM.getLatentState(filterType='forwardFilter')
+  >>> trendStates = myDLM.getLatentState(filterType='forwardFilter', name='lineTrend')
+```
 For online updates
 ```
   >>> myDLM = dlm([]) + trend(2) + seasonality(7)
