@@ -166,6 +166,7 @@ which result in
 <img src="/doc/source/img/intro_plot_comp_mean_ar3.png" width=49%/>
 <img src="/doc/source/img/intro_plot_state.png" width=49%/>
 </p>
+The 'ar3' has three latent states (`today - 3`, `today - 2`, `today - 1`), and the states are aligned in the order fo [`today - 3`, `today - 2`, `today - 1`], which means the current model attributes a lot of weight to the `today - 1` latent state.
 
 `pydlm` supports missing observations and also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data (More details will be provided in the documentation)
 ```
