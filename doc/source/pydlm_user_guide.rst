@@ -247,6 +247,52 @@ There are also corresponding methods for smoothed and predicted
 results. For more detail, please refer to the :class:`dlm` class
 documentation.
 
+Model prediction
+================
+:class:`dlm` provides two predict functions: :func:`dlm.predict` and
+:func:`dlm.continuePredict`. :func:`dlm.predict` is a one-day ahead
+prediction function based on a user given date and feature set::
+
+  >>> # predict next date after the time series
+  >>> myDLM.predict(date=self.n - 1, featureDict=featureDict)
+
+The `featureDict` argument is a dictionary contains the feature
+information for :class:`dynamic` component. Suppose the model contains
+one dynamic component nameed `SP500`, then the featureDict takes the
+following Form::
+
+  >>> featureDict = {'SP500':[[2090]]}
+
+If the `featureDict` is not supplied but the date is not the last day,
+then the algorithm will automatically fetch from the old data about
+the feature value of all the dynamic component::
+
+  >>> # predict a day in the middle
+  >>> myDLM.predict(date=myDLM.n - 10)
+
+The algorithm will use the feature on the date of `myDLM.n - 9` in
+`featureDict`. If date is the last day but the featureDict is not
+provided, then an error will be raised.
+
+If the user is interested beyond one-day ahead prediction, they can
+use :func:`dlm.continuePredict` for multiple-day ahead prediction,
+after using :func:`dlm.predict`::
+
+  >>> feature1 = {'SP500':[[2090]]}
+  >>> feature2 = {'SP500':[[2010]]}
+  >>> feature3 = {'SP500':[[1990]]}
+  >>>
+  >>> # one-day ahead prediction after the last day
+  >>> myDLM.predict(date=myDLM.n - 1, featureDict=feature1)
+  >>> # we continue to two-day ahead prediction after the last day
+  >>> myDLM.continuePredict(featureDict=feature2)
+  >>> # we continue to three-day ahead prediction after the last day
+  >>> myDLM.continuePredict(featureDict=feature3)
+
+:func:`dlm.continuePredict` can only be used after :func:`dlm.predict`
+for multiple-day prediction. The `featureDict` can also be ignored if
+the prediction is requested on dates before the last day and the
+features on the predict day can be found from the old data.
 
 Model amending
 ==============

@@ -75,7 +75,22 @@ Once we are happy about the result, we can fetch the results:::
   >>> coef_b = mydlm.getLatentState(filterType='backwardSmoother', name='b')
   >>> coef_b_var = mydlm.getLatentCov(filterType='backwardSmoother', name='b')
 
-We can then use `coef_a` and `coef_b` for further analysis.
+We can then use `coef_a` and `coef_b` for further analysis. If we
+want to predict the future observation based on the current data, we
+can do::
+
+  >>> # prepare the new feature
+  >>> newData1 = {'b': 5}
+  >>> # one-day ahead prediction from the last day
+  >>> mydlm.predict(date=mydlm.n-1, featureDict=newData)
+  >>>
+  >>> # continue predicting for next day
+  >>> newData2 = {'b': 4}
+  >>> mydlm.continuePredict(featureDict=newData2)
+  >>>
+  >>> # continue predicting for the third day
+  >>> newData3 = {'b': 3}
+  >>> mydlm.continuePredict(featureDict=newData3)
 
 
 
