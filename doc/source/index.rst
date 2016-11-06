@@ -80,7 +80,13 @@ which result in
 .. image:: ./img/intro_plot_state.png
 	   :width: 49%
 
-If users are unsatisfied with the model results, they can simply reconstruct the model and refit::
+The 'ar3' has three latent states (`today - 3`, `today - 2`, `today - 1`),
+and the states are aligned in the order fo [`today - 3`, `today - 2`,
+`today - 1`], which means the current model attributes a lot of weight
+to the `today - 1` latent state.
+
+If users are unsatisfied with the model results, they can simply
+reconstruct the model and refit::
 
   >>> myDLM = myDLM + seasonality(4)
   >>> myDLM.ls()

@@ -149,10 +149,10 @@ the number of days of the dependency::
 
   >>> AR3 = autoReg(degree = 3, data = data, discount = 0.99, name = 'ar3')
 
-These four classes of model components offer abundant modeling
-possiblities of the Bayesian dynamic linear model. Users can construct
-very complicated models using these components, such as hourly, weekly or
-monthly periodicy and holiday indicator and many other features.
+In this example, the latent stats for Auto-regression are aligned in a
+way of [today - 3, today - 2, today - 1]. So when fetching the
+coefficients from the latent states, this will be the correct order to
+read the coefficients.
 
 Long-seasonality
 ----------------
@@ -163,6 +163,11 @@ client wants to add a monthly seasonality, then :class:`longSeason` is
 the correct choice.
 
   >>> monthly = longSeason(period=12, stay=30, data=data, name='monthly')
+
+These four classes of model components offer abundant modeling
+possiblities of the Bayesian dynamic linear model. Users can construct
+very complicated models using these components, such as hourly, weekly or
+monthly periodicy and holiday indicator and many other features.
 
 Model fitting
 =============

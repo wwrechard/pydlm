@@ -22,6 +22,16 @@ class autoReg(dynamic):
     autoReg is generated from the data, and updated according to the data.
     All other features are similar to @dynamic.
 
+    The latent states of autoReg are aligned in the order of
+    [today - degree, today - degree + 1, ..., today - 2, today - 1]. Thus,
+    when fetching the latents from autoReg component, use this order to
+    correctly align the coefficients.
+
+    (TODO: change the implementation of autoReg, so that the component uses
+     filteredObs as the feature instead of the observed data. To do this, we
+     might need pass the dlm as a parameter to autoReg, so that autoReg can
+     fetch the filtered observation on the fly)
+
     Attributes:
         degree: the degree of autoregressive, i.e., how many days to look back
         data: the time series data used for constructing the autoregressive
@@ -32,10 +42,6 @@ class autoReg(dynamic):
                  days, as no previous data is observed to form the feature
                  matrix
 
-    (TODO: change the implementation of autoReg, so that the component uses
-     filteredObs as the feature instead of the observed data. To do this, we
-     might need pass the dlm as a parameter to autoReg, so that autoReg can
-     fetch the filtered observation on the fly)
     """
 
     def __init__(self,
