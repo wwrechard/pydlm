@@ -51,9 +51,9 @@ and plot the results easily
 ```
 The three images show
 <p align="center">
-<img src="/doc/source/img/intro_plot_all.png" width=33%/>
-<img src="/doc/source/img/intro_plot_wo_smooth.png" width=33%/>
-<img src="/doc/source/img/intro_plot_in_1.png" width=33%/>
+<img src="/doc/source/img/intro_plot_all.png" width=32%/>
+<img src="/doc/source/img/intro_plot_wo_smooth.png" width=32%/>
+<img src="/doc/source/img/intro_plot_in_1.png" width=32%/>
 </p>
 User can also plot the mean of a component (the time series value that
 attributed to this component)
