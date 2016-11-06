@@ -3,7 +3,6 @@
 =======================================================
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`. 
-
 ------------------------
 Updates in Version 0.1.1
 ------------------------
@@ -13,7 +12,6 @@ Updates in Version 0.1.1
 * Add more plot functionalities
 * Add the ribbon confidence interval
 * Add a simple example in documentation for using pydlm
-
 ------------
 Installation
 ------------
@@ -34,7 +32,6 @@ You can also get the latest from [github]
 *  `matplotlib` (for plotting results)
 * `Sphinx`    (for generating documentation)
 * `unittest`  (for testing)
-
 -----------------
 A simple example
 -----------------
@@ -98,7 +95,6 @@ Once we are happy about the result, we can fetch the results:::
   >>> coef_b_var = mydlm.getLatentCov(filterType='backwardSmoother', name='b')
 ```
 We can then use `coef_a` and `coef_b` for further analysis.
-
 -------------------
 Quick guide through
 -------------------
@@ -209,7 +205,6 @@ For online updates
   ...     myDLM.fitForwardFilter()
   >>> filteredObs = myDLM.getFilteredObs()
 ```  
-
 -------------
 Documentation
 -------------
