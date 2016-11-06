@@ -81,7 +81,7 @@ and we have
 We see that the latent state of `b` quickly shift from 0 (which is our initial guess on the parameter) to around 3.0 and the confidence
 interval explodes and then narrows down as more data is added.
 
-Once we are happy about the result, we can fetch the results:::
+Once we are happy about the result, we can fetch the results
 ```
   >>> # get the smoothed results
   >>> smoothedResult = mydlm.getMean(filterType='backwardSmoother')
@@ -98,7 +98,7 @@ We can then use `coef_a` and `coef_b` for further analysis.
 
 Quick guide through
 -------------------
-Complex models can be constructed via simple operations in `pydlm`.
+Following is a quick guide through for using the library. The full details are provided in [PyDLM](https://pydlm.github.io/). Complex models can be constructed via simple operations in `pydlm`.
 ```
   >>> #import dlm and its modeling components
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
