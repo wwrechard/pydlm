@@ -223,7 +223,7 @@ def plotLatentState(time, coordinates, result, options, name):
         subplot(size, i + 1)
         plotSingleState(time, dim, result, options)
         plt.title('Filter result for dimension ' + str(i) +
-                  'in component: ' + name)
+                  ' in component: ' + name)
 
 
 def plotSingleState(time, dimension, result, options):

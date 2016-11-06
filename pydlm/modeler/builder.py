@@ -176,6 +176,7 @@ class builder:
             for name in self.dynamicComponents:
                 comp = self.dynamicComponents[name]
                 print(comp.name + ' (dimension = ' + str(comp.d) + ')')
+            print(' ')
         else:
             print('There is no dynamic component.')
             print(' ')
