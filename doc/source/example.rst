@@ -80,16 +80,16 @@ want to predict the future observation based on the current data, we
 can do::
 
   >>> # prepare the new feature
-  >>> newData1 = {'b': 5}
+  >>> newData1 = {'b': [5]}
   >>> # one-day ahead prediction from the last day
   >>> (predictMean, predictVar) = mydlm.predict(date=mydlm.n-1, featureDict=newData1)
   >>>
   >>> # continue predicting for next day
-  >>> newData2 = {'b': 4}
+  >>> newData2 = {'b': [4]}
   >>> (predictMean, predictVar) = mydlm.continuePredict(featureDict=newData2)
   >>>
   >>> # continue predicting for the third day
-  >>> newData3 = {'b': 3}
+  >>> newData3 = {'b': [3]}
   >>> (predictMean, predictVar) = mydlm.continuePredict(featureDict=newData3)
 
 

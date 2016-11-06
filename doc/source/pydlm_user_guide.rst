@@ -259,10 +259,11 @@ prediction function based on a user given date and feature set::
 The function returns a tuple of predicted mean and predicted variance.
 The `featureDict` argument is a dictionary contains the feature
 information for :class:`dynamic` component. Suppose the model contains
-one dynamic component nameed `SP500`, then the featureDict takes the
+a one-dimensional dynamic component named `SP500` and another
+four-dimensional dynamic component `page`, then the featureDict takes the
 following Form::
 
-  >>> featureDict = {'SP500':[[2090]]}
+  >>> featureDict = {'SP500':[2090], 'page':[1, 2, 3, 4]}
 
 If the `featureDict` is not supplied but the date is not the last day,
 then the algorithm will automatically fetch from the old data about
@@ -279,9 +280,9 @@ If the user is interested beyond one-day ahead prediction, they can
 use :func:`dlm.continuePredict` for multiple-day ahead prediction,
 after using :func:`dlm.predict`::
 
-  >>> feature1 = {'SP500':[[2090]]}
-  >>> feature2 = {'SP500':[[2010]]}
-  >>> feature3 = {'SP500':[[1990]]}
+  >>> feature1 = {'SP500':[2090]}
+  >>> feature2 = {'SP500':[2010]}
+  >>> feature3 = {'SP500':[1990]}
   >>>
   >>> # one-day ahead prediction after the last day
   >>> (predictMean, predictVar) = myDLM.predict(date=myDLM.n - 1, featureDict=feature1)
