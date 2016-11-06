@@ -31,3 +31,9 @@
 
 .. autoclass:: pydlm.autoReg
     :members:
+
+:class:`longSeason`
+=====================
+
+.. autoclass:: pydlm.longSeason
+    :members:

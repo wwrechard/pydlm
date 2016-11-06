@@ -19,15 +19,15 @@ Complex models can be constructed via simple operations::
   >>> myDLM = dlm(data)
   >>>
   >>> #adding model components
-  >>> myDLM = myDLM + trend(2, name = 'lineTrend') # add a second-order trend (linear trending)
-  >>> myDLM = myDLM + seasonality(7, name = '7day') # add a 7 day seasonality
-  >>> myDLM = myDLM + autoReg(3, data = data, name = 'ar3') # add a 3 step auto regression
+  >>> myDLM = myDLM + trend(2, name='lineTrend') # add a second-order trend (linear trending)
+  >>> myDLM = myDLM + seasonality(7, name='7day') # add a 7 day seasonality
+  >>> myDLM = myDLM + autoReg(degree=3, data=data, name='ar3') # add a 3 step auto regression
   >>>
   >>> #show the added components
   >>> myDLM.ls()
   >>>
   >>> #delete unwanted component
-  >>> myDLM.delete('ar3')
+  >>> myDLM.delete('7day')
   >>> myDLM.ls()
 
 Users can then analyze the data with the constructed model::
@@ -51,16 +51,34 @@ and plot the results easily::
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 
-User can also plot the latent states for the component::
+The three images show
 
-  >>> # plot the latent states of the trend
+.. image:: ./img/intro_plot_all.png
+	   :width: 33%
+.. image:: ./img/intro_plot_wo_smooth.png
+	   :width: 33%
+.. image:: ./img/intro_plot_in_1.png
+	   :width: 33%
+
+User can also plot the mean of a component (the time series value that
+attributed to this component)::
+
+  >>> # plot the component mean of 'lineTrend'
+  >>> myDLM.turnOn('smoothed plot')
+  >>> myDLM.turnOff('predict')
   >>> myDLM.plot(name='lineTrend')
 
-or plot the mean of a component (the time series value that attributed to
-this component)::
+and also the latent states for a given component::
 
-  >>> # plot the component mean
+  >>> # plot the latent states of the 'ar3'
   >>> myDLM.plotCoef(name='ar3')
+
+which result in
+
+.. image:: ./img/intro_plot_comp_mean.png
+	   :width: 49%
+.. image:: ./img/intro_plot_state.png
+	   :width: 49%
 
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit::
 
@@ -74,7 +92,7 @@ If users are unsatisfied with the model results, they can simply reconstruct the
   >>> myDLM = dlm(data) + trend(2)
   >>> myDLM.fit() #fit() will fit both forward filter and backward smoother
 
-It also includes the discounting factor, which can be used to control how rapid the model should adapt to the new data::
+It also includes the discounting factor, which can be used to control how rapidly the model should adapt to the new data::
 
   >>> data = [0] * 100 + [3] * 100
   >>> myDLM = dlm(data) + trend(2, discount = 1.0)
@@ -86,6 +104,13 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.fit()
   >>> myDLM.plot()
   >>>
+
+The two different settings give different adaptiveness
+
+.. image:: ./img/intro_discount_1.png
+	   :width: 49%
+.. image:: ./img/intro_discount_09.png
+	   :width: 49%
 
 The filtered results and latent states can be retrieved easily::
 
@@ -135,6 +160,12 @@ You can also get the latest from `github
 * :mod:`matplotlib` (for plotting results)
 * :mod:`Sphinx`     (for generating documentation)
 * :mod:`unittest`   (for tests)
+
+
+----------------
+A simple example
+----------------
+.. include:: example.rst
 
 -------------------------------------
 Dynamic linear models --- user manual
