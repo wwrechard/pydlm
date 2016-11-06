@@ -3,25 +3,25 @@
 =======================================================
 
 Welcome to `PyDLM <https://github.com/wwrechard/PyDLM>`_, a flexible,
-user-friendly and rich functionality 
+user-friendly and rich functionality
 time series modeling library for python. This package implementes the
 Bayesian dynamic linear model (Harrison and West, 1999) for time
 series data analysis. Modeling and fitting is simple and easy with :mod:`pydlm`.
 Complex models can be constructed via simple operations::
 
   >>> #import dlm and its modeling components
-  >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg
+  >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
   >>>
   >>> #randomly generate data
   >>> data = [0] * 100 + [3] * 100
   >>>
   >>> #construct the base
-  >>> myDLM = dlm(data)  
+  >>> myDLM = dlm(data)
   >>>
   >>> #adding model components
-  >>> myDLM = myDLM + trend(2, name = 'lineTrend') #add a second-order trend (linear trending)
-  >>> myDLM = myDLM + seasonality(7, name = 'day7') #add a 7 day seasonality
-  >>> myDLM = myDLM + autoReg(3, data = data, name = 'ar3') #add a 3 step auto regression
+  >>> myDLM = myDLM + trend(2, name = 'lineTrend') # add a second-order trend (linear trending)
+  >>> myDLM = myDLM + seasonality(7, name = '7day') # add a 7 day seasonality
+  >>> myDLM = myDLM + autoReg(3, data = data, name = 'ar3') # add a 3 step auto regression
   >>>
   >>> #show the added components
   >>> myDLM.ls()
@@ -31,7 +31,7 @@ Complex models can be constructed via simple operations::
   >>> myDLM.ls()
 
 Users can then analyze the data with the constructed model::
-  
+
   >>> #fit forward filter
   >>> myDLM.fitForwardFilter()
   >>>
@@ -51,6 +51,16 @@ and plot the results easily::
   >>> myDLM.turnOff('multiple plots')
   >>> myDLM.plot()
 
+User can also plot the latent states for the component::
+
+  >>> # plot the latent states of the trend
+  >>> myDLM.plot(name='lineTrend')
+
+or plot the mean of a component (the time series value that attributed to
+this component)::
+
+  >>> # plot the component mean
+  >>> myDLM.plotCoef(name='ar3')
 
 If users are unsatisfied with the model results, they can simply reconstruct the model and refit::
 
@@ -76,9 +86,26 @@ It also includes the discounting factor, which can be used to control how rapid 
   >>> myDLM.fit()
   >>> myDLM.plot()
   >>>
+
+The filtered results and latent states can be retrieved easily::
+
   >>> # get the filtered and smoothed results
-  >>> filteredObs = myDLM.getFilteredObs()
-  >>> smoothedObs = myDLM.getSmoothedObs()
+  >>> filteredMean = myDLM.getMean(filterType='forwardFilter')
+  >>> smoothedMean = myDLM.getMean(filterType='backwardSmoother')
+  >>>
+  >>> filteredVar = myDLM.getVar(filterType='forwardFilter')
+  >>> smoothedVar = myDLM.getVar(filterType='backwardSmoother')
+  >>>
+  >>> filteredCI = myDLM.getInterval(filterType='forwardFilter')
+  >>> smoothedCI = myDLM.getInterval(filterType='backwardSmoother')
+  >>>
+  >>> # get the filtered and smoothed mean for a given component
+  >>> filteredTrend = myDLM.getMean(filterType='forwardFilter', name='lineTrend')
+  >>> smoothedTrend = myDLM.getMean(filterType='backwardSmoother', name='lineTrend')
+  >>>
+  >>> # get the latent states
+  >>> allStates = myDLM.getLatentState(filterType='forwardFilter')
+  >>> trendStates = myDLM.getLatentState(filterType='forwardFilter', name='lineTrend')
 
 For online updates::
 
@@ -87,14 +114,14 @@ For online updates::
   ...     myDLM.append([data[t]])
   ...     myDLM.fitForwardFilter()
   >>> filteredObs = myDLM.getFilteredObs()
-  
+
 ------------
 Installation
 ------------
 You can now get the package from `PyPI`::
 
   $ pip install pydlm
-  
+
 You can also get the latest from `github
 <https://github.com/wwrechard/PyDLM>`_::
 
@@ -121,7 +148,7 @@ The discouting factor
 ---------------------
 
 .. include:: discounting.rst
-	     
+
 ---------------
 Class Reference
 ---------------

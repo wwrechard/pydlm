@@ -77,6 +77,13 @@ class dlm(_dlm):
     def __init__(self, data):
         _dlm.__init__(self, data)
 
+        # indicate whether the plot modules has been loaded.
+        # We add this flag, since we only import plot module
+        # when they are called to avoid any error due to
+        # plot that blocks using this package. This flag can
+        # help without doing import-check (expensive) every time
+        # when plot function is called.
+        self.plotLibLoaded = False
 # ===================== modeling components =====================
 
     # add component
@@ -844,7 +851,8 @@ class dlm(_dlm):
         """
 
         # load the library only when needed
-        import pydlm.plot.dlmPlot as dlmPlot
+        # import pydlm.plot.dlmPlot as dlmPlot
+        self.loadPlotLibrary()
 
         if self.time is None:
             time = range(len(self.data))
@@ -922,7 +930,8 @@ class dlm(_dlm):
                         states.
         """
         # load the library only when needed
-        import pydlm.plot.dlmPlot as dlmPlot
+        # import pydlm.plot.dlmPlot as dlmPlot
+        self.loadPlotLibrary()
 
         # provide a fake time for plotting
         if self.time is None:
@@ -987,3 +996,9 @@ class dlm(_dlm):
         if self.options.stable != use:
             self.initialized = False
         self.options.stable = use
+
+    def loadPlotLibrary(self):
+        if not self.plotLibLoaded:
+            global dlmPlot
+            import pydlm.plot.dlmPlot as dlmPlot
+            self.plotLibLoaded = True

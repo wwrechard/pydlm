@@ -59,14 +59,14 @@ with :mod:`pydlm`, most modeling functions are integrated in the class
 :class:`dlm`. Following is an example for constructing a dlm with
 linear trend, 7-day seasonality and another control variable::
 
-  >>> from pydlm import dlm, trend, seasonality, dynamic
+  >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
   >>> data = [0] * 100 + [3] * 100
   >>> control = [[0.5] for i in range(100) + [[2.6] for i in
   range(100)]
   >>> myDLM = dlm(data) + trend(2) + seasonality(7) +
   dyanmic(control)
 
-The imput :attr:`data` must an 1d array or a list, since the current
+The imput :attr:`data` must be an 1d array or a list, since the current
 :class:`dlm` only supports one dimensional time series. Supporting for
 multivariate time series will be built upon this one dimensional class
 and added in the future.
@@ -201,30 +201,46 @@ series, and the user learn this from the smoother.
 Once the model fitting is completed, users can fetch the filtered or
 smoothed results from :class:`dlm`::
 
-  >>> myDLM.getFilteredObs()
-  >>> myDLM.getSmoothedObs()
-  >>> myDLM.getFilteredVar()
+  >>> myDLM.getMean(filterType='forwardFilter')
+  >>> myDLM.getMean(filterType='backwardSmoother')
+  >>> myDLM.getMean(filterType='predict')
+  >>>
+  >>> myDLM.getVar(filterType='forwardFilter')
+  >>> myDLM.getVar(filterType='backwardSmoother')
+  >>> myDLM.getVar(filterType='predict')
 
 The :class:`dlm` recomputes a wide variety of model quantities that
 can be extracted by the user. For example, user can get the filtered
 states and covariance by typing::
 
-  >>> myDLM.getFilteredState()
-  >>> myDLM.getFilteredCov()
+  >>> myDLM.getLatentState(filterType='forwardFilter')
+  >>> myDLM.getLatentState(filterType='backwardSmoother')
+  >>>
+  >>> myDLM.getLatentCov(filterType='forwardFilter')
+  >>> myDLM.getLatentCov(filterType='backwardSmoother')
 
 This can be specified into individual component. For example, assume the
 model contains a :class:`trend` component with a name of `trend1`, we
 can extract the corresponding latent state only for `trend1` as::
 
-  >>> myDLM.getFilteredState(name = 'trend1')
-  >>> myDLM.getFilteredCov(name = 'trend1')
+  >>> myDLM.getLatentState(filterType='forwardFilter', name='trend1')
+  >>> myDLM.getLatentState(filterType='backwardSmoother', name='trend1')
+  >>>
+  >>> myDLM.getLatentCov(filterType='forwardFilter', name='trend1')
+  >>> myDLM.getLatentCov(filterType='backwardSmoother', name='trend1')
+
+as well as the mean of `trend1` (evaluation * latent states)::
+
+  >>> myDLM.getMean(filterType='forwardFilter', name='trend1')
+  >>> myDLM.getVar(filterType='forwardFilter', name='trend1')
 
 One can also get the confidence interval on the filtered time series::
 
-  >>> myDLM.getFilteredInterval(p = 0.99)
+  >>> myDLM.geInterval(filterType='forwardFilter', p = 0.99)
 
 There are also corresponding methods for smoothed and predicted
-results. For more detail, please refer to the class documentation.
+results. For more detail, please refer to the :class:`dlm` class
+documentation.
 
 
 Model amending
@@ -302,6 +318,12 @@ results. User can simply call :func:`dlm.plot` to directly plot the
 results once the models are fitted::
 
   >>> myDLM.plot()
+  >>>
+  >>> # plot the mean of a given component
+  >>> myDLM.plot(name=the_component_name)
+  >>>
+  >>> # plot the latent state of a given component
+  >>> myDLM.plotCoef(name=the_component_name)
 
 User can choose which results to plot via :func:`dlm.turnOn` and
 :func:`dlm.turnOff`::
@@ -322,6 +344,13 @@ The quantile of the confidence interval can be set via
 :func:`dlm.setConfidence`::
 
   >>> myDLM.setConfidence(p = 0.95)
+
+Currently there are two types of confidence interval realization.
+The default is 'ribbon' and the alternative is 'line'. Users can
+change the confidence interval plots by::
+
+  >>> myDLM.setIntervalType('ribbon')
+  >>> myDLM.setIntervalType('line')
 
 The default colors for the plots are:
 
