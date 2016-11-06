@@ -220,6 +220,7 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(obs, 101.07480945)
 
     def testGetLatentState(self):
+        # for forward filter
         self.dlm5.fitForwardFilter()
         filteredTrend = self.dlm5.getLatentState(
             filterType='forwardFilter', name='trend')
@@ -229,6 +230,7 @@ class testDlm(unittest.TestCase):
                         self.dlm5.result.filteredState[i][0, 0])
         self.assertAlmostEqual(diff, 0)
 
+        # for backward smoother
         self.dlm5.fitBackwardSmoother()
         smoothedTrend = self.dlm5.getLatentState(
             filterType='backwardSmoother', name='trend')
@@ -238,13 +240,119 @@ class testDlm(unittest.TestCase):
                         self.dlm5.result.smoothedState[i][0, 0])
         self.assertAlmostEqual(diff, 0)
 
+    def testGetLatentCov(self):
+        # for forward filter
+        self.dlm5.fitForwardFilter()
+        filteredTrend = self.dlm5.getLatentCov(
+            filterType='forwardFilter', name='trend')
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(filteredTrend[i][0, 0] -
+                        self.dlm5.result.filteredCov[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+        # for backward smoother
+        self.dlm5.fitBackwardSmoother()
+        smoothedTrend = self.dlm5.getLatentCov(
+            filterType='backwardSmoother', name='trend')
+        diff = 0.0
+        for i in range(len(smoothedTrend)):
+            diff += abs(smoothedTrend[i][0, 0] -
+                        self.dlm5.result.smoothedCov[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
     def testGetMean(self):
+        # for forward filter
         self.dlm5.fitForwardFilter()
         filteredTrend = self.dlm5.getMean(filterType='forwardFilter')
         diff = 0.0
         for i in range(len(filteredTrend)):
             diff += abs(filteredTrend[i] -
                         self.dlm5.result.filteredObs[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+        # for component with forward filter
+        arTrend = self.dlm5.getMean(filterType='forwardFilter',
+                                    name='ar2')
+        trueAr = [item[1, 0] for item in self.dlm5.result.filteredState]
+        comp = self.dlm5.builder.automaticComponents['ar2']
+        for i in range(len(trueAr)):
+            comp.updateEvaluation(i)
+            trueAr[i] = comp.evaluation * trueAr[i]
+
+        diff = 0.0
+        for i in range(len(arTrend)):
+            diff += abs(arTrend[i] - trueAr[i])
+        self.assertAlmostEqual(diff, 0)
+
+        # for backward smoother
+        self.dlm5.fitBackwardSmoother()
+        filteredTrend = self.dlm5.getMean(filterType='backwardSmoother')
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(filteredTrend[i] -
+                        self.dlm5.result.smoothedObs[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+        # for component with backward smoother
+        arTrend = self.dlm5.getMean(filterType='backwardSmoother',
+                                    name='ar2')
+        trueAr = [item[1, 0] for item in self.dlm5.result.smoothedState]
+        comp = self.dlm5.builder.automaticComponents['ar2']
+        for i in range(len(trueAr)):
+            comp.updateEvaluation(i)
+            trueAr[i] = comp.evaluation * trueAr[i]
+
+        diff = 0.0
+        for i in range(len(arTrend)):
+            diff += abs(arTrend[i] - trueAr[i])
+        self.assertAlmostEqual(diff, 0)
+
+    def testGetVar(self):
+        # for forward filter
+        self.dlm5.fitForwardFilter()
+        filteredTrend = self.dlm5.getVar(filterType='forwardFilter')
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(filteredTrend[i] -
+                        self.dlm5.result.filteredObsVar[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+        # for component with forward filter
+        arTrend = self.dlm5.getVar(filterType='forwardFilter',
+                                    name='ar2')
+        trueAr = [item[1, 1] for item in self.dlm5.result.filteredCov]
+        comp = self.dlm5.builder.automaticComponents['ar2']
+        for i in range(len(trueAr)):
+            comp.updateEvaluation(i)
+            trueAr[i] = comp.evaluation * trueAr[i] * comp.evaluation.T
+
+        diff = 0.0
+        for i in range(len(arTrend)):
+            diff += abs(arTrend[i] - trueAr[i])
+        self.assertAlmostEqual(diff, 0)
+
+        # for backward smoother
+        self.dlm5.fitBackwardSmoother()
+        filteredTrend = self.dlm5.getVar(filterType='backwardSmoother')
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(filteredTrend[i] -
+                        self.dlm5.result.smoothedObsVar[i][0, 0])
+        self.assertAlmostEqual(diff, 0)
+
+        # for component with backward smoother
+        arTrend = self.dlm5.getVar(filterType='backwardSmoother',
+                                    name='ar2')
+        trueAr = [item[1, 1] for item in self.dlm5.result.smoothedCov]
+        comp = self.dlm5.builder.automaticComponents['ar2']
+        for i in range(len(trueAr)):
+            comp.updateEvaluation(i)
+            trueAr[i] = comp.evaluation * trueAr[i] * comp.evaluation.T
+
+        diff = 0.0
+        for i in range(len(arTrend)):
+            diff += abs(arTrend[i] - trueAr[i])
         self.assertAlmostEqual(diff, 0)
 
 unittest.main()

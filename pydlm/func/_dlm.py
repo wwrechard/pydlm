@@ -575,6 +575,7 @@ class _dlm:
 
     # function to get the corresponding latent state
     def _getLatentState(self, name, filterType, start, end):
+        end += 1
         indx = self.builder.componentIndex[name]
         patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0]
 
@@ -589,6 +590,7 @@ class _dlm:
 
     # function to get the corresponding latent covariance
     def _getLatentCov(self, name, filterType, start, end):
+        end += 1
         indx = self.builder.componentIndex[name]
         patten = lambda x: x if x is None \
                  else x[indx[0]:(indx[1] + 1), indx[0]:(indx[1] + 1)]
@@ -604,6 +606,7 @@ class _dlm:
 
     # function to get the component mean
     def _getComponentMean(self, name, filterType, start, end):
+        end += 1
         comp = self._fetchComponent(name)
         componentState = self._getLatentState(name=name,
                                               filterType=filterType,
@@ -618,6 +621,7 @@ class _dlm:
 
     # function to get the component variance
     def _getComponentVar(self, name, filterType, start, end):
+        end += 1
         comp = self._fetchComponent(name)
         componentCov = self._getLatentCov(name=name,
                                           filterType=filterType,
@@ -640,7 +644,7 @@ class _dlm:
                       str(self.result.filteredSteps[0]) +
                       ' to ' + str(self.result.filteredSteps[1]))
             start = self.result.filteredSteps[0]
-            end = self.result.filteredSteps[1] + 1
+            end = self.result.filteredSteps[1]
 
         elif filterType == 'backwardSmoother':
             if self.result.smoothedSteps != [0, self.n - 1] \
@@ -649,7 +653,7 @@ class _dlm:
                       str(self.result.smoothedSteps[0]) +
                       ' to ' + str(self.result.smoothedSteps[1]))
             start = self.result.smoothedSteps[0]
-            end = self.result.smoothedSteps[1] + 1
+            end = self.result.smoothedSteps[1]
 
         else:
             raise NameError('Incorrect filter type.')

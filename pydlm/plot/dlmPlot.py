@@ -200,8 +200,10 @@ def plotInMultipleFigure(time, data, result, options):
                              color=options.smoothedColor)
         plt.legend(loc='best', shadow=True)
 
+# ============================ plot for latents ============================
 
-def plotLatentState(time, coordinates, result, options):
+
+def plotLatentState(time, coordinates, result, options, name):
     """
     Plot the latent state for given coordinates
 
@@ -210,6 +212,7 @@ def plotLatentState(time, coordinates, result, options):
         coordinates: the coordinates to plot
         result: the fitted result from dlm class
         options: options for the plot, for details please refer to @dlm
+        name: the name of the component
     """
     # first compute how many plots are needed
     numOfPlots = len(coordinates)
@@ -219,9 +222,8 @@ def plotLatentState(time, coordinates, result, options):
     for i, dim in enumerate(coordinates):
         subplot(size, i + 1)
         plotSingleState(time, dim, result, options)
-        plt.title('Filter result for dimension ' + str(i))
-
-# ============================ plot for latents ============================
+        plt.title('Filter result for dimension ' + str(i) +
+                  'in component: ' + name)
 
 
 def plotSingleState(time, dimension, result, options):
@@ -309,11 +311,19 @@ def plotSingleState(time, dimension, result, options):
 
 def plotComponent(time, data, result, options):
     """
-    Plot the dlm results in one figure
+    Plot the results of a single component in one figure
 
     Args:
         time: the time label
-        data: the original data
+        data: a dictionary contains all information. The basic keys are
+              data['filteredMean'] = ...
+              data['filteredVar']  = ...
+              data['predictedMean']= ...
+              data['predictedVar'] = ...
+              data['smoothedMean'] = ...
+              data['smoothedVar']  = ...
+              data['name']         = ...
+              not all are needed, depending on the setting in options.
         result: the fitted result from dlm class
         options: options for the plot, for details please refer to @dlm
     """

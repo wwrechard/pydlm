@@ -343,7 +343,8 @@ class dlm(_dlm):
 
         # get the mean for the component
         self._checkComponent(name)
-        return self._getComponentMean(name, filterType=filterType,
+        return self._getComponentMean(name=name,
+                                      filterType=filterType,
                                       start=start, end=end)
 
     def getVar(self, filterType='forwardFilter', name='main'):
@@ -386,7 +387,7 @@ class dlm(_dlm):
 
         # get the variance for the component
         self._checkComponent(name)
-        return self._getComponentVar(name, filterType=filterType,
+        return self._getComponentVar(name=name, filterType=filterType,
                                      start=start, end=end)
 
     def getInterval(self, p=0.95, filterType='forwardFilter', name='main'):
@@ -438,9 +439,11 @@ class dlm(_dlm):
         # get the mean and variance for the component
         else:
             self._checkComponent(name)
-            compMean = self._getComponentMean(name, filterType=filterType,
+            compMean = self._getComponentMean(name=name,
+                                              filterType=filterType,
                                               start=start, end=end)
-            compVar = self._getComponentVar(name, filterType=filterType,
+            compVar = self._getComponentVar(name=name,
+                                            filterType=filterType,
                                             start=start, end=end)
 
         # get the upper and lower bound
@@ -530,8 +533,8 @@ class dlm(_dlm):
 
         # to return the latent covariance for a given component
         self._checkComponent(name)
-        return self._getLatentState(name, filterType=filterType,
-                                    start=start, end=end)
+        return self._getLatentCov(name=name, filterType=filterType,
+                                  start=start, end=end)
 
 # ======================= data appending, popping and altering ===============
 
@@ -823,13 +826,9 @@ class dlm(_dlm):
         Args:
             name: component to plot. Default to 'main', in which we plot the
                   filtered time series. If a component name is given
-                  It plots the latent states for the component. If dimension of
-                  the given component is too high, we truncate
-                  to the first five. Or the user can supply the ideal
-                  dimensions for plot in the dimensions parameter.
-            dimensions: When name is a component, dimensions will be used
-                        as the index to plot within that component latent
-                        states.
+                  It plots the mean of the component, i.e., the observed value
+                  that attributes to that particular component, which equals to
+                  evaluation * latent states for that particular component.
 
         """
 
@@ -898,16 +897,17 @@ class dlm(_dlm):
         dlmPlot.plotout()
 
     def plotCoef(self, name, dimensions=None):
-        """ Plot function for the latent states.
+        """ Plot function for the latent states (coefficents of dynamic
+        component).
 
         Args:
-            name: component to plot. If a component name is given
+            name: the name of the component to plot.
                   It plots the latent states for the component. If dimension of
                   the given component is too high, we truncate
                   to the first five. Or the user can supply the ideal
                   dimensions for plot in the dimensions parameter.
-            dimensions: When name is a component, dimensions will be used
-                        as the index to plot within that component latent
+            dimensions: dimensions will be used
+                        as the indexes to plot within that component latent
                         states.
         """
         # load the library only when needed
@@ -944,7 +944,8 @@ class dlm(_dlm):
             dlmPlot.plotLatentState(time=time,
                                     coordinates=coordinates,
                                     result=self.result,
-                                    options=self.options)
+                                    options=self.options,
+                                    name=name)
         else:
             raise NameError('No such component.')
 
