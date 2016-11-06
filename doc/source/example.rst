@@ -82,15 +82,15 @@ can do::
   >>> # prepare the new feature
   >>> newData1 = {'b': 5}
   >>> # one-day ahead prediction from the last day
-  >>> mydlm.predict(date=mydlm.n-1, featureDict=newData)
+  >>> (predictMean, predictVar) = mydlm.predict(date=mydlm.n-1, featureDict=newData1)
   >>>
   >>> # continue predicting for next day
   >>> newData2 = {'b': 4}
-  >>> mydlm.continuePredict(featureDict=newData2)
+  >>> (predictMean, predictVar) = mydlm.continuePredict(featureDict=newData2)
   >>>
   >>> # continue predicting for the third day
   >>> newData3 = {'b': 3}
-  >>> mydlm.continuePredict(featureDict=newData3)
+  >>> (predictMean, predictVar) = mydlm.continuePredict(featureDict=newData3)
 
 
 

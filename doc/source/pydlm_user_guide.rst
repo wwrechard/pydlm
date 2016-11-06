@@ -254,8 +254,9 @@ Model prediction
 prediction function based on a user given date and feature set::
 
   >>> # predict next date after the time series
-  >>> myDLM.predict(date=self.n - 1, featureDict=featureDict)
+  >>> (predictMean, predictVar) = myDLM.predict(date=self.n - 1, featureDict=featureDict)
 
+The function returns a tuple of predicted mean and predicted variance.
 The `featureDict` argument is a dictionary contains the feature
 information for :class:`dynamic` component. Suppose the model contains
 one dynamic component nameed `SP500`, then the featureDict takes the
@@ -268,7 +269,7 @@ then the algorithm will automatically fetch from the old data about
 the feature value of all the dynamic component::
 
   >>> # predict a day in the middle
-  >>> myDLM.predict(date=myDLM.n - 10)
+  >>> (predictMean, predictVar) = myDLM.predict(date=myDLM.n - 10)
 
 The algorithm will use the feature on the date of `myDLM.n - 9` in
 `featureDict`. If date is the last day but the featureDict is not
@@ -283,11 +284,11 @@ after using :func:`dlm.predict`::
   >>> feature3 = {'SP500':[[1990]]}
   >>>
   >>> # one-day ahead prediction after the last day
-  >>> myDLM.predict(date=myDLM.n - 1, featureDict=feature1)
+  >>> (predictMean, predictVar) = myDLM.predict(date=myDLM.n - 1, featureDict=feature1)
   >>> # we continue to two-day ahead prediction after the last day
-  >>> myDLM.continuePredict(featureDict=feature2)
+  >>> (predictMean, predictVar) = myDLM.continuePredict(featureDict=feature2)
   >>> # we continue to three-day ahead prediction after the last day
-  >>> myDLM.continuePredict(featureDict=feature3)
+  >>> (predictMean, predictVar) = myDLM.continuePredict(featureDict=feature3)
 
 :func:`dlm.continuePredict` can only be used after :func:`dlm.predict`
 for multiple-day prediction. The `featureDict` can also be ignored if
