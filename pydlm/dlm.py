@@ -17,6 +17,7 @@ Example:
 >>> data = np.random.random((1, 1000))
 
 >>> # construct the dlm of a linear trend and a 7-day seasonality
+>>> from pydlm import dlm, trend, seasonality
 >>> myDlm = dlm(data) + trend(degree = 2, 0.98) + seasonality(period = 7, 0.98)
 
 >>> # filter the result
@@ -57,12 +58,13 @@ class dlm(_dlm):
         >>> myDlm.getFilteredObs()
 
     Example 2 (fit a linear regression):
+        >>> from pydlm import dynamic
         >>> data = np.random.random((1, 100))
         >>> mydlm = dlm(data) + trend(degree=1, 0.98, name='a') +
                         dynamic(features=[[i] for i in range(100)], 1, name='b')
         >>> mydlm.fit()
-        >>> coef_a = mydlm.getSmoothedState('a')
-        >>> coef_b = mydlm.getSmoothedState('b')
+        >>> coef_a = mydlm.getLatentState('a')
+        >>> coef_b = mydlm.getLatentState('b')
 
     Attributes:
        data: a list of doubles of the raw time series data.
@@ -277,6 +279,15 @@ class dlm(_dlm):
 
     def continuePredict(self, featureDict=None):
         """ Continue prediction after the one-day ahead predict.
+
+        If users want to have a multiple day prediction, they can opt to use
+        continuePredict after predict with new features contained in
+        featureDict. For example,
+
+        >>> # predict 3 days after the last day
+        >>> myDLM.predict(featureDict=featureDict_day1)
+        >>> myDLM.continuePredict(featureDict=featureDict_day2)
+        >>> myDLM.continuePredict(featureDict=featureDict_day3)
 
         Args:
             featureDict: the feature set for the dynamic components, stored

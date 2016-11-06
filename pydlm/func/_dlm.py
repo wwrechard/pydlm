@@ -9,7 +9,6 @@ This piece of code include all the hidden methods and members of the class dlm.
 It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
-from copy import deepcopy
 from numpy import matrix
 from numpy import dot
 from pydlm.base.kalmanFilter import kalmanFilter
@@ -46,8 +45,10 @@ class _dlm:
         _forwardFilter: run forward filter for a specific start and end date
         _backwardSmoother: run backward smooth for a specific start and end
                            date
-        _predict: predict the latent state and observation for a given period
-                          of time
+        _predictInSample: predict the latent state and observation for a given
+                          period of time (deprecated)
+        _oneDayAheadPredict: predict one day a head.
+        _continuePredict: continue predicting one day after _oneDayAheadPredict
         _resetModelStatus: reset the model status to its prior status
         _setModelStatus: set the model status to a specific date
         _defaultOptions: a class to store and set default options
@@ -55,6 +56,14 @@ class _dlm:
         _copy: copy the result from the model to the _result class
         _reverseCopy: copy the result from the _result class to the model
         _checkFeatureSize: check whether the features's n matches the data's n
+        _checkComponent: check whether a component is in dlm
+        _getComponent: get the component if it is in dlm
+        _getLatentState: get the latent state for a given component
+        _getLatentCov: get the latent covariance for a given component
+        _getComponentMean: get the mean of a given component
+        _getComponentVar: get the variance of a given component
+        _checkPlotOptions: set the correct options according to the fit
+        _checkAndGetWorkingDates: get the correct filtering dates
     """
     # define the basic members
     # initialize the result
@@ -366,20 +375,54 @@ class _dlm:
     # found, it will fetch the default feature from the component. If
     # it could not find feature for some component, it returns an error
     def _oneDayAheadPredict(self, date, featureDict=None):
+        """ One day ahead prediction based on the date and the featureDict.
+
+        Args:
+            date: the prediction starts (based on the observation before and
+                  on this date)
+            featureDict: the new feature value for some dynamic components.
+                         must be specified in a form of {component_name: value}
+                         if the feature for some dynamic component is not
+                         supplied. The algorithm will use the features from
+                         the old data. (which means if the prediction is out
+                         of sample, then all dynamic component must be provided
+                         with the new feature value)
+
+        Returns:
+            A tuple of (predicted_mean, predicted_variance)
+        """
         if date > self.n - 1:
             raise NameError('The date is beyond the data range.')
 
+        # get the correct status of the model
         self._setModelStatus(date=date)
         self._constructEvaluationForPrediction(featureDict=featureDict,
                                                date=date + 1)
+        # initialize the prediction status
         self.builder.model.prediction.step = 0
+
+        # start predicting
         self.Filter.predict(self.builder.model)
+
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
         self.result.predictStatus = [date, date + 1, [predictedObs]]
+
         return (predictedObs, predictedObsVar)
 
     def _continuePredict(self, featureDict=None):
+        """ Continue predicting one day after _oneDayAheadPredict or
+        after _continuePredict. After using
+        _oneDayAheadPredict, the user can continue predicting by using
+        _continuePredict and the new featureDict.
+
+        Args:
+            featureDict: the new feature value for some dynamic components.
+                         see @_oneDayAheadPredict
+
+        Returns:
+            A tuple of (predicted_mean, predicted_variance)
+        """
         if self.result.predictStatus is None:
             raise NameError('_continoousPredict can only be used after ' +
                             '_oneDayAheadPredict')
@@ -414,7 +457,19 @@ class _dlm:
     def _constructEvaluationForPrediction(self,
                                           featureDict=None,
                                           date=None):
+        """ Construct the evaluation matrix based on date and featureDict.
 
+        Used for prediction. Features provided in the featureDict will be used
+        preferrably. If the feature is not found in featureDict, the algorithm
+        will seek it based on the old data and the date.
+
+        Args:
+            featureDict: a dictionary containing {dynamic_component_name: value}
+                         for update the feature for the corresponding component.
+            date: if a dynamic component name is not found in featureDict, the
+                  algorithm is using its old feature on the given date.
+
+        """
         if featureDict is None and date is None:
             raise NameError('FeatureDict and date cannot be None ' +
                             'at the same time.')
@@ -538,10 +593,16 @@ class _dlm:
                                     + name + ' does not match')
 
     def _1DmatrixToArray(self, arrayOf1dMatrix):
+        """ Change an array of 1 x 1 matrix to normal array.
+
+        """
         return [item.tolist()[0][0] for item in arrayOf1dMatrix]
 
     # function to turn off printing system info
     def _printSystemInfo(self, yes):
+        """ Whether the systematic infor should be printed.
+
+        """
         if yes:
             self._printInfo = True
             self.builder._printInfo = True
@@ -550,10 +611,22 @@ class _dlm:
             self.builder._printInfo = False
 
     def _clean(self):
+        """ Clean up everything that needs to be reset. A common
+        place to take care of of them.
+
+        """
         self.result.predictStatus = None
 
     # function to judge whether a component is in the model
     def _checkComponent(self, name):
+        """ Check whether a component is contained by the dlm.
+
+        Args:
+            name: the name of the component
+
+        Returns:
+            True or error.
+        """
         if name in self.builder.staticComponents or \
            name in self.builder.dynamicComponents or \
            name in self.builder.automaticComponents:
@@ -563,6 +636,14 @@ class _dlm:
 
     # function to fetch a component
     def _fetchComponent(self, name):
+        """ Get the component if the componeng is in the dlm
+
+        Args:
+            name: the name of the component
+
+        Returns:
+            The component or error.
+        """
         if name in self.builder.staticComponents:
             comp = self.builder.staticComponents[name]
         elif name in self.builder.dynamicComponents:
@@ -575,6 +656,19 @@ class _dlm:
 
     # function to get the corresponding latent state
     def _getLatentState(self, name, filterType, start, end):
+        """ Get the latent states of a given component.
+
+        Args:
+            name: the name of the component.
+            filterType: the type of the latent states to be returned.
+                        could be "forwardFilter", "backwardSmoother" or
+                        "predict".
+            start: the start date for the latent states to be returned.
+            end: the end date to be returned.
+
+        Returns:
+            A list of latent states.
+        """
         end += 1
         indx = self.builder.componentIndex[name]
         patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0]
@@ -590,6 +684,19 @@ class _dlm:
 
     # function to get the corresponding latent covariance
     def _getLatentCov(self, name, filterType, start, end):
+        """ Get the latent covariance of a given component.
+
+        Args:
+            name: the name of the component.
+            filterType: the type of the latent covariance to be returned.
+                        could be "forwardFilter", "backwardSmoother" or
+                        "predict".
+            start: the start date for the latent covariance to be returned.
+            end: the end date to be returned.
+
+        Returns:
+            A list of latent covariance.
+        """
         end += 1
         indx = self.builder.componentIndex[name]
         patten = lambda x: x if x is None \
@@ -606,6 +713,19 @@ class _dlm:
 
     # function to get the component mean
     def _getComponentMean(self, name, filterType, start, end):
+        """ Get the mean of a given component.
+
+        Args:
+            name: the name of the component.
+            filterType: the type of the mean to be returned.
+                        could be "forwardFilter", "backwardSmoother" or
+                        "predict".
+            start: the start date for the mean to be returned.
+            end: the end date to be returned.
+
+        Returns:
+            A list of mean.
+        """
         end += 1
         comp = self._fetchComponent(name)
         componentState = self._getLatentState(name=name,
@@ -621,6 +741,19 @@ class _dlm:
 
     # function to get the component variance
     def _getComponentVar(self, name, filterType, start, end):
+        """ Get the variance of a given component.
+
+        Args:
+            name: the name of the component.
+            filterType: the type of the variance to be returned.
+                        could be "forwardFilter", "backwardSmoother" or
+                        "predict".
+            start: the start date for the variance to be returned.
+            end: the end date to be returned.
+
+        Returns:
+            A list of variance.
+        """
         end += 1
         comp = self._fetchComponent(name)
         componentCov = self._getLatentCov(name=name,
@@ -637,6 +770,16 @@ class _dlm:
 
     # check start and end dates that has been filtered on
     def _checkAndGetWorkingDates(self, filterType):
+        """ Check the filter status and return the dates that have
+        been filtered according to the filterType.
+
+        Args:
+            filterType: the type of the filter to check. Could be
+                       "forwardFilter", "backwardSmoother" and "predict"
+
+        Returns:
+            a tuple of (start_date, end_date)
+        """
         if filterType == 'forwardFilter' or filterType == 'predict':
             if self.result.filteredSteps != [0, self.n - 1] \
                and self._printInfo:
@@ -662,6 +805,9 @@ class _dlm:
 
     # check the filter status and automatic turn off some plots
     def _checkPlotOptions(self):
+        """ Check the filter status and determine the plot options.
+
+        """
         # adjust the option according to the filtering status
         if self.result.filteredSteps[1] == -1:
             self.options.plotFilteredData = False
