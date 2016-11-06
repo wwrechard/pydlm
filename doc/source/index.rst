@@ -63,10 +63,10 @@ The three images show
 User can also plot the mean of a component (the time series value that
 attributed to this component)::
 
-  >>> # plot the component mean of 'lineTrend'
+  >>> # plot the component mean of 'ar3'
   >>> myDLM.turnOn('smoothed plot')
   >>> myDLM.turnOff('predict')
-  >>> myDLM.plot(name='lineTrend')
+  >>> myDLM.plot(name='ar3')
 
 and also the latent states for a given component::
 
@@ -75,7 +75,7 @@ and also the latent states for a given component::
 
 which result in
 
-.. image:: ./img/intro_plot_comp_mean.png
+.. image:: ./img/intro_plot_comp_mean_ar3.png
 	   :width: 49%
 .. image:: ./img/intro_plot_state.png
 	   :width: 49%

@@ -33,7 +33,7 @@ gradually shift overtime. Then we fit the model::
   >>> mydlm.fit()
 
 After some information printed by the system, we are done (yeah! :p)
-and we can fetch and examine our results. We can
+and we can fetch and examine our results. We
 first visualize the fitted results and see how well the model fits the
 data::
 
@@ -60,7 +60,7 @@ and we have
 
 We see that the latent state of `b` quickly shift from 0 (which is our
 initial guess on the parameter) to around 3.0 and the confidence
-interval explode and then narrow down as more data comes.
+interval explodes and then narrows down as more data is added.
 
 Once we are happy about the result, we can fetch the results:::
 
