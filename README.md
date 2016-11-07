@@ -40,8 +40,7 @@ we give a simple example on linear regression to illustrate how to use the `pydl
   >>> import numpy as np
   >>> n = 100
   >>> a = 1.0 + np.random.normal(0, 5, n) # the intercept
-  >>> x = np.random.normal(0, 2, n) # the control variable
-  >>> x = [[v] for v in x] # make each entries a 1-d vector
+  >>> x = [[np.random.normal(0, 2)] for i in range(n)] # the control variable
   >>> b = 3.0 # the coefficient
   >>> y = a + b * x
 ```
