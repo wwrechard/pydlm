@@ -1000,9 +1000,35 @@ class dlm(_dlm):
             renewTerm. When discount = 1, there will be no renewTerm,
             since all the information will be passed along.
         """
+        # if option changes, reset everything
         if self.options.stable != use:
             self.initialized = False
-        self.options.stable = use
+
+        if use is True:
+            self.options.stable = True
+        elif use is False:
+            self.options.stable = False
+        else:
+            raise NameError('Incorrect option input')
+
+    def independentEvolution(self, use=False):
+        """ Indicate whether different component evolve indpendently. If true,
+        then the innovation will only be added on each component but not the
+        correlation between the components, so that for component with discount
+        equals to 1, the smoothed results will always be constant.
+
+        """
+        # if option changes, reset everything
+        if (self.options.innovationType == 'whole' and use) or \
+           (self.options.innovationType == 'component' and not use):
+            self.initialized = False
+
+        if use is True:
+            self.options.innovationType = 'component'
+        elif use is False:
+            self.options.innovationType = 'whole'
+        else:
+            raise NameError('Incorrect option input')
 
     def loadPlotLibrary(self):
         if not self.plotLibLoaded:

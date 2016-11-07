@@ -87,6 +87,7 @@ class _dlm:
         def __init__(self):
             self.noise = 1.0
             self.stable = True
+            self.innovationType='whole'
 
             self.plotOriginalData = True
             self.plotFilteredData = True
@@ -154,7 +155,9 @@ class _dlm:
         #                           shrink = 1 - min(self.builder.discount),
         #                           shrinkageMatrix = self.builder.sysVarPrior)
         # else:
-        self.Filter = kalmanFilter(discount=self.builder.discount)
+        self.Filter = kalmanFilter(discount=self.builder.discount,
+                                   updateInnovation=self.options.innovationType,
+                                   index=self.builder.componentIndex)
         self.result = self._result(self.n)
         self.initialized = True
 
@@ -674,11 +677,11 @@ class _dlm:
         patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0]
 
         if filterType == 'forwardFilter':
-            return map(patten, self.result.filteredState[start:end])
+            return list(map(patten, self.result.filteredState[start:end]))
         elif filterType == 'backwardSmoother':
-            return map(patten, self.result.smoothedState[start:end])
+            return list(map(patten, self.result.smoothedState[start:end]))
         elif filterType == 'predict':
-            return map(patten, self.result.predictedState[start:end])
+            return list(map(patten, self.result.predictedState[start:end]))
         else:
             raise NameError('Incorrect filter type')
 
@@ -703,11 +706,11 @@ class _dlm:
                  else x[indx[0]:(indx[1] + 1), indx[0]:(indx[1] + 1)]
 
         if filterType == 'forwardFilter':
-            return map(patten, self.result.filteredCov[start:end])
+            return list(map(patten, self.result.filteredCov[start:end]))
         elif filterType == 'backwardSmoother':
-            return map(patten, self.result.smoothedCov[start:end])
+            return list(map(patten, self.result.smoothedCov[start:end]))
         elif filterType == 'predict':
-            return map(patten, self.result.predictedCov[start:end])
+            return list(map(patten, self.result.predictedCov[start:end]))
         else:
             raise NameError('Incorrect filter type')
 
