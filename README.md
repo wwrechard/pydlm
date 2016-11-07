@@ -62,7 +62,7 @@ After some information printed by the system, we are done (yeah! :p) and we can 
 ```
 The result shows
 <p align="center">
-<img src="/doc/source/img/example_plot_all.png" width=70%/>
+<img src="/doc/source/img/example_plot_all.png" width=80%/>
 </p>
 
 It looks pretty nice for the one-day ahead prediction accuracy. We can also plot the two coefficients `a` and `b` and see how they
