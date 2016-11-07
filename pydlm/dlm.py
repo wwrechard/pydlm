@@ -159,6 +159,9 @@ class dlm(_dlm):
                 start = self.result.filteredSteps[1] + 1
             else:
                 start = 0
+                # because we refit the forward filter, we need to reset the
+                # backward smoother as well.
+                self.result.smoothedSteps = [0, -1]
 
             # determine whether renew should be used
             self._forwardFilter(start=start,
@@ -170,6 +173,10 @@ class dlm(_dlm):
                 windowFront = self.result.filteredSteps[1] + 1
             else:
                 windowFront = 0
+                # because we refit the forward filter, we need to reset the
+                # backward smoother as well.
+                self.result.smoothedSteps = [0, -1]
+
             self.result.filteredType = 'rolling'
             # if end is still within (0, windowLength - 1), we should run the
             # usual ff from

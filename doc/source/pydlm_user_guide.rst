@@ -61,10 +61,13 @@ linear trend, 7-day seasonality and another control variable::
 
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
   >>> data = [0] * 100 + [3] * 100
-  >>> control = [[0.5] for i in range(100) + [[2.6] for i in
-  range(100)]
-  >>> myDLM = dlm(data) + trend(2) + seasonality(7) +
-  dyanmic(control)
+  >>> SP500Index = [[2000] for i in range(100)] + [[2010] for i in range(100)]
+  >>> page = [[i, i + 1, i + 2, i + 3] for i in range(200)]
+  >>> myDLM = dlm(data)
+  >>> myDLM = myDLM + trend(degree=2, discount=0.95, name='trend1')
+  >>> myDLM = myDLM + seasonality(period=7, discount=0.99, name='week')
+  >>> myDLM = myDLM + dynamic(features=SP500Index, discount=1, name='SP500')
+  >>> myDLM = myDLM + dynamic(features=page, discount=1, name='page')
 
 The imput :attr:`data` must be an 1d array or a list, since the current
 :class:`dlm` only supports one dimensional time series. Supporting for
@@ -105,7 +108,7 @@ can all be captured by :class:`trend`. The degree argument specifics
 the shape of the trend and the discounting factor will be explained
 later in next section::
 
-  >>> linearTrend = trend(degree = 2, discount = 0.99, name = 'trend1')
+  >>> linearTrend = trend(degree=2, discount=0.99, name='trend1')
 
 Seasonality
 -----------
@@ -114,7 +117,7 @@ data. Compared to the sine or cosine periodic curves,
 :class:`seasonality` in this packages is more flexible, since it can
 turn into any shapes, much broader than the triangular families::
 
-  >>> weekPeriod = seasonality(period = 7, discount = 0.99, name = 'week')
+  >>> weekPeriod = seasonality(period=7, discount=0.99, name='week')
 
 In the package, we implements the seasonality component in a
 `form-free` way (Harrison and West, 1999) to avoid the identifiability
@@ -130,13 +133,13 @@ good indicator for the modeling stock. A dynamic component need the
 user to supply the necessary information of the control variable over
 time::
 
-  >>> SP500 = dynamic(features = SP500Index, discount = 0.99, name =
-  'SP500')
+  >>> SP500 = dynamic(features=SP500Index, discount=0.99, name='SP500')
 
 The input :attr:`features` for :class:`dynamic` should be a list of
 lists, since multi-dimension features are allowed. Following is one
 simple example::
 
+  >>> Features = [[2000], [2010], [2020], [2030]]
   >>> Features = [[1.0, 2.0], [1.0, 3.0], [3.0, 3.0]]
 
 
@@ -147,7 +150,7 @@ the model, i.e., the direct linear or non-linear dependency between
 the current observation and the previous days. User needs to specify
 the number of days of the dependency::
 
-  >>> AR3 = autoReg(degree = 3, data = data, discount = 0.99, name = 'ar3')
+  >>> AR3 = autoReg(degree=3, data=data, discount=0.99, name='ar3')
 
 In this example, the latent stats for Auto-regression are aligned in a
 way of [today - 3, today - 2, today - 1]. So when fetching the
@@ -193,8 +196,8 @@ for each date, the kalman filter will only use the data within the
 window to filter the observation. This is equivalent to that the model
 only remembers a fixed length of dates::
 
-  >>> myDLM.fitForwardFilter(useRollingWindow = True, windowLength
-  = 30)
+  >>> myDLM.fitForwardFilter(useRollingWindow=True, windowLength=30)
+  >>> myDLM.fitBackwardSmoother()
 
 For :func:`dlm.backwardSmoother`, it has to use the whole time series
 to smooth the latent states once new data comes in. The smoothing
@@ -250,11 +253,12 @@ documentation.
 Model prediction
 ================
 :class:`dlm` provides two predict functions: :func:`dlm.predict` and
-:func:`dlm.continuePredict`. :func:`dlm.predict` is a one-day ahead
+:func:`dlm.continuePredict`. The :func:`dlm.predict` is a one-day ahead
 prediction function based on a user given date and feature set::
 
   >>> # predict next date after the time series
-  >>> (predictMean, predictVar) = myDLM.predict(date=self.n - 1, featureDict=featureDict)
+  >>> featureDict = {'SP500':[2090], 'page':[1, 2, 3, 4]}
+  >>> (predictMean, predictVar) = myDLM.predict(date=myDLM.n - 1, featureDict=featureDict)
 
 The function returns a tuple of predicted mean and predicted variance.
 The `featureDict` argument is a dictionary contains the feature
@@ -280,9 +284,9 @@ If the user is interested beyond one-day ahead prediction, they can
 use :func:`dlm.continuePredict` for multiple-day ahead prediction,
 after using :func:`dlm.predict`::
 
-  >>> feature1 = {'SP500':[2090]}
-  >>> feature2 = {'SP500':[2010]}
-  >>> feature3 = {'SP500':[1990]}
+  >>> feature1 = {'SP500':[2090], 'page':[10, 20, 30, 40]}
+  >>> feature2 = {'SP500':[2010], 'page':[11, 21, 31, 41]}
+  >>> feature3 = {'SP500':[1990], 'page':[12, 22, 32, 42]}
   >>>
   >>> # one-day ahead prediction after the last day
   >>> (predictMean, predictVar) = myDLM.predict(date=myDLM.n - 1, featureDict=feature1)
