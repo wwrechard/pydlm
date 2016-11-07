@@ -19,7 +19,7 @@ model::
   >>> from pydlm import dlm, trend, dynamic
   >>> mydlm = dlm(y)
   >>> mydlm = mydlm + trend(degree=1, discount=0.98, name='a')
-  >>> mydlm = mydlm + dynamic(features=[[i] for i in x], discount=1, name='b')
+  >>> mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b')
 
 In the model, we add two components :class:`trend` and
 :class:`dynamic`. The trend `a` is one of the systematical components
@@ -28,11 +28,13 @@ series, and trend is particularly suitable for our case. The dynamic
 component `b` is modeling the regression component. We specify its
 discounting factor to be 1.0 means that we believe `b` should be a
 constant. For `a` we use 0.98 as we believe baseline can be
-gradually shift overtime. Then we fit the model::
+gradually shift overtime. The :class:`dynamic` only accepts 2-d list
+for feature arugment (since the control variable could be
+multi-dimensional), we thus change `x` to 2d list. Then we fit the model::
 
   >>> mydlm.fit()
 
-After some information printed by the system, we are done (yeah! :p)
+After some information printed on the screen, we are done (yeah! :p)
 and we can fetch and examine our results. We
 first visualize the fitted results and see how well the model fits the
 data::
