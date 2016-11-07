@@ -57,7 +57,7 @@ Modeling
 As discussed in the beginning, the modeling process is very simple
 with :mod:`pydlm`, most modeling functions are integrated in the class
 :class:`dlm`. Following is an example for constructing a dlm with
-linear trend, 7-day seasonality and another control variable::
+linear trend, 7-day seasonality and control variables::
 
   >>> from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
   >>> data = [0] * 100 + [3] * 100
@@ -68,6 +68,10 @@ linear trend, 7-day seasonality and another control variable::
   >>> myDLM = myDLM + seasonality(period=7, discount=0.99, name='week')
   >>> myDLM = myDLM + dynamic(features=SP500Index, discount=1, name='SP500')
   >>> myDLM = myDLM + dynamic(features=page, discount=1, name='page')
+
+User can also use :func:`dlm.add` method to add new component::
+
+  >>> myDLM.add(trend(degree=1, discount=0.99, name='trend2'))
 
 The imput :attr:`data` must be an 1d array or a list, since the current
 :class:`dlm` only supports one dimensional time series. Supporting for
@@ -91,6 +95,7 @@ for example::
 
 We can also easily delete the unwanted component by using `delete`::
 
+  >>> myDLM.delete('trend2')
   >>> myDLM.delete('day4')
 
 
