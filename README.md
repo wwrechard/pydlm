@@ -41,6 +41,7 @@ we give a simple example on linear regression to illustrate how to use the `pydl
   >>> n = 100
   >>> a = 1.0 + np.random.normal(0, 5, n) # the intercept
   >>> x = np.random.normal(0, 2, n) # the control variable
+  >>> x = [[v] for v in x] # make each entries a 1-d vector
   >>> b = 3.0 # the coefficient
   >>> y = a + b * x
 ```
@@ -50,7 +51,7 @@ decompose `y` and learn the value of `a` and `b`. We first build the model
   >>> from pydlm import dlm, trend, dynamic
   >>> mydlm = dlm(y)
   >>> mydlm = mydlm + trend(degree=1, discount=0.98, name='a')
-  >>> mydlm = mydlm + dynamic(features=[[i] for i in x], discount=1, name='b')
+  >>> mydlm = mydlm + dynamic(features=x, discount=1, name='b')
 ```
 In the model, we add two components `trend` and`dynamic`. The trend `a` is one of the systematical components that can be used to characterize the intrisic property of a time series, and trend is particularly suitable for our case. The dynamic component `b` is modeling the regression component. We specify its discounting factor to be 1.0 means that we believe `b` should be a constant. For `a` we use 0.98 as we believe baseline can be gradually shift overtime. Then we fit the model
 ```
