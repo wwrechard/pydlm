@@ -1029,7 +1029,7 @@ class dlm(_dlm):
             evoType == 'dependent'):
             self.initialized = False
 
-        if evoTye == 'independent':
+        if evoType == 'independent':
             self.options.innovationType = 'component'
         elif evoType == 'dependent':
             self.options.innovationType = 'whole'
