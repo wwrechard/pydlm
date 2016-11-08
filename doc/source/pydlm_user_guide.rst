@@ -438,10 +438,30 @@ Advanced Settings
 
 This part of settings closely relate to the algorithm behavior and
 offers some advanced features, some of which are still under
-developing. Currently embedded is the :func:`dlm.stableMode` function,
-which help increase the numerical stability of the :class:`dlm` when
-discounting factor is used. Details about discounting factor will be
-covered in next section.
+development. Currently implemented is the :func:`dlm.stableMode`
+function and the :func:`dlm.evolveMode`. The :func:`dlm.stableMode` is
+turned on by default, and you can turn it off by::
+
+  >>> myDLM.stableModel(False)
+
+This mode helps increasing the numerical stability of the :class:`dlm`
+when small discounting factor is used. Details about discounting
+factor will be covered in next section. The :func:`dlm.evolveMode` is
+used to control how different components evolve over time. See
+Harrison and West (1999, Page 202). They could
+evolve independently, which is equivalent to assume the innovation
+matrix is a block-diagonal matrix. The default assumption is
+'dependent' and to change to 'independent', we can simply type::
+
+  >>> myDLM.evolveMode('independent')
+
+The difference between 'independent' and 'dependent' is best explained
+when there are multiple components with different discounting factor
+and one of them is One. In the 'dependent' mode, the smoothed latent
+states of the component with discount factor 1 will be a value
+fluctuating around a constant, while in the 'independent' mode, it
+will be an exact constant. User can choose which to use depending on
+their own use case.
 
 In the future, following functionalities are planned to be added:
 feature selection among dynamic components, factor models for high

@@ -30,7 +30,14 @@ discounting factor to be 1.0 means that we believe `b` should be a
 constant. For `a` we use 0.98 as we believe baseline can be
 gradually shift overtime. The :class:`dynamic` only accepts 2-d list
 for feature arugment (since the control variable could be
-multi-dimensional), we thus change `x` to 2d list. Then we fit the model::
+multi-dimensional), we thus change `x` to 2d list. In addition, we
+believe these two processes `a` and `b` should evolve independently,
+and thus we set::
+
+  >>> mydlm.evolveMode('independent')
+
+This can also be set to 'dependent', depending on the use case and the
+need. Then we fit the model::
 
   >>> mydlm.fit()
 

@@ -9,10 +9,10 @@ from pydlm.base.kalmanFilter import kalmanFilter
 class testKalmanFilter(unittest.TestCase):
 
     def setUp(self):
-        self.kf1 = kalmanFilter(discount = [1])
-        self.kf0 = kalmanFilter(discount = [1e-10])
-        self.kf11 = kalmanFilter(discount = [1, 1])
-        
+        self.kf1 = kalmanFilter(discount=[1])
+        self.kf0 = kalmanFilter(discount=[1e-10])
+        self.kf11 = kalmanFilter(discount=[1, 1])
+
     def testForwardFilter(self):
         dlm = builder()
         dlm.add(trend(degree = 1, discount = 1))
@@ -54,7 +54,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf11.forwardFilter(dlm.model, 1)
         self.assertAlmostEqual(dlm.model.state[0], 0.33333333333)
         self.assertAlmostEqual(dlm.model.state[1], -0.33333333333)
-        
+
         self.kf11.forwardFilter(dlm.model, -1)
         self.assertAlmostEqual(dlm.model.state[0], -0.5)
         self.assertAlmostEqual(dlm.model.state[1], 0.5)
@@ -85,19 +85,19 @@ class testKalmanFilter(unittest.TestCase):
         self.kf11.forwardFilter(dlm.model, 1)
         state1 = dlm.model.state
         cov1 = dlm.model.sysVar
-        
-        self.kf11.forwardFilter(dlm.model, -1)        
+
+        self.kf11.forwardFilter(dlm.model, -1)
         self.kf11.backwardSmoother(dlm.model, \
                                    rawState = state1, \
                                    rawSysVar = cov1)
-        
+
         self.assertAlmostEqual(dlm.model.obs, 0.0)
 
     def testMissingData(self):
         dlm = builder()
         dlm.add(trend(degree = 1, discount = 1))
         dlm.initialize()
-        
+
         self.kf0.forwardFilter(dlm.model, 1)
         self.assertAlmostEqual(dlm.model.obs, 1.0)
         self.assertAlmostEqual(dlm.model.obsVar, 1.0)
@@ -117,11 +117,24 @@ class testKalmanFilter(unittest.TestCase):
         dlm = builder()
         dlm.add(trend(degree = 1, discount = 1))
         dlm.initialize()
-       
+
         dlm.model.evaluation = np.matrix([[None]])
         self.kf1.forwardFilter(dlm.model, 1.0, dealWithMissingEvaluation = True)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
         self.assertAlmostEqual(dlm.model.transition, 1.0)
+
+    def testEvolveMode(self):
+        dlm = builder()
+        dlm.add(trend(degree = 1, discount = 0.9))
+        dlm.add(trend(degree = 1, discount = 0.98, name='a'))
+        dlm.initialize()
+
+        kf2 = kalmanFilter(discount=[0.9, 0.98],
+                           updateInnovation='component',
+                           index=dlm.componentIndex)
+        kf2.forwardFilter(dlm.model, 1.0)
+        self.assertAlmostEqual(dlm.model.innovation[0, 1], 0.0)
+        self.assertAlmostEqual(dlm.model.innovation[1, 0], 0.0)
 
 unittest.main()
 #kf1 = kalmanFilter(discount = [1])

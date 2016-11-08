@@ -1011,21 +1011,27 @@ class dlm(_dlm):
         else:
             raise NameError('Incorrect option input')
 
-    def independentEvolution(self, use=False):
-        """ Indicate whether different component evolve indpendently. If true,
+    def evolveMode(self, evoType='dependent'):
+        """ Control whether different component evolve indpendently. If true,
         then the innovation will only be added on each component but not the
         correlation between the components, so that for component with discount
         equals to 1, the smoothed results will always be constant.
 
+        Args:
+            evoType: If set to 'independent', then each component will evolve
+                     independently. If set to 'dependent', then the components
+                     will proceed jointly. Default to 'dependent' (faster)
         """
         # if option changes, reset everything
-        if (self.options.innovationType == 'whole' and use) or \
-           (self.options.innovationType == 'component' and not use):
+        if (self.options.innovationType == 'whole' and
+            evoType == 'independent') or \
+           (self.options.innovationType == 'component' and
+            evoType == 'dependent'):
             self.initialized = False
 
-        if use is True:
+        if evoTye == 'independent':
             self.options.innovationType = 'component'
-        elif use is False:
+        elif evoType == 'dependent':
             self.options.innovationType = 'whole'
         else:
             raise NameError('Incorrect option input')
