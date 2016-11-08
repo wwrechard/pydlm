@@ -24,15 +24,14 @@ model::
 In the model, we add two components :class:`trend` and
 :class:`dynamic`. The trend `a` is one of the systematical components
 that can be used to characterize the intrisic property of a time
-series, and trend is particularly suitable for our case. The dynamic
-component `b` is modeling the regression component. We specify its
-discounting factor to be 1.0 means that we believe `b` should be a
-constant. For `a` we use 0.98 as we believe baseline can be
-gradually shift overtime. The :class:`dynamic` only accepts 2-d list
-for feature arugment (since the control variable could be
-multi-dimensional), and we thus change `x` to 2d list. In addition, we
-believe these two processes `a` and `b` evolve independently and thus
-set::
+series, and trend is particularly suitable for our case. It has a
+discount factor of 0.98 as we believe the baseline can gradually shift
+overtime. The dynamic component `b` is modeling the regression
+component. We specify its discounting factor to be 1.0 since we
+believe `b` should be a constant. The :class:`dynamic` class only accepts 2-d
+list for feature arugment (since the control variable could be
+multi-dimensional). Thus, we change `x` to 2d list. In addition, we
+believe these two processes `a` and `b` evolve independently and set::
 
   >>> mydlm.evolveMode('independent')
 
