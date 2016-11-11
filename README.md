@@ -4,15 +4,21 @@
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`. 
 
-Updates in Version 0.1.1
-------------------------
-* Add an option to let different component evolve independently (`dlm.evolveMode()`) 
-* Fix bugs in latent states retrieval
-* Rewrite all the get methods (simpler and concise). Allows easy fetching individual component.
-* Add a longSeason component
-* Add more plot functionalities
-* Add the ribbon confidence interval
-* Add a simple example in documentation for using pydlm
+Updates in 0.1.1.6
+-------------------
+* Add an option to let different component evolve independently (default) 
+* Bug fixing: change the default prior covariance for the components to match the results of BATS
+* Bug fixing: deprecate the hand-written generalized inverse function and switch to numpy's built-in one.
+* Add an easy specification for component prior on covariance and the model prior on observational noise (see the example and the user manual)
+
+Previous updates
+----------------
++ Fix bugs in latent states retrieval
++ Rewrite all the get methods (simpler and concise). Allows easy fetching individual component.
++ Add a longSeason component
++ Add more plot functionalities
++ Add the ribbon confidence interval
++ Add a simple example in documentation for using pydlm
 
 Installation
 ------------
@@ -50,14 +56,19 @@ decompose `y` and learn the value of `a` and `b`. We first build the model
 ```
   >>> from pydlm import dlm, trend, dynamic
   >>> mydlm = dlm(y)
-  >>> mydlm = mydlm + trend(degree=1, discount=0.98, name='a')
-  >>> mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b')
+  >>> mydlm = mydlm + trend(degree=1, discount=0.98, name='a', w=10.0)
+  >>> mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b', w=10.0)
 ```
-In the model, we add two components `trend` and`dynamic`. The trend `a` is one of the systematical components that can be used to characterize the intrisic property of a time series, and trend is particularly suitable for our case. It has a discount factor of 0.98 as we believe the baseline can gradually shift overtime. The dynamic component `b` is modeling the regression component. We specify its discounting factor to be 1.0 since we believe `b` should be a constant. The `dynamic`class only accepts 2-d list for feature arugment (since the control variable could be multi-dimensional). Thus, we change `x` to 2d list. In addition, we believe these two processes `a` and `b` evolve independently and set
+In the model, we add two components `trend` and`dynamic`. The trend `a` is one of the systematical components that can be used to characterize the intrisic property of a time series, and trend is particularly suitable for our case. It has a discount factor of 0.98 as we believe the baseline can gradually shift overtime. The dynamic component `b` is modeling the regression component. We specify its discounting factor to be 1.0 since we believe `b` should be a constant. The `dynamic`class only accepts 2-d list for feature arugment (since the control variable could be multi-dimensional). Thus, we change `x` to 2d list. In addition, we believe these two processes `a` and `b` evolve independently and set (the following is currently the default assumption, so actually no need to set)
 ```
   >>> mydlm.evolveMode('independent')
 ```
-This can also be set to 'dependent' depending on the use case and the needs.We then fit the model by typing
+This can also be set to 'dependent' if the computation efficiency is a concern. The default prior on the covariance of each component is a
+diagonal matrix with 1e7 on the diagonal and we changed this value in building the component by specifying `w` (more details please refer to the user manual). The prior on the observational noise (default to 1.0) can be set by
+```
+  >>> mydlm.noisePrior(2.0)
+```
+We then fit the model by typing
 ```
   >>> mydlm.fit()
 ```
@@ -130,9 +141,9 @@ Following is a quick guide-through for using the library. The full details are p
   >>> myDLM = dlm(data)
   >>>
   >>> #adding model components
-  >>> myDLM = myDLM + trend(2, name='lineTrend') # add a second-order trend (linear trending)
-  >>> myDLM = myDLM + seasonality(7, name='7day') # add a 7 day seasonality
-  >>> myDLM = myDLM + autoReg(degree=3, data=data, name='ar3') # add a 3 step auto regression
+  >>> myDLM = myDLM + trend(2, name='lineTrend', w=1.0) # add a second-order trend (linear trending)
+  >>> myDLM = myDLM + seasonality(7, name='7day', w=1.0) # add a 7 day seasonality
+  >>> myDLM = myDLM + autoReg(degree=3, data=data, name='ar3', w=1.0) # add a 3 step auto regression
   >>>
   >>> #show the added components
   >>> myDLM.ls()
@@ -191,12 +202,12 @@ The 'ar3' has three latent states (`today - 3`, `today - 2`, `today - 1`), and t
 `pydlm` supports missing observations and also includes the discounting factor, which can be used to control how rapidly the model should adapt to the new data (More details will be provided in the documentation)
 ```
   >>> data = [0] * 100 + [3] * 100
-  >>> myDLM = dlm(data) + trend(2, discount = 1.0)
+  >>> myDLM = dlm(data) + trend(2, discount=1.0, w=1.0)
   >>> myDLM.fit()
   >>> myDLM.plot()
   >>>
   >>> myDLM.delete('trend')
-  >>> myDLM = myDLM + trend(2, discount = 0.8)
+  >>> myDLM = myDLM + trend(2, discount=0.8, w=1.0)
   >>> myDLM.fit()
   >>> myDLM.plot()
 ```
