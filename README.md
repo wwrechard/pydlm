@@ -13,8 +13,10 @@ Special Thanks to Dr. Nick Gayeski for helping identify all these issues!
 * Bug fixing: deprecate the hand-written generalized inverse function and switch to numpy's built-in one.
 * Add an easy specification for component prior on covariance and the model prior on observational noise (see the example and the user manual)
 
-Previous updates
+Updates history
 ----------------
+updates in 0.1.1.1
+
 + Fix bugs in latent states retrieval
 + Rewrite all the get methods (simpler and concise). Allows easy fetching individual component.
 + Add a longSeason component
