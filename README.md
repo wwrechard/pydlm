@@ -6,6 +6,8 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich
 
 Updates in 0.1.1.7
 -------------------
+Special Thanks to Dr. Nick Gayeski for helping identify all these issues!
+
 * Add an option to let different component evolve independently (default) 
 * Bug fixing: change the default prior covariance for the components to match the results of BATS
 * Bug fixing: deprecate the hand-written generalized inverse function and switch to numpy's built-in one.
