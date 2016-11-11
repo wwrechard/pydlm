@@ -37,11 +37,18 @@ believe these two processes `a` and `b` evolve independently and set
   >>> mydlm.evolveMode('independent')
 
 This can also be set to 'dependent' if the computation efficiency is a
-concern. We then fit the model by typing::
+concern. The default prior on the covariance of each component is a
+diagonal matrix with 1e7 on the diagonal, this can be changed when
+building the component (more details please refer to the user manual).
+The prior on the observational noise (default to 1.0) can be set by::
+
+  >>> mydlm.noisePrior(2.0)
+
+We then fit the model by typing::
 
   >>> mydlm.fit()
 
-After some information printed on the screen, we are done (yeah! :p)
+After some information printed on the screen, we are done (yah! :p)
 and we can fetch and examine our results. We
 first visualize the fitted results and see how well the model fits the
 data::
