@@ -31,12 +31,13 @@ component. We specify its discounting factor to be 1.0 since we
 believe `b` should be a constant. The :class:`dynamic` class only accepts 2-d
 list for feature arugment (since the control variable could be
 multi-dimensional). Thus, we change `x` to 2d list. In addition, we
-believe these two processes `a` and `b` evolve independently and set::
+believe these two processes `a` and `b` evolve independently and set
+(This is the default assumption, so actually no need to set)::
 
   >>> mydlm.evolveMode('independent')
 
-This can also be set to 'dependent' depending on the use case and the
-needs. We then fit the model by typing::
+This can also be set to 'dependent' if the computation efficiency is a
+concern. We then fit the model by typing::
 
   >>> mydlm.fit()
 

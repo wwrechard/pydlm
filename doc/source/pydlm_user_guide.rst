@@ -98,6 +98,14 @@ We can also easily delete the unwanted component by using `delete`::
   >>> myDLM.delete('trend2')
   >>> myDLM.delete('day4')
 
+After the building steps, we can specify some parameters for the model
+fitting, the most common one is the prior guess on the observational
+noise. The default value is 1.0. To change that to 10 you can do::
+
+  >>> myDLM.noisePrior(10.0)
+
+Such change usually has small impact on the model and is almost
+ignorable.
 
 Model components
 ===================
@@ -110,10 +118,11 @@ Trend
 :class:`trend` class is a model component for trending
 behavior. The data might be increasing linearly or quadraticly, which
 can all be captured by :class:`trend`. The degree argument specifics
-the shape of the trend and the discounting factor will be explained
-later in next section::
+the shape of the trend and `w` sets the prior covariance for the trend
+component (same for all the other components). The discounting factor
+will be explained later in next section::
 
-  >>> linearTrend = trend(degree=2, discount=0.99, name='trend1')
+  >>> linearTrend = trend(degree=2, discount=0.99, name='trend1', w=1e7)
 
 Seasonality
 -----------
@@ -122,7 +131,7 @@ data. Compared to the sine or cosine periodic curves,
 :class:`seasonality` in this packages is more flexible, since it can
 turn into any shapes, much broader than the triangular families::
 
-  >>> weekPeriod = seasonality(period=7, discount=0.99, name='week')
+  >>> weekPeriod = seasonality(period=7, discount=0.99, name='week', w=1e7)
 
 In the package, we implements the seasonality component in a
 `form-free` way (Harrison and West, 1999) to avoid the identifiability
@@ -138,7 +147,7 @@ good indicator for the modeling stock. A dynamic component need the
 user to supply the necessary information of the control variable over
 time::
 
-  >>> SP500 = dynamic(features=SP500Index, discount=0.99, name='SP500')
+  >>> SP500 = dynamic(features=SP500Index, discount=0.99, name='SP500', w=1e7)
 
 The input :attr:`features` for :class:`dynamic` should be a list of
 lists, since multi-dimension features are allowed. Following is one
@@ -155,7 +164,7 @@ the model, i.e., the direct linear or non-linear dependency between
 the current observation and the previous days. User needs to specify
 the number of days of the dependency::
 
-  >>> AR3 = autoReg(degree=3, data=data, discount=0.99, name='ar3')
+  >>> AR3 = autoReg(degree=3, data=data, discount=0.99, name='ar3', w=1e7)
 
 In this example, the latent stats for Auto-regression are aligned in a
 way of [today - 3, today - 2, today - 1]. So when fetching the
@@ -170,9 +179,9 @@ does not change every step. For example, the time unit is day, but
 client wants to add a monthly seasonality, then :class:`longSeason` is
 the correct choice.
 
-  >>> monthly = longSeason(period=12, stay=30, data=data, name='monthly')
+  >>> monthly = longSeason(period=12, stay=30, data=data, name='monthly', w=1e7)
 
-These four classes of model components offer abundant modeling
+These five classes of model components offer abundant modeling
 possiblities of the Bayesian dynamic linear model. Users can construct
 very complicated models using these components, such as hourly, weekly or
 monthly periodicy and holiday indicator and many other features.
@@ -451,9 +460,9 @@ used to control how different components evolve over time. See
 Harrison and West (1999, Page 202). They could
 evolve independently, which is equivalent to assume the innovation
 matrix is a block-diagonal matrix. The default assumption is
-'dependent' and to change to 'independent', we can simply type::
+'independent' and to change to 'dependent', we can simply type::
 
-  >>> myDLM.evolveMode('independent')
+  >>> myDLM.evolveMode('dependent')
 
 The difference between 'independent' and 'dependent' is best explained
 when there are multiple components with different discounting factor
