@@ -7,8 +7,8 @@ Code for the dynamic component
 
 This piece of code provide one building block for the dynamic linear model.
 It decribes a dynamic component in the time series data. It basically allows
-user to supply covariate or controlled variable into the dlm, 
-and the coefficients of the features will be trained as the latent states. 
+user to supply covariate or controlled variable into the dlm,
+and the coefficients of the features will be trained as the latent states.
 Examples are holiday indicators, other observed variables and so on.
 
 The name dynamic means that the features are changing over time.
@@ -22,13 +22,20 @@ import pydlm.base.tools as tl
 # We create the trend using the component class
 
 class dynamic(component):
-    """ The dynamic component that allows user to add controlled variables, 
+    """ The dynamic component that allows user to add controlled variables,
     providing one building block for the dynamic linear model.
     It decribes a dynamic component in the time series data. It basically allows
-    user to supply covariate or controlled variable into the dlm, 
-    and the coefficients of the features will be trained as the latent states. 
+    user to supply covariate or controlled variable into the dlm,
+    and the coefficients of the features will be trained as the latent states.
     Examples are holiday indicators, other observed variables and so on.
- 
+
+    Args:
+        features: the feature matrix of the dynamic component
+        discount: the discount factor
+        name: the name of the dynamic component
+        w: the value to set the prior covariance. Default to a diagonal
+           matrix with 1e7 on the diagonal.
+
     Examples:
         >>>  # create a dynamic component:
         >>> features = [[1.0, 2.0] for i in range(10)]
@@ -36,7 +43,7 @@ class dynamic(component):
         >>>  # change the ctrend to have covariance with diagonals are 2 and state 1
         >>> ctrend.createCovPrior(cov = 2)
         >>> ctrend.createMeanPrior(mean = 1)
-   
+
     Attributes:
         d: the dimension of the features (number of latent states)
         n: the number of observation
@@ -49,16 +56,21 @@ class dynamic(component):
         transition: the transition matrix for this component
         covPrior: the prior guess of the covariance matrix of the latent states
         meanPrior: the prior guess of the latent states
-    
+
     """
-    def __init__(self, features = None, discount = 0.99, name = 'dynamic'):
+    def __init__(self,
+                 features = None,
+                 discount = 0.99,
+                 name = 'dynamic',
+                 w=1e7):
+
         self.n = len(features)
         self.d = len(features[0])
         self.features = tl.duplicateList(features)
         self.componentType = 'dynamic'
         self.name = name
         self.discount = np.ones(self.d) * discount
-        
+
         # Initialize all basic quantities
         self.evaluation = None
         self.transition = None
@@ -68,7 +80,7 @@ class dynamic(component):
         # create all basic quantities
         self.createEvaluation(0)
         self.createTransition()
-        self.createCovPrior()
+        self.createCovPrior(scale=w)
         self.createMeanPrior()
 
         # record current step in case of lost
@@ -76,7 +88,7 @@ class dynamic(component):
 
     def createEvaluation(self, step):
         """ The evaluation matrix for the dynamic component change over time.
-        It equals to the value of the features or the controlled variables at a 
+        It equals to the value of the features or the controlled variables at a
         given date
 
         """
@@ -89,8 +101,8 @@ class dynamic(component):
 
         """
         self.transition = np.matrix(np.eye(self.d))
-        
-    def createCovPrior(self, cov = None, scale = 1):
+
+    def createCovPrior(self, cov = None, scale = 1e6):
         """ Create the prior covariance matrix for the latent states
 
         """
@@ -101,7 +113,7 @@ class dynamic(component):
 
     def createMeanPrior(self, mean = None, scale = 1):
         """ Create the prior latent state
-        
+
         """
         if mean is None:
             self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
@@ -141,7 +153,7 @@ class dynamic(component):
 
     def popout(self, date):
         """ For deleting the feature data of a specific date.
-        
+
         Args:
             date: the index of which to be deleted.
 

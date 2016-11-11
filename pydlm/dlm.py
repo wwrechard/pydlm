@@ -1020,7 +1020,11 @@ class dlm(_dlm):
         Args:
             evoType: If set to 'independent', then each component will evolve
                      independently. If set to 'dependent', then the components
-                     will proceed jointly. Default to 'dependent' (faster)
+                     will proceed jointly. Default to 'independent'. Switch to
+                     'dependent' if efficiency is a concern.
+
+        Returns:
+            a dlm object (for chaining purpose)
         """
         # if option changes, reset everything
         if (self.options.innovationType == 'whole' and
@@ -1035,6 +1039,24 @@ class dlm(_dlm):
             self.options.innovationType = 'whole'
         else:
             raise NameError('Incorrect option input')
+
+        # for chaining
+        return self
+
+    def noisePrior(self, prior=1.0):
+        """ To set the prior for the observational noise.
+
+        Args:
+            prior: the prior of the observational noise. Default to 1.0
+
+        Returns:
+            A dlm object (for chaining purpose)
+        """
+        self.options.noise=prior
+        self.initialized = False
+
+        # for chaining
+        return self
 
     def loadPlotLibrary(self):
         if not self.plotLibLoaded:

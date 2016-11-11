@@ -17,13 +17,18 @@ class testDlm(unittest.TestCase):
         self.dlm3 = dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
         self.dlm4 = dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
         self.dlm5 = dlm(range(100))
-        self.dlm1 + trend(degree = 1, discount = 1)
-        self.dlm2 + trend(degree = 1, discount = 1e-12)
-        self.dlm3 + seasonality(period = 2, discount = 1)
+        self.dlm1 + trend(degree=1, discount=1, w=1.0)
+        self.dlm2 + trend(degree=1, discount=1e-12, w=1.0)
+        self.dlm3 + seasonality(period=2, discount=1, w=1.0)
         self.dlm4 + dynamic(features=[[0] for i in range(5)] +
-                            [[1] for i in range(5)], discount=1)
-        self.dlm5 + trend(degree=1, discount=1) + \
-            autoReg(degree=1, data=range(100), discount=1)
+                            [[1] for i in range(5)], discount=1, w=1.0)
+        self.dlm5 + trend(degree=1, discount=1, w=1.0) + \
+            autoReg(degree=1, data=range(100), discount=1, w=1.0)
+        self.dlm1.evolveMode('dependent')
+        self.dlm2.evolveMode('dependent')
+        self.dlm3.evolveMode('dependent')
+        self.dlm4.evolveMode('dependent')
+        self.dlm5.evolveMode('dependent')
 
     def testAdd(self):
         trend2 = trend(2, name='trend2')
@@ -71,7 +76,8 @@ class testDlm(unittest.TestCase):
 
     def testAppend(self):
         dlm4 = dlm(self.data[0:11])
-        dlm4 + trend(degree = 1, discount = 1)
+        dlm4 + trend(degree=1, discount=1, w=1.0)
+        dlm4.evolveMode('dependent')
         dlm4.fitForwardFilter()
         self.assertEqual(dlm4.n, 11)
 

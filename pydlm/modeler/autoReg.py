@@ -32,6 +32,14 @@ class autoReg(dynamic):
      might need pass the dlm as a parameter to autoReg, so that autoReg can
      fetch the filtered observation on the fly)
 
+    Args:
+        data: the time series data
+        degree: the order of the autoregressive component
+        discount: the discount factor
+        name: the name of the trend component
+        w: the value to set the prior covariance. Default to a diagonal
+           matrix with 1e7 on the diagonal.
+
     Attributes:
         degree: the degree of autoregressive, i.e., how many days to look back
         data: the time series data used for constructing the autoregressive
@@ -49,6 +57,7 @@ class autoReg(dynamic):
                  degree=2,
                  discount=0.99,
                  name='ar2',
+                 w=1e7,
                  padding=0):
 
         if data is None:
@@ -64,7 +73,8 @@ class autoReg(dynamic):
         dynamic.__init__(self,
                          features=features,
                          discount=discount,
-                         name=name)
+                         name=name,
+                         w=w)
         self.checkDataLength()
 
         # modify the type to be autoReg

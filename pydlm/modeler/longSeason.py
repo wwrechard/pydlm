@@ -42,6 +42,15 @@ class longSeason(dynamic):
     autoReg is generated from the data, and updated according to the data.
     All other features are similar to @dynamic.
 
+    Args:
+        data: the time series data
+        period: the periodicy of the longSeason component
+        stay: the length of each state lasts
+        discount: the discount factor
+        name: the name of the trend component
+        w: the value to set the prior covariance. Default to a diagonal
+           matrix with 1e7 on the diagonal.
+
     Attributes:
         period: the periodicity, i.e., how many different states it has in
                 one period
@@ -56,7 +65,8 @@ class longSeason(dynamic):
                  period=4,
                  stay=7,
                  discount=0.99,
-                 name='longSeason'):
+                 name='longSeason',
+                 w=1e7):
 
         self.period = period
         self.stay = stay
@@ -73,7 +83,8 @@ class longSeason(dynamic):
         dynamic.__init__(self,
                          features=features,
                          discount=discount,
-                         name=name)
+                         name=name,
+                         w=w)
         self.checkDataLength()
 
         # modify the type to be autoReg

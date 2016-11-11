@@ -15,7 +15,7 @@ class testKalmanFilter(unittest.TestCase):
 
     def testForwardFilter(self):
         dlm = builder()
-        dlm.add(trend(degree = 1, discount = 1))
+        dlm.add(trend(degree=1, discount=1, w=1.0))
         dlm.initialize()
         self.kf1.predict(dlm.model)
         self.assertAlmostEqual(dlm.model.prediction.obs, 0)
@@ -48,7 +48,7 @@ class testKalmanFilter(unittest.TestCase):
 
     def testForwardFilterMultiDim(self):
         dlm = builder()
-        dlm.add(seasonality(period = 2, discount = 1))
+        dlm.add(seasonality(period=2, discount=1, w=1.0))
         dlm.initialize()
 
         self.kf11.forwardFilter(dlm.model, 1)
@@ -61,7 +61,7 @@ class testKalmanFilter(unittest.TestCase):
 
     def testBackwardSmoother(self):
         dlm = builder()
-        dlm.add(trend(degree = 1, discount = 1))
+        dlm.add(trend(degree=1, discount=1, w=1.0))
         dlm.initialize()
 
         # with mean being 0 and observe 1 and 0 consectively, one shall
@@ -79,7 +79,7 @@ class testKalmanFilter(unittest.TestCase):
     # smoothed observation should be 0.0
     def testBackwardSmootherMultiDim(self):
         dlm = builder()
-        dlm.add(trend(degree = 2, discount = 1))
+        dlm.add(trend(degree=2, discount=1, w=1.0))
         dlm.initialize()
 
         self.kf11.forwardFilter(dlm.model, 1)
@@ -95,7 +95,7 @@ class testKalmanFilter(unittest.TestCase):
 
     def testMissingData(self):
         dlm = builder()
-        dlm.add(trend(degree = 1, discount = 1))
+        dlm.add(trend(degree=1, discount=1, w=1.0))
         dlm.initialize()
 
         self.kf0.forwardFilter(dlm.model, 1)
@@ -115,7 +115,7 @@ class testKalmanFilter(unittest.TestCase):
 
     def testMissingEvaluation(self):
         dlm = builder()
-        dlm.add(trend(degree = 1, discount = 1))
+        dlm.add(trend(degree=1, discount=1, w=1.0))
         dlm.initialize()
 
         dlm.model.evaluation = np.matrix([[None]])
@@ -125,8 +125,8 @@ class testKalmanFilter(unittest.TestCase):
 
     def testEvolveMode(self):
         dlm = builder()
-        dlm.add(trend(degree = 1, discount = 0.9))
-        dlm.add(trend(degree = 1, discount = 0.98, name='a'))
+        dlm.add(trend(degree=1, discount=0.9, w=1.0))
+        dlm.add(trend(degree=1, discount=0.98, name='a', w=1.0))
         dlm.initialize()
 
         kf2 = kalmanFilter(discount=[0.9, 0.98],

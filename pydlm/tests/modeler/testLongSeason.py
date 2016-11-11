@@ -6,7 +6,7 @@ class testLongSeason(unittest.TestCase):
 
     def setUp(self):
         data = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
-        self.longSeason = longSeason(data=data, period=4, stay=4)
+        self.longSeason = longSeason(data=data, period=4, stay=4, w=1.0)
 
     def testFeatureMatrix(self):
         trueFeatures = [[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0],

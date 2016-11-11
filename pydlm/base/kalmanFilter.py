@@ -130,7 +130,7 @@ class kalmanFilter:
             loc = self._modifyTransitionAccordingToMissingValue(model)
 
         # since we have delt with the missing value, we don't need to double treat it.
-        self.predict(model, dealWithMissingEvaluation = False)
+        self.predict(model, dealWithMissingEvaluation=False)
 
         # when y is not a missing data
         if y is not None:
@@ -196,6 +196,7 @@ class kalmanFilter:
     #      rawState: the unsmoothed state at time t
     #      rawSysVar: the unsmoothed system variance at time t
     def backwardSmoother(self, model, rawState, rawSysVar):
+
         """ The backwardSmoother for one step backward smoothing
 
         Args:
@@ -217,7 +218,8 @@ class kalmanFilter:
         """
 
         # check whether evaluation has missing data, if so, we need to take care of it
-        loc = self._modifyTransitionAccordingToMissingValue(model)
+        # if dealWithMissingEvaluation:
+        #    loc = self._modifyTransitionAccordingToMissingValue(model)
 
         #### use generalized inverse to ensure the computation stability #######
 
@@ -235,7 +237,8 @@ class kalmanFilter:
                               model.evaluation.T) + model.noiseVar
 
         # recover the evaluation and the transition matrix
-        self._recoverTransitionAndEvaluation(model, loc)
+        #if dealWithMissingEvaluation:
+        #    self._recoverTransitionAndEvaluation(model, loc)
 
     def backwardSampler(self, model, rawState, rawSysVar):
         """ The backwardSampler for one step backward sampling
@@ -327,11 +330,7 @@ class kalmanFilter:
         """ A generalized inverse of matrix A
 
         """
-        U, s, V = np.linalg.svd(A)
-        s[s > 1e-5] = 1 / s[s > 1e-5]
-        s[s < 1e-5] = 0
-        S = np.diag(s)
-        return np.dot(U, np.dot(S, V))
+        return np.linalg.pinv(A)
 
     def _modifyTransitionAccordingToMissingValue(self, model):
         """ When evaluation contains None value, we modify the corresponding entries

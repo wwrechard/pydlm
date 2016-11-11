@@ -87,7 +87,7 @@ class _dlm:
         def __init__(self):
             self.noise = 1.0
             self.stable = True
-            self.innovationType='whole'
+            self.innovationType='component'
 
             self.plotOriginalData = True
             self.plotFilteredData = True
@@ -319,9 +319,9 @@ class _dlm:
             self.builder.model.prediction.sysVar \
                 = self.result.predictedCov[day + 1]
 
-            if len(self.builder.dynamicComponents) > 0 or \
-               len(self.builder.automaticComponents) > 0:
-                self.builder.updateEvaluation(day)
+            #if len(self.builder.dynamicComponents) > 0 or \
+            #   len(self.builder.automaticComponents) > 0:
+            #    self.builder.updateEvaluation(day)
 
             # then we use the backward filter to filter the result
             self.Filter.backwardSmoother(

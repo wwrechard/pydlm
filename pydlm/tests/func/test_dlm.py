@@ -17,18 +17,24 @@ class test_dlm(unittest.TestCase):
         self.dlm3 = _dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
         self.dlm4 = _dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
         self.dlm5 = _dlm(range(100))
-        self.dlm1.builder + trend(degree=1, discount=1)
-        self.dlm2.builder + trend(degree=1, discount=1e-12)
-        self.dlm3.builder + seasonality(period=2, discount=1)
+        self.dlm1.builder + trend(degree=1, discount=1, w=1.0)
+        self.dlm2.builder + trend(degree=1, discount=1e-12, w=1.0)
+        self.dlm3.builder + seasonality(period=2, discount=1, w=1.0)
         self.dlm4.builder + dynamic(features=[[0] for i in range(5)] +
-                                    [[1] for i in range(5)], discount=1)
-        self.dlm5.builder + trend(degree=1, discount=1) + \
-            autoReg(degree=1, data=range(100), discount=1)
+                                    [[1] for i in range(5)], discount=1,
+                                    w=1.0)
+        self.dlm5.builder + trend(degree=1, discount=1, w=1.0) + \
+            autoReg(degree=1, data=range(100), discount=1, w=1.0)
         self.dlm1._initialize()
         self.dlm2._initialize()
         self.dlm3._initialize()
         self.dlm4._initialize()
         self.dlm5._initialize()
+        self.dlm1.options.innovationType='whole'
+        self.dlm2.options.innovationType='whole'
+        self.dlm3.options.innovationType='whole'
+        self.dlm4.options.innovationType='whole'
+        self.dlm5.options.innovationType='whole'
 
     def testForwardFilter(self):
         self.dlm1._forwardFilter(start=0, end=19, renew=False)

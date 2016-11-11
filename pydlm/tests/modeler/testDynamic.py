@@ -7,7 +7,7 @@ class testDynamic(unittest.TestCase):
 
     def setUp(self):
         self.features = np.matrix(np.random.rand(10, 2)).tolist()
-        self.newDynamic = dynamic(features=self.features)
+        self.newDynamic = dynamic(features=self.features, w=1.0)
 
     def testInitialization(self):
         self.assertEqual(self.newDynamic.d, 2)

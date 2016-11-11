@@ -6,7 +6,7 @@ class testAutoReg(unittest.TestCase):
 
     def setUp(self):
         data = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
-        self.ar4 = autoReg(degree=4, data=data, name='ar4', padding=0)
+        self.ar4 = autoReg(degree=4, data=data, name='ar4', padding=0, w=1.0)
 
     def testFeatureMatrix(self):
         trueFeatures = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 2],

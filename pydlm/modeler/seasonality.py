@@ -28,7 +28,14 @@ class seasonality(component):
     instance, the hourly, weekly or monthly behavior. Different from the Fourier
     series, the seasonality components are nonparametric, i.e., there is no sin
     or cos relationship between each state. They can be arbitrarily valued.
- 
+
+    Args:
+        period: the period of the
+        discount: the discount factor
+        name: the name of the trend component
+        w: the value to set the prior covariance. Default to a diagonal
+           matrix with 1e7 on the diagonal.
+
     Examples:
         >>>  # create a 7-day seasonality:
         >>> ctrend = seasonality(period = 7, name = 'weekly', discount = 0.99)
@@ -36,7 +43,7 @@ class seasonality(component):
         >>> ctrend.createCovPrior(cov = 2)
         >>> ctrend.createMeanPrior(mean = 1)
         >>> ctrend.freeForm()
-   
+
     Attributes:
         d: the period of the seasonality
         componentType: the type of the component, in this case, 'seasonality'
@@ -49,16 +56,21 @@ class seasonality(component):
         covPrior: the prior guess of the covariance matrix of the latent states
         meanPrior: the prior guess of the latent states
 
-    
+
     """
-    def __init__(self, period = 7, discount = 0.99, name = 'seasonality'):
+    def __init__(self,
+                 period = 7,
+                 discount = 0.99,
+                 name = 'seasonality',
+                 w=1e7):
+
         if period <= 1:
             raise NameError('Period has to be greater than 1.')
         self.d = period
         self.componentType = 'seasonality'
         self.name = name
         self.discount = np.ones(self.d) * discount
-        
+
         # Initialize all basic quantities
         self.evaluation = None
         self.transition = None
@@ -68,7 +80,7 @@ class seasonality(component):
         # create all basic quantities
         self.createEvaluation()
         self.createTransition()
-        self.createCovPrior()
+        self.createCovPrior(cov=w)
         self.createMeanPrior()
 
         # create form free seasonality component
@@ -76,7 +88,7 @@ class seasonality(component):
 
     def createEvaluation(self):
         """ Create the evaluation matrix
-        
+
         """
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
@@ -89,7 +101,7 @@ class seasonality(component):
     # in the seasonality performance
     def createTransition(self):
         """ Create the transition matrix.
-        
+
         According to Hurrison and West (1999), the transition matrix of seasonality
         takes a form of\n
 
@@ -101,16 +113,16 @@ class seasonality(component):
         """
         self.transition = np.matrix(np.diag(np.ones(self.d - 1), 1))
         self.transition[self.d - 1, 0] = 1
-        
-    def createCovPrior(self, cov = 1):
+
+    def createCovPrior(self, cov = 1e7):
         """Create the prior covariance matrix for the latent states.
-        
+
         """
         self.covPrior = np.matrix(np.eye(self.d)) * cov
 
     def createMeanPrior(self, mean = 0):
         """ Create the prior latent state
-    
+
         """
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
 
@@ -131,9 +143,9 @@ class seasonality(component):
             A = np.sum(self.covPrior, 1) / u
             self.meanPrior = self.meanPrior - A * np.sum(self.meanPrior, 0)[0, 0]
             self.covPrior = self.covPrior - np.dot(A, A.T) * u
-        
+
     def checkDimensions(self):
-        """ if user supplies their own covPrior and meanPrior, this can 
+        """ if user supplies their own covPrior and meanPrior, this can
         be used to check if the dimension matches
 
         """
