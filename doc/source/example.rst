@@ -33,7 +33,7 @@ believe `b` should be a constant. The :class:`dynamic` class only accepts 2-d
 list for feature arugment (since the control variable could be
 multi-dimensional). Thus, we change `x` to 2d list. In addition, we
 believe these two processes `a` and `b` evolve independently and set
-(This is the default assumption, so actually no need to set)::
+(This is currently the default assumption, so actually no need to set)::
 
   >>> mydlm.evolveMode('independent')
 
