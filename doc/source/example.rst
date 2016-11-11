@@ -18,15 +18,16 @@ model::
 
   >>> from pydlm import dlm, trend, dynamic
   >>> mydlm = dlm(y)
-  >>> mydlm = mydlm + trend(degree=1, discount=0.98, name='a')
-  >>> mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b')
+  >>> mydlm = mydlm + trend(degree=1, discount=0.98, name='a', w=10.0)
+  >>> mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b', w=10.0)
 
 In the model, we add two components :class:`trend` and
 :class:`dynamic`. The trend `a` is one of the systematical components
 that can be used to characterize the intrisic property of a time
 series, and trend is particularly suitable for our case. It has a
 discount factor of 0.98 as we believe the baseline can gradually shift
-overtime. The dynamic component `b` is modeling the regression
+overtime and we specify a prior covariance with 10.0 on the
+diagonal. The dynamic component `b` is modeling the regression
 component. We specify its discounting factor to be 1.0 since we
 believe `b` should be a constant. The :class:`dynamic` class only accepts 2-d
 list for feature arugment (since the control variable could be
@@ -38,7 +39,7 @@ believe these two processes `a` and `b` evolve independently and set
 
 This can also be set to 'dependent' if the computation efficiency is a
 concern. The default prior on the covariance of each component is a
-diagonal matrix with 1e7 on the diagonal, this can be changed when
+diagonal matrix with 1e7 on the diagonal, we changed this value in
 building the component (more details please refer to the user manual).
 The prior on the observational noise (default to 1.0) can be set by::
 
