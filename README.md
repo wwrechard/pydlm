@@ -4,7 +4,7 @@
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`. 
 
-Updates in 0.1.1.6
+Updates in 0.1.1.7
 -------------------
 * Add an option to let different component evolve independently (default) 
 * Bug fixing: change the default prior covariance for the components to match the results of BATS
