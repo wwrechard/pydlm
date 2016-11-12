@@ -12,7 +12,7 @@ setup(
     url = 'https://github.com/wwrechard/pydlm',
     packages = find_packages(),
     classifiers = [
-      'Development Status :: 4 - Beta',
+      'Development Status :: 3 - Alpha',
       'Intended Audience :: Science/Research',
       'License :: OSI Approved :: BSD License',
       'Operating System :: OS Independent',
