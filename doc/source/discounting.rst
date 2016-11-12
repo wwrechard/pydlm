@@ -1,4 +1,7 @@
-.. currentmodule:: pydlm
+.. py:currentmodule:: pydlm
+		      
+The discouting factor
+=====================
 
 The discounting factor is a technique introduced in Harrison and
 West (1999) to avoid estimating the two tuning parameters in the usual
@@ -48,7 +51,7 @@ can have different discounting factors::
 
 
 Numerical stability and the renewal strategy
-============================================
+--------------------------------------------
 
 One big caveat for using discounting factor is its numerical
 instability. The original kalman filter already suffers from the

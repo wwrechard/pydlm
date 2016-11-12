@@ -1,4 +1,5 @@
-=======================================================
+.. module:: pydlm
+
 `PyDLM <https://github.com/wwrechard/PyDLM>`_
 =======================================================
 
@@ -146,48 +147,13 @@ For online updates::
   ...     myDLM.fitForwardFilter()
   >>> filteredObs = myDLM.getFilteredObs()
 
-------------
-Installation
-------------
-You can now get the package from `PyPI`::
+Documentation
+=============
+.. toctree::
+      :maxdepth: 2
 
-  $ pip install pydlm
-
-You can also get the latest from `github
-<https://github.com/wwrechard/PyDLM>`_::
-
-      $ git clone git@github.com:wwrechard/pydlm.git pydlm
-      $ cd pydlm
-      $ sudo python setup.py install
-
-:mod:`pydlm` depends on the following modules,
-
-* :mod:`numpy`      (for core functionality)
-* :mod:`matplotlib` (for plotting results)
-* :mod:`Sphinx`     (for generating documentation)
-* :mod:`unittest`   (for tests)
-
-
-----------------
-A simple example
-----------------
-.. include:: example.rst
-
--------------------------------------
-Dynamic linear models --- user manual
--------------------------------------
-
-.. include:: pydlm_user_guide.rst
-
-
----------------------
-The discouting factor
----------------------
-
-.. include:: discounting.rst
-
----------------
-Class Reference
----------------
-
-.. include:: class_ref.rst
+      installation
+      example
+      pydlm_user_guide
+      discounting
+      class_ref

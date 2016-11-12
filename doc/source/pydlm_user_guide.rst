@@ -1,4 +1,7 @@
-.. currentmodule:: pydlm
+.. py:currentmodule:: pydlm
+		      
+Dynamic linear models --- user manual
+=====================================
 
 This package implements the Bayesian dynamic linear model (DLM, Harrison
 and West, 1999) for time series analysis.
@@ -52,7 +55,7 @@ The disadvantage of :mod:`pydlm`:
 
 
 Modeling
-========
+--------
 
 As discussed in the beginning, the modeling process is very simple
 with :mod:`pydlm`, most modeling functions are integrated in the class
@@ -108,13 +111,13 @@ Such change usually has small impact on the model and is almost
 ignorable.
 
 Model components
-===================
+----------------
 
 There are four model components provided with this
 package: trend, seasonality, dynamic and the auto-regression.
 
 Trend
------
+`````
 :class:`trend` class is a model component for trending
 behavior. The data might be increasing linearly or quadraticly, which
 can all be captured by :class:`trend`. The degree argument specifics
@@ -125,7 +128,7 @@ will be explained later in next section::
   >>> linearTrend = trend(degree=2, discount=0.99, name='trend1', w=1e7)
 
 Seasonality
------------
+```````````
 The :class:`seasonality` class models the periodic behavior of the
 data. Compared to the sine or cosine periodic curves,
 :class:`seasonality` in this packages is more flexible, since it can
@@ -139,7 +142,7 @@ issue. The states of one seasonality component are always summed up to
 zero, so that it will not tangle with the :class:`trend` component.
 
 Dynamic
--------
+```````
 The :class:`dynamic` class offers the modeling ability to add any additional
 observed time series as a controlled variable to the current one. For
 example, when studying the stock price, the 'SP500' index could be a
@@ -158,7 +161,7 @@ simple example::
 
 
 Auto-regression
----------------
+```````````````
 The :class:`autoReg` class constructs the auto-regressive component on
 the model, i.e., the direct linear or non-linear dependency between
 the current observation and the previous days. User needs to specify
@@ -172,7 +175,7 @@ coefficients from the latent states, this will be the correct order to
 read the coefficients.
 
 Long-seasonality
-----------------
+````````````````
 The :class:`longSeason` class is a complement class for
 :class:`seasonality`. It allows constructing seasonality component that
 does not change every step. For example, the time unit is day, but
@@ -187,7 +190,7 @@ very complicated models using these components, such as hourly, weekly or
 monthly periodicy and holiday indicator and many other features.
 
 Model fitting
-=============
+-------------
 
 Entailed before, the fitting of the dlm is fulfilled by a modified
 Kalman filter. Once the user finished constructing the model by adding
@@ -265,7 +268,7 @@ results. For more detail, please refer to the :class:`dlm` class
 documentation.
 
 Model prediction
-================
+----------------
 :class:`dlm` provides two predict functions: :func:`dlm.predict` and
 :func:`dlm.continuePredict`. The :func:`dlm.predict` is a one-day ahead
 prediction function based on a user given date and feature set::
@@ -315,13 +318,13 @@ the prediction is requested on dates before the last day and the
 features on the predict day can be found from the old data.
 
 Model amending
-==============
+--------------
 
 The user can still add, delete, modify data even when the model has
 been constructed.
 
 Adding new data
----------------
+```````````````
 For adding more data, user can opt to
 :func:`dlm.append`::
 
@@ -342,7 +345,7 @@ The package will continue running the forward filter on the three new
 data ponts.
 
 Deleting existing data
-----------------------
+``````````````````````
 To delete any existing data, user can simply use the :func:`dlm.popout`
 function from :class:`dlm` on a specific date, for example::
 
@@ -359,7 +362,7 @@ Again, the package will automatically recognize the date and fit only
 the necessary period of time.
 
 Ignoring a date
----------------
+```````````````
 Ignoring is very similar to deleting. The only difference is the time
 counts. Because deleting will delete the data entirely, the time
 counts will therefore reduce by 1. By contrast, ignoring will treat
@@ -373,7 +376,7 @@ concerned. Changing of time counts will have high impacts on
   >>> myDLM.ignore(2)
 
 modify data
------------
+```````````
 The :class:`dlm` also provides user the ability to modify the data on a
 specific date and a specific component. This function enables possible
 future extension to interactive anomaly detection and data debugging::
@@ -382,7 +385,7 @@ future extension to interactive anomaly detection and data debugging::
 
 
 Model plotting
-==============
+--------------
 
 This package offers rich ploting options for illustrating the
 results. User can simply call :func:`dlm.plot` to directly plot the
@@ -443,7 +446,7 @@ If user decide to go back to the original setting, they can use
 
 
 Advanced Settings
-=================
+-----------------
 
 This part of settings closely relate to the algorithm behavior and
 offers some advanced features, some of which are still under

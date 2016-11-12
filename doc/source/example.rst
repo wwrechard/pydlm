@@ -1,4 +1,7 @@
-.. currentmodule:: pydlm
+.. py:currentmodule:: pydlm
+	      
+A simple example
+================
 
 In this section, we give a simple example on linear regression to
 illustrate how to use the `pydlm` for analyzing data. The data is
