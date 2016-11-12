@@ -13,37 +13,6 @@ Special Thanks to Dr. Nick Gayeski for helping identify all these issues!
 * Bug fixing: deprecate the hand-written generalized inverse function and switch to numpy's built-in one.
 * Add an easy specification for component prior on covariance and the model prior on observational noise (see the example and the user manual)
 
-Updates history
-----------------
-updates in 0.1.1.1
-
-+ Fix bugs in latent states retrieval
-+ Rewrite all the get methods (simpler and concise). Allows easy fetching individual component.
-+ Add a longSeason component
-+ Add more plot functionalities
-+ Add the ribbon confidence interval
-+ Add a simple example in documentation for using pydlm
-
-Installation
-------------
-You can currently get the package from `pypi` by
-
-      $ pip install pydlm
-
-You can also get the latest from [github]
-(https://github.com/wwrechard/PyDLM)
-
-      $ git clone git@github.com:wwrechard/pydlm.git pydlm
-      $ cd pydlm
-      $ sudo python setup.py install
-
-`pydlm` depends on the following modules,
-
-* `numpy`     (for core functionality)
-*  `matplotlib` (for plotting results)
-* `Sphinx`    (for generating documentation)
-* `unittest`  (for testing)
-
 A simple example
 -----------------
 we give a simple example on linear regression to illustrate how to use the `pydlm` for analyzing data. The data is generated via the following process
@@ -130,6 +99,26 @@ can do
   >>> newData3 = {'b': [3]}
   >>> (predictMean, predictVar) = mydlm.continuePredict(featureDict=newData3)
 ```
+
+Installation
+------------
+You can currently get the package from `pypi` by
+
+      $ pip install pydlm
+
+You can also get the latest from [github]
+(https://github.com/wwrechard/PyDLM)
+
+      $ git clone git@github.com:wwrechard/pydlm.git pydlm
+      $ cd pydlm
+      $ sudo python setup.py install
+
+`pydlm` depends on the following modules,
+
+* `numpy`     (for core functionality)
+*  `matplotlib` (for plotting results)
+* `Sphinx`    (for generating documentation)
+* `unittest`  (for testing)
 
 Quick guide-through
 -------------------
@@ -243,6 +232,17 @@ For online updates
   ...     myDLM.fitForwardFilter()
   >>> filteredObs = myDLM.getFilteredObs()
 ```  
+
+Changelogs
+----------------
+updates in 0.1.1.1
+
++ Fix bugs in latent states retrieval
++ Rewrite all the get methods (simpler and concise). Allows easy fetching individual component.
++ Add a longSeason component
++ Add more plot functionalities
++ Add the ribbon confidence interval
++ Add a simple example in documentation for using pydlm
 
 Documentation
 -------------
