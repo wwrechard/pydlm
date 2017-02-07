@@ -151,7 +151,6 @@ class builder:
                     self.renewDiscount = 1.0
                 self.renewDiscount = min(self.renewDiscount,
                                          min(component.discount))
-
         self.initialized = False
         return self
 

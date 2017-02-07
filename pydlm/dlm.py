@@ -660,6 +660,10 @@ class dlm(_dlm):
             raise NameError('The date should be between 0 and ' +
                             str(self.n - 1))
 
+        # initialize the model to ease the modification
+        if not self.initialized:
+            self._initialize()
+
         # to alter the data for the observed chain
         if component == 'main':
             self.data[date] = data
@@ -1063,3 +1067,22 @@ class dlm(_dlm):
             global dlmPlot
             import pydlm.plot.dlmPlot as dlmPlot
             self.plotLibLoaded = True
+            
+# ========================= tuning and evaluation =========================
+    def getMSE(self):
+        """ Get the one-day ahead prediction mean square error. The mse is
+        estimated only for days that has been predicted.
+
+        Returns:
+            An numerical value
+        """
+
+        return self._getMSE()
+
+    def autoTune(self):
+        """ Automatic tuning of the discounting factors. 
+
+        The method will call the model tuner class using the default parameters
+        and change the discounts factor permenantly
+        """
+        pass

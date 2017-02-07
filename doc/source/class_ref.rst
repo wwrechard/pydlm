@@ -1,4 +1,5 @@
-
+.. py:currentmodule:: pydlm
+		      
 Class Reference
 ===============
 

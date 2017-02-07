@@ -52,15 +52,7 @@ class kalmanFilter:
         self.discount = np.matrix(np.diag(1 / np.sqrt(np.array(discount))))
         self.updateInnovation = updateInnovation
         self.index = index
-        #self.shrink = shrink
-        #self.shrinkageMatrix = shrinkageMatrix
 
-        # initialize the shrinkage Matrix
-        #if self.shrinkageMatrix is None:
-        #    self.shrinkageMatrix = np.eye(self.discount.shape[0])
-
-        #self.shrinkageMatrix = np.dot(np.dot(self.discount, self.shrinkageMatrix), \
-        #                              self.discount) - self.shrinkageMatrix
     def predict(self, model, dealWithMissingEvaluation = False):
         """ Predict the next states of the model by one step
 
