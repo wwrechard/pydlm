@@ -116,18 +116,6 @@ class autoReg(dynamic):
         if self.d >= self.n:
             raise NameError('The degree cannot be longer than the data series')
 
-    # check if there is any none data. We currently don't support missing data
-    # for auto regression.
-    def hasMissingData(self, aList):
-        """ Check whether the list contains None
-
-        """
-        for item in aList:
-            if item is None:
-                return True
-
-        return False
-
     # overide
     def updateEvaluation(self, date):
         if date < self.n:

@@ -32,9 +32,9 @@ Example:
 # Kalman filter functionality for filtering the data
 
 from copy import deepcopy
-from pydlm.func._dlm import _dlm
 from pydlm.base.tools import getInterval
-
+from pydlm.tuner.dlmTuner import modelTuner
+from pydlm.func._dlm import _dlm
 
 class dlm(_dlm):
     """ The main class of the dynamic linear model.
@@ -575,6 +575,10 @@ class dlm(_dlm):
                        component.
 
         """
+        # initialize the model to ease the modification
+        if not self.initialized:
+            self._initialize()
+            
         # if we are adding new data to the time series
         if component == 'main':
             # add the data to the self.data
@@ -617,6 +621,10 @@ class dlm(_dlm):
             raise NameError('The date should be between 0 and ' +
                             str(self.n - 1))
 
+        # initialize the model to ease the modification
+        if not self.initialized:
+            self._initialize()
+
         # pop out the data at date
         self.data.pop(date)
         self.n -= 1
@@ -649,7 +657,9 @@ class dlm(_dlm):
 
         Args:
             date: the date of the altering data
-            data: the new data
+            data: the new data. data must be a numeric value for main time
+                  series and must be a list of numerical values for dynamic
+                  components.
             component: the component for which the new data need to be
                        supplied to.\n
                        'main': the main time series data\n
@@ -676,7 +686,7 @@ class dlm(_dlm):
         # to alter the feature of a component
         elif component in self.builder.dynamicComponents:
             comp = self.builder.dynamicComponents[component]
-            comp.features[component] = data
+            comp.alter(date, data)
 
         else:
             raise NameError('Such dynamic component does not exist.')
@@ -1079,10 +1089,25 @@ class dlm(_dlm):
 
         return self._getMSE()
 
-    def autoTune(self):
+    def tune(self, maxit=100):
         """ Automatic tuning of the discounting factors. 
 
-        The method will call the model tuner class using the default parameters
-        and change the discounts factor permenantly
+        The method will call the model tuner class to use the default parameters
+        to tune the discounting factors and change the discount factor permenantly.
+        User needs to refit the model after tuning.
+        
+        If user wants a more refined tuning and not change any property of the
+        existing model, they should refer to the modelTuner class.
         """
-        pass
+        simpleTuner = modelTuner()
+
+        if self._printInfo:
+            self.fitForwardFilter()
+            print("The current mse is " + str(self.getMSE()) + '.')
+        
+        simpleTuner.tune(untunedDLM=self, maxit=maxit)
+        self._setDiscounts(simpleTuner.getDiscounts(), change_component=True)
+        
+        if self._printInfo:
+            self.fitForwardFilter()
+            print("The new mse is " + str(self.getMSE()) + '.')

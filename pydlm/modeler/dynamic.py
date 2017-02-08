@@ -15,9 +15,10 @@ The name dynamic means that the features are changing over time.
 
 """
 import numpy as np
-from .component import component
-import pydlm.base.tools as tl
+from collections import MutableSequence
 
+import pydlm.base.tools as tl
+from .component import component
 # create trend component
 # We create the trend using the component class
 
@@ -66,6 +67,11 @@ class dynamic(component):
 
         self.n = len(features)
         self.d = len(features[0])
+
+        if self.hasMissingData(features):
+            raise NameError("The current version does not support missing data" +
+                            "in the features.")
+
         self.features = tl.duplicateList(features)
         self.componentType = 'dynamic'
         self.name = name
@@ -128,6 +134,21 @@ class dynamic(component):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print('The dimesnion looks good!')
 
+    # Recursively heck if there is any none data. We currently don't support
+    # missing data for features.
+    def hasMissingData(self, features):
+        """ Check whether the list contains None
+
+        """
+        for item in features:
+            if isinstance(item, MutableSequence):
+                if self.hasMissingData(item):
+                    return True
+            else:
+                if item is None:
+                    return True
+        return False
+
     def updateEvaluation(self, step):
         """ update the evaluation matrix to a specific date
         This function is used when fitting the forward filter and backward smoother
@@ -148,6 +169,10 @@ class dynamic(component):
                      list may contain multiple feature vectors.
 
         """
+        if self.hasMissingData(newData):
+            raise NameError("The current version does not support missing data" +
+                            "in the features.")
+        
         self.features.extend(tl.duplicateList(newData))
         self.n = len(self.features)
 
@@ -160,3 +185,19 @@ class dynamic(component):
         """
         self.features.pop(date)
         self.n -= 1
+
+    def alter(self, date, feature):
+        """ Change the corresponding
+            feature matrix.
+
+        Args:
+           date: The date to be modified.
+           dataPoint: The new feature to be filled in.
+
+        """
+        if self.hasMissingData(feature):
+            raise NameError("The current version does not support missing data" +
+                            "in the features.")
+        else:
+            self.features[date] = feature
+

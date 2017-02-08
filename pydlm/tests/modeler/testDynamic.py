@@ -34,4 +34,9 @@ class testDynamic(unittest.TestCase):
             np.matrix(self.newDynamic.features)
             - np.matrix(self.features[1:]))), 0)
 
+    def testAlter(self):
+        self.newDynamic.alter(1, [0, 0])
+        self.assertAlmostEqual(self.newDynamic.features[1],
+                               [0, 0])
+
 unittest.main()

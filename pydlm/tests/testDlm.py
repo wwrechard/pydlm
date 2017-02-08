@@ -159,7 +159,6 @@ class testDlm(unittest.TestCase):
         # the filtered step range should be (0, 19)
         self.assertEqual(dlm4.result.filteredSteps, [0, 19])
 
-        # pop out the first date, the filtered range should be (0, -1)
         dlm4.alter(date = 15, data = 1, component = 'main')
         self.assertEqual(dlm4.result.filteredSteps, [0, 14])
         dlm4.fitForwardFilter()
@@ -175,6 +174,11 @@ class testDlm(unittest.TestCase):
         # The two chain should have the same filtered obs
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) - \
                                       np.array(dlm5.result.filteredObs)), 0.0)
+
+        # test alter the feature
+        dlm4.alter(date=0, data=[1,1], component='dynamic')
+        self.assertAlmostEqual(dlm4.builder.dynamicComponents['dynamic'].features[0],
+                               [1, 1])
 
     def testOneDayAheadPredictWithoutDynamic(self):
         self.dlm3.fitForwardFilter()
