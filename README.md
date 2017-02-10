@@ -230,7 +230,7 @@ For online updates
   >>> for t in range(0, len(data)):
   ...     myDLM.append([data[t]])
   ...     myDLM.fitForwardFilter()
-  >>> filteredObs = myDLM.getFilteredObs()
+  >>> filteredObs = myDLM.getMean(filterType='forwardFilter')
 ```  
 
 Changelogs
