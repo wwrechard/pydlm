@@ -1097,7 +1097,7 @@ class dlm(_dlm):
         User needs to refit the model after tuning.
         
         If user wants a more refined tuning and not change any property of the
-        existing model, they should refer to the modelTuner class.
+        existing model, they should opt to use the @modelTuner class.
         """
         simpleTuner = modelTuner()
 

@@ -365,22 +365,21 @@ class testDlm(unittest.TestCase):
             diff += abs(arTrend[i] - trueAr[i])
         self.assertAlmostEqual(diff, 0)
 
+    def testGetMSE(self):
+        self.dlm1.fitForwardFilter()
+        mse1 = self.dlm1.getMSE()
+        mse_expect = 0
+        for i in range(20):
+            mse_expect += (self.dlm1.result.predictedObs[i] -
+                            self.data[i]) ** 2
+        mse_expect /= 20
+        self.assertAlmostEqual(mse1, mse_expect)
+
+        self.dlm2.fitForwardFilter()
+        self.dlm2.result.filteredSteps = (0, 19)
+        mse2 = self.dlm2.getMSE()
+        mse_expect = 2.0/20
+
+        self.assertAlmostEqual(mse2, mse_expect)
+
 unittest.main()
-
-
-
-#import numpy as np
-#import pydlm as pd
-
-#data = np.concatenate((np.random.random(100), np.random.random(100) + 3))
-#myDLM = pd.dlm(data) + pd.trend(2, discount = 0.9)
-
-
-#myDLM.turnOn('smooth')
-#myDLM.turnOn('predict')
-#myDLM.turnOff('multiple')
-#myDLM.shrink(0.0)
-#myDLM.fitForwardFilter(useRollingWindow = False, windowLength = 20)
-#myDLM.fitForwardFilter()
-#myDLM.fitBackwardSmoother()
-#myDLM.plot()
