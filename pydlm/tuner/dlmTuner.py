@@ -5,11 +5,36 @@ The discount factor tuner for dlm
 
 ===============================================================
 
+The modelTuner class provides the tuning functionality for the dlm class.
+It makes use of the gradient descent to optimize the discount factor for
+each component (jointly) based on the one-day ahead prediction error.
+
+>>> import modelTuner
+>>> myTuner = modelTuner()
+>>> tunedDLM = myTuner(untunedDLM, maxit=100)
+
+The tunedDLM will be saved in tunedDLM while the untunedDLM remains unchangd.
+An alternative way to call this class is via the tuner method within dlm class.
+
+>>> mydlm.tune(maxit=100)
+
+This will permenantly change the discouting factor in mydlm. So if the user
+prefer to build a new dlm with the new discount factor without changing the 
+original one, one should opt to use the modelTuner class.
+
 """
 from copy import deepcopy
 from numpy import array
 
 class modelTuner:
+    """ The main class for modelTuner
+
+    Attributes:
+        method: the optimization method. Currently only 'gradient_descent'
+                is supported.
+        loss:   the optimization loss function. Currently only 'mse' (one-day
+                ahead prediction) is supported.
+    """
 
     def __init__(self, method='gradient_descent', loss='mse'):
 
