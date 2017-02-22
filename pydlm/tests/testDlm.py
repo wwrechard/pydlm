@@ -366,6 +366,7 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(diff, 0)
 
     def testGetMSE(self):
+        self.dlm1.stableMode(False)
         self.dlm1.fitForwardFilter()
         mse1 = self.dlm1.getMSE()
         mse_expect = 0
@@ -375,6 +376,7 @@ class testDlm(unittest.TestCase):
         mse_expect /= 20
         self.assertAlmostEqual(mse1, mse_expect)
 
+        self.dlm2.stableMode(False)
         self.dlm2.fitForwardFilter()
         self.dlm2.result.filteredSteps = (0, 19)
         mse2 = self.dlm2.getMSE()
