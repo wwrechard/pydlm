@@ -10,4 +10,5 @@ class testTrend(unittest.TestCase):
         newTrend = pydlm.modeler.trends.trend(self.DEGREE)
         newTrend.checkDimensions()
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

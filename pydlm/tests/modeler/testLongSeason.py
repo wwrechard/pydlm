@@ -54,4 +54,5 @@ class testLongSeason(unittest.TestCase):
         self.assertEqual(self.longSeason.nextState, [3, 1])
         self.assertEqual(self.longSeason.n, 12)
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

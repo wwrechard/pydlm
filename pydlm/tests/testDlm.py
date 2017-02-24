@@ -53,26 +53,26 @@ class testDlm(unittest.TestCase):
         self.dlm1.fitForwardFilter(useRollingWindow = False)
         self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
         self.assertAlmostEqual(np.sum(self.dlm1.result.filteredObs[0:9]), 0)
-        self.assertAlmostEqual(self.dlm1.result.filteredObs[9], 1.0/11)
-        self.assertAlmostEqual(self.dlm1.result.filteredObs[19], 1.0/21)
+        self.assertAlmostEqual(self.dlm1.result.filteredObs[9][0, 0], 1.0/11)
+        self.assertAlmostEqual(self.dlm1.result.filteredObs[19][0, 0], 1.0/21)
 
         self.dlm2.fitForwardFilter(useRollingWindow = False)
         self.assertAlmostEqual(np.sum(self.dlm2.result.filteredObs[0:9]), 0.0)
-        self.assertAlmostEqual(self.dlm2.result.filteredObs[9], 1.0)
-        self.assertAlmostEqual(self.dlm2.result.filteredObs[19], 0.0)
+        self.assertAlmostEqual(self.dlm2.result.filteredObs[9][0, 0], 1.0)
+        self.assertAlmostEqual(self.dlm2.result.filteredObs[19][0, 0], 0.0)
 
     def testFitBackwardSmoother(self):
         self.dlm1.fitForwardFilter()
         self.dlm1.fitBackwardSmoother()
         self.assertEqual(self.dlm1.result.smoothedSteps, [0, 19])
-        self.assertAlmostEqual(self.dlm1.result.smoothedObs[0], 1.0/21)
-        self.assertAlmostEqual(self.dlm1.result.smoothedObs[19], 1.0/21)
+        self.assertAlmostEqual(self.dlm1.result.smoothedObs[0][0, 0], 1.0/21)
+        self.assertAlmostEqual(self.dlm1.result.smoothedObs[19][0, 0], 1.0/21)
 
         self.dlm2.fitForwardFilter()
         self.dlm2.fitBackwardSmoother()
-        self.assertAlmostEqual(self.dlm2.result.smoothedObs[0], 0.0)
-        self.assertAlmostEqual(self.dlm2.result.smoothedObs[19], 0.0)
-        self.assertAlmostEqual(self.dlm2.result.smoothedObs[9], 1.0)
+        self.assertAlmostEqual(self.dlm2.result.smoothedObs[0][0, 0], 0.0)
+        self.assertAlmostEqual(self.dlm2.result.smoothedObs[19][0, 0], 0.0)
+        self.assertAlmostEqual(self.dlm2.result.smoothedObs[9][0, 0], 1.0)
 
     def testAppend(self):
         dlm4 = dlm(self.data[0:11])
@@ -225,9 +225,9 @@ class testDlm(unittest.TestCase):
     def testPredictWithAutoReg(self):
         self.dlm5.fitForwardFilter()
         (obs, var) = self.dlm5.predict(date=99)
-        self.assertAlmostEqual(obs, 100.03682874)
+        self.assertAlmostEqual(obs[0, 0], 100.03682874)
         (obs, var) = self.dlm5.continuePredict()
-        self.assertAlmostEqual(obs, 101.07480945)
+        self.assertAlmostEqual(obs[0, 0], 101.07480945)
 
     def testGetLatentState(self):
         # for forward filter
@@ -384,4 +384,5 @@ class testDlm(unittest.TestCase):
 
         self.assertAlmostEqual(mse2, mse_expect)
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

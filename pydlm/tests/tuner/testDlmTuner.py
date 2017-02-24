@@ -34,4 +34,5 @@ class testModelTuner(unittest.TestCase):
         self.assertTrue(
             max(tunedDLM._getDiscounts()) >= 1.0 - 2 * self.mytuner.err)
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

@@ -80,4 +80,5 @@ class testAutoReg(unittest.TestCase):
         self.assertEqual(self.ar4.lastDay, 3)
         self.assertEqual(self.ar4.n, 12)
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

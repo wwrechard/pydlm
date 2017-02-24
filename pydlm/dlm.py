@@ -501,25 +501,25 @@ class dlm(_dlm):
         # to return the full latent states
         if name == 'all':
             if filterType == 'forwardFilter':
-                return map(lambda x: x if x is None
-                           else self._1DmatrixToArray(x),
-                           self.result.filteredState[start:end])
+                return list(map(lambda x: x if x is None
+                                else self._1DmatrixToArray(x),
+                                self.result.filteredState[start:end]))
             elif filterType == 'backwardSmoother':
-                return map(lambda x: x if x is None
-                           else self._1DmatrixToArray(x),
-                           self.result.smoothedState[start:end])
+                return list(map(lambda x: x if x is None
+                                else self._1DmatrixToArray(x),
+                                self.result.smoothedState[start:end]))
             elif filterType == 'predict':
-                return map(lambda x: x if x is None
-                           else self._1DmatrixToArray(x),
-                           self.result.smoothedState[start:end])
+                return list(map(lambda x: x if x is None
+                                else self._1DmatrixToArray(x),
+                                self.result.smoothedState[start:end]))
             else:
                 raise NameError('Incorrect filter type.')
 
         # to return the latent state for a given component
         self._checkComponent(name)
-        return map(lambda x: x if x is None else self._1DmatrixToArray(x),
-                   self._getLatentState(name=name, filterType=filterType,
-                                        start=start, end=end))
+        return list(map(lambda x: x if x is None else self._1DmatrixToArray(x),
+                        self._getLatentState(name=name, filterType=filterType,
+                                             start=start, end=end)))
 
     def getLatentCov(self, filterType='forwardFilter', name='all'):
         """ get the error covariance for different components and

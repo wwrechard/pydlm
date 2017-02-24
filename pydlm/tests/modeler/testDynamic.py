@@ -39,4 +39,5 @@ class testDynamic(unittest.TestCase):
         self.assertAlmostEqual(self.newDynamic.features[1],
                                [0, 0])
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

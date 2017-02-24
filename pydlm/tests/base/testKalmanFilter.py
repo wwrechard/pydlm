@@ -38,13 +38,13 @@ class testKalmanFilter(unittest.TestCase):
         # the prior on the mean is zero, but observe 1, with discount = 0
         # one should expect the filtered mean close to 1
         self.kf0.forwardFilter(dlm.model, 1)
-        self.assertAlmostEqual(dlm.model.obs, 1)
-        self.assertAlmostEqual(dlm.model.prediction.obs, 0)
-        self.assertAlmostEqual(dlm.model.sysVar, 0.5)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 1)
+        self.assertAlmostEqual(dlm.model.prediction.obs[0, 0], 0)
+        self.assertAlmostEqual(dlm.model.sysVar[0, 0], 0.5)
 
         self.kf0.predict(dlm.model)
-        self.assertAlmostEqual(dlm.model.obs, 1)
-        self.assertAlmostEqual(dlm.model.prediction.obs, 1)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 1)
+        self.assertAlmostEqual(dlm.model.prediction.obs[0, 0], 1)
 
     def testForwardFilterMultiDim(self):
         dlm = builder()
@@ -52,12 +52,12 @@ class testKalmanFilter(unittest.TestCase):
         dlm.initialize()
 
         self.kf11.forwardFilter(dlm.model, 1)
-        self.assertAlmostEqual(dlm.model.state[0], 0.33333333333)
-        self.assertAlmostEqual(dlm.model.state[1], -0.33333333333)
+        self.assertAlmostEqual(dlm.model.state[0][0, 0], 0.33333333333)
+        self.assertAlmostEqual(dlm.model.state[1][0, 0], -0.33333333333)
 
         self.kf11.forwardFilter(dlm.model, -1)
-        self.assertAlmostEqual(dlm.model.state[0], -0.5)
-        self.assertAlmostEqual(dlm.model.state[1], 0.5)
+        self.assertAlmostEqual(dlm.model.state[0][0, 0], -0.5)
+        self.assertAlmostEqual(dlm.model.state[1][0, 0], 0.5)
 
     def testBackwardSmoother(self):
         dlm = builder()
@@ -71,8 +71,8 @@ class testKalmanFilter(unittest.TestCase):
         self.kf1.backwardSmoother(dlm.model, \
                                   np.matrix([[0.5]]), \
                                   np.matrix([[0.375]]))
-        self.assertAlmostEqual(dlm.model.obs, 1.0/3)
-        self.assertAlmostEqual(dlm.model.sysVar, 0.18518519)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 1.0/3)
+        self.assertAlmostEqual(dlm.model.sysVar[0, 0], 0.18518519)
 
     # second order trend with discount = 1. The smoothed result should be
     # equal to a direct fit on the three data points, 0, 1, -1. Thus, the
@@ -91,7 +91,7 @@ class testKalmanFilter(unittest.TestCase):
                                    rawState = state1, \
                                    rawSysVar = cov1)
 
-        self.assertAlmostEqual(dlm.model.obs, 0.0)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 0.0)
 
     def testMissingData(self):
         dlm = builder()
@@ -99,19 +99,19 @@ class testKalmanFilter(unittest.TestCase):
         dlm.initialize()
 
         self.kf0.forwardFilter(dlm.model, 1)
-        self.assertAlmostEqual(dlm.model.obs, 1.0)
-        self.assertAlmostEqual(dlm.model.obsVar, 1.0)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar[0, 0], 1.0)
 
         self.kf0.forwardFilter(dlm.model, None)
-        self.assertAlmostEqual(dlm.model.obs, 1.0)
-        self.assertAlmostEqual(dlm.model.obsVar/1e10, 0.5)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar[0, 0]/1e10, 0.5)
 
         self.kf0.forwardFilter(dlm.model, None)
-        self.assertAlmostEqual(dlm.model.obs, 1.0)
-        self.assertAlmostEqual(dlm.model.obsVar/1e10, 0.5)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 1.0)
+        self.assertAlmostEqual(dlm.model.obsVar[0, 0]/1e10, 0.5)
 
         self.kf0.forwardFilter(dlm.model, 0)
-        self.assertAlmostEqual(dlm.model.obs, 0.0)
+        self.assertAlmostEqual(dlm.model.obs[0, 0], 0.0)
 
     def testMissingEvaluation(self):
         dlm = builder()
@@ -136,11 +136,5 @@ class testKalmanFilter(unittest.TestCase):
         self.assertAlmostEqual(dlm.model.innovation[0, 1], 0.0)
         self.assertAlmostEqual(dlm.model.innovation[1, 0], 0.0)
 
-unittest.main()
-#kf1 = kalmanFilter(discount = [1])
-#kf0 = kalmanFilter(discount = [0.01])
-#dlm = builder()
-#dlm.add(trend(degree = 1, discount = 1))
-#dlm.initialize()
-#kf1.predict(dlm.model)
-#kf1.forwardFilter(dlm.model, 1)
+if __name__ == '__main__':
+    unittest.main()

@@ -10,5 +10,6 @@ class testSeasonality(unittest.TestCase):
         newSeasonality = pydlm.modeler.seasonality.seasonality(self.DEGREE)
         newSeasonality.checkDimensions()
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
         
