@@ -151,11 +151,6 @@ class _dlm:
 
         """
         self.builder.initialize(noise=self.options.noise)
-        # if self.options.shrink == 'auto':
-        #    self.Filter = kalmanFilter(discount = self.builder.discount,
-        #                           shrink = 1 - min(self.builder.discount),
-        #                           shrinkageMatrix = self.builder.sysVarPrior)
-        # else:
         self.Filter = kalmanFilter(discount=self.builder.discount,
                                    updateInnovation=self.options.innovationType,
                                    index=self.builder.componentIndex)
@@ -361,12 +356,15 @@ class _dlm:
 
         return (predictedObs, predictedObsVar)
 
-    # feature set contains all the features for prediction.
+    # featureDict contains all the features for prediction.
     # It is a dictionary with key equals to the name of the component and
     # the value as the new feature (a list). The function
     # will first use the features provided in this feature dict, if not
     # found, it will fetch the default feature from the component. If
     # it could not find feature for some component, it returns an error
+    # The intermediate result will be stored in result.predictStatus as
+    # (start_date, next_pred_date, [all_predicted_values]), which will be
+    # used by _continuePredict.
     def _oneDayAheadPredict(self, date, featureDict=None):
         """ One day ahead prediction based on the date and the featureDict.
 
@@ -422,12 +420,15 @@ class _dlm:
         currentDate = self.result.predictStatus[1]
 
         # need to take care of the automaticComponents, especially the
-        # auto regressive component.
+        # auto regressive component. The newly predicted value becomes
+        # the new feature for autoReg components. We need to artifically
+        # construct the feature for autoReg. These values are stored
+        # in result.predictStatus[2]
         for name in self.builder.automaticComponents:
             comp = self.builder.automaticComponents[name]
             if comp.componentType != 'autoReg':
                 continue
-            if len(self.result.predictStatus[2]) >= comp.d:
+            elif len(self.result.predictStatus[2]) >= comp.d:
                 feature = self.result.predictStatus[2][-comp.d:]
             else:
                 extra = comp.d - len(self.predictStatus[2])
@@ -466,43 +467,32 @@ class _dlm:
         if featureDict is None and date is None:
             raise NameError('FeatureDict and date cannot be None ' +
                             'at the same time.')
-
         # find the correct evaluation vector
         if featureDict is None:
             self.builder.updateEvaluation(date)
         else:
-            for i in self.builder.dynamicComponents:
-                if i in featureDict:
-                    self.builder.model.evaluation[
-                        0, self.builder.componentIndex[i][0]:
-                        (self.builder.componentIndex[i][1] + 1)] = featureDict[i]
-                else:
-                    if date is None:
-                        raise NameError('Both date and featureDict are ' +
-                                        'not provided for component ' +
-                                        i)
-                    comp = self.builder.dynamicComponents[i]
-                    comp.updateEvaluation(date)
-                    self.builder.model.evaluation[
-                        0, self.builder.componentIndex[i][0]:
-                        (self.builder.componentIndex[i][1] + 1)] = comp.evaluation
-
-            for i in self.builder.automaticComponents:
-                if i in featureDict:
-                    self.builder.model.evaluation[
-                        0, self.builder.componentIndex[i][0]:
-                        (self.builder.componentIndex[i][1] + 1)] = featureDict[i]
-                else:
-                    if date is None:
-                        raise NameError('Both date and featureDict are ' +
-                                        'not provided for component ' +
-                                        i)
-                    comp = self.builder.automaticComponents[i]
-                    comp.updateEvaluation(date)
-                    self.builder.model.evaluation[
-                        0, self.builder.componentIndex[i][0]:
-                        (self.builder.componentIndex[i][1] + 1)] = comp.evaluation
+            self._updateFeatureValues(
+                date, featureDict, self.builder.automaticComponents)
+            self._updateFeatureValues(
+                date, featureDict, self.builder.dynamicComponents)
         self.builder.model.evaluation = matrix(self.builder.model.evaluation)
+
+    def _updateFeatureValues(self, date, featureDict, componentCollection):
+        for name in componentCollection:
+            if name in featureDict:
+                self.builder.model.evaluation[
+                    0, self.builder.componentIndex[name][0]:
+                    (self.builder.componentIndex[name][1] + 1)] = featureDict[name]
+            else:
+                if date is None:
+                    raise NameError('Both date and featureDict are ' +
+                                    'not provided for component ' +
+                                    name)
+                comp = componentCollection[name]
+                comp.updateEvaluation(date)
+                self.builder.model.evaluation[
+                    0, self.builder.componentIndex[name][0]:
+                    (self.builder.componentIndex[name][1] + 1)] = comp.evaluation
 
 # =========================== model helper function ==========================
 
