@@ -9,7 +9,7 @@ python:
   - "3.7-dev" # 3.7 development branch
   - "nightly" # currently points to 3.7-dev
   # command to install dependencies
-  install:
+install:
   - sudo apt-get install python-matplotlib
   - python setup.py install
 script: python -m unittest discover
