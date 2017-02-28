@@ -161,19 +161,23 @@ class _mvdlm:
         for i in range(self.n):
             count = 0
             for otherdlm in self.order:
-                if otherdlm != name:
-                    if filterType == 'forwardFilter':
-                        theFeature[i][count] = self.dlms[otherdlm] \
-                                                   .result.filteredObs[i]
-                    elif filterType == 'backwardSmoother':
-                        theFeature[i][count] = self.dlms[otherdlm] \
-                                                   .result.smoothedObs[i]
-                    elif filterType == 'original':
-                        if self.dlms[otherdlm].data[i] is not None:
-                            theFeature[i][count] = self.dlms[otherdlm].data[i]
-                        else:
-                            theFeature[i][count] = 0.0
-                    count += 1
+                if otherdlm == name:
+                    continue
+                if filterType == 'forwardFilter':
+                    theFeature[i][count] = self.dlms[otherdlm] \
+                                               .result.filteredObs[i]
+                elif filterType == 'backwardSmoother':
+                    theFeature[i][count] = self.dlms[otherdlm] \
+                                               .result.smoothedObs[i]
+                elif filterType == 'predicted':
+                    theFeature[i][count] = self.dlms[otherdlm] \
+                                               .result.predictedObs[i]
+                elif filterType == 'original':
+                    if self.dlms[otherdlm].data[i] is not None:
+                        theFeature[i][count] = self.dlms[otherdlm].data[i]
+                    else:
+                        theFeature[i][count] = 0.0
+                count += 1
 
     # check whether the dlms contain the same data length
     def _checkDLMLengthAndUpdate(self):

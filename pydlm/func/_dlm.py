@@ -486,8 +486,7 @@ class _dlm:
             else:
                 if date is None:
                     raise NameError('Both date and featureDict are ' +
-                                    'not provided for component ' +
-                                    name)
+                                    'not provided for component ' + name)
                 comp = componentCollection[name]
                 comp.updateEvaluation(date)
                 self.builder.model.evaluation[
