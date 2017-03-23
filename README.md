@@ -1,4 +1,3 @@
-=======================================================
 [PyDLM](https://pydlm.github.io/)  [![Build Status](https://travis-ci.org/wwrechard/pydlm.svg?branch=master)](https://travis-ci.org/wwrechard/pydlm)
 =======================================================
 
