@@ -12,4 +12,8 @@ python:
 install:
   - sudo apt-get install python-matplotlib
   - python setup.py install
-script: python -m unittest discover
+  - pip install coveralls
+script: 
+  - python -m unittest discover
+  - coverage run --source . -m unittest discover
+after_success: coveralls
