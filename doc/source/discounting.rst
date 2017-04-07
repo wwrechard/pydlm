@@ -44,9 +44,9 @@ To set the discounting factor is simple in `pydlm`. Discounting
 factors are assigned within each component, i.e., different components
 can have different discounting factors::
 
-  >>> from pydlm import dlm, trend, seasonality
-  >>> data = [0] * 100 + [3] * 100
-  >>> myDLM = dlm(data) + trend(2, discount = 0.9) + seasonality(7,
+  from pydlm import dlm, trend, seasonality
+  data = [0] * 100 + [3] * 100
+  myDLM = dlm(data) + trend(2, discount = 0.9) + seasonality(7,
   discount = 0.99)
 
 
