@@ -275,6 +275,7 @@ class testDlm(unittest.TestCase):
         # for forward filter
         self.dlm5.fitForwardFilter()
         filteredTrend = self.dlm5.getMean(filterType='forwardFilter')
+        self.assertEqual(len(filteredTrend), self.dlm5.n)
         diff = 0.0
         for i in range(len(filteredTrend)):
             diff += abs(filteredTrend[i] -
@@ -322,6 +323,7 @@ class testDlm(unittest.TestCase):
         # for forward filter
         self.dlm5.fitForwardFilter()
         filteredTrend = self.dlm5.getVar(filterType='forwardFilter')
+        self.assertEqual(len(filteredTrend), self.dlm5.n)
         diff = 0.0
         for i in range(len(filteredTrend)):
             diff += abs(filteredTrend[i] -

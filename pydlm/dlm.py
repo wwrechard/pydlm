@@ -350,7 +350,7 @@ class dlm(_dlm):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-
+        end += 1 # To get the result for the last date.
         # get the mean for the fitlered data
         if name == 'main':
             # get out of the matrix form
@@ -370,7 +370,7 @@ class dlm(_dlm):
         self._checkComponent(name)
         return self._getComponentMean(name=name,
                                       filterType=filterType,
-                                      start=start, end=end)
+                                      start=start, end=(end - 1))
 
     def getVar(self, filterType='forwardFilter', name='main'):
         """ get the variance for data or component.
@@ -394,7 +394,7 @@ class dlm(_dlm):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-
+        end += 1
         # get the variance for the time series data
         if name == 'main':
             # get out of the matrix form
@@ -413,7 +413,7 @@ class dlm(_dlm):
         # get the variance for the component
         self._checkComponent(name)
         return self._getComponentVar(name=name, filterType=filterType,
-                                     start=start, end=end)
+                                     start=start, end=(end - 1))
 
     def getInterval(self, p=0.95, filterType='forwardFilter', name='main'):
         """ get the confidence interval for data or component.
@@ -439,7 +439,7 @@ class dlm(_dlm):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-
+        end += 1
         # get the mean and the variance for the time series data
         if name == 'main':
             # get out of the matrix form
@@ -466,10 +466,10 @@ class dlm(_dlm):
             self._checkComponent(name)
             compMean = self._getComponentMean(name=name,
                                               filterType=filterType,
-                                              start=start, end=end)
+                                              start=start, end=(end - 1))
             compVar = self._getComponentVar(name=name,
                                             filterType=filterType,
-                                            start=start, end=end)
+                                            start=start, end=(end - 1))
 
         # get the upper and lower bound
         upper, lower = getInterval(compMean, compVar, p)
@@ -497,7 +497,7 @@ class dlm(_dlm):
         """
         # get the working dates
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-
+        end += 1
         # to return the full latent states
         if name == 'all':
             if filterType == 'forwardFilter':
@@ -519,7 +519,7 @@ class dlm(_dlm):
         self._checkComponent(name)
         return list(map(lambda x: x if x is None else self._1DmatrixToArray(x),
                         self._getLatentState(name=name, filterType=filterType,
-                                             start=start, end=end)))
+                                             start=start, end=(end - 1))))
 
     def getLatentCov(self, filterType='forwardFilter', name='all'):
         """ get the error covariance for different components and
@@ -544,7 +544,7 @@ class dlm(_dlm):
         """
         # get the working dates
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-
+        end += 1
         # to return the full latent covariance
         if name == 'all':
             if filterType == 'forwardFilter':
@@ -559,7 +559,7 @@ class dlm(_dlm):
         # to return the latent covariance for a given component
         self._checkComponent(name)
         return self._getLatentCov(name=name, filterType=filterType,
-                                  start=start, end=end)
+                                  start=start, end=(end - 1))
 
 # ======================= data appending, popping and altering ===============
 
