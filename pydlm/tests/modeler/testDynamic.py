@@ -9,6 +9,10 @@ class testDynamic(unittest.TestCase):
         self.features = np.matrix(np.random.rand(10, 2)).tolist()
         self.newDynamic = dynamic(features=self.features, w=1.0)
 
+    def testInputNumpyMatrix(self):
+        dynamic(features=np.random.rand(10, 2), w=1.0)
+        pass
+
     def testInitialization(self):
         self.assertEqual(self.newDynamic.d, 2)
         self.assertEqual(self.newDynamic.n, 10)

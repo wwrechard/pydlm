@@ -16,6 +16,7 @@ The name dynamic means that the features are changing over time.
 """
 import numpy as np
 from collections import MutableSequence
+from copy import deepcopy
 
 import pydlm.base.tools as tl
 from .component import component
@@ -72,7 +73,9 @@ class dynamic(component):
             raise NameError("The current version does not support missing data" +
                             "in the features.")
 
-        self.features = tl.duplicateList(features)
+        self.features = deepcopy(features)
+        if isinstance(features, np.matrix):
+            self.features = self.features.tolist()
         self.componentType = 'dynamic'
         self.name = name
         self.discount = np.ones(self.d) * discount
