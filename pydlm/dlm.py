@@ -415,6 +415,41 @@ class dlm(_dlm):
         return self._getComponentVar(name=name, filterType=filterType,
                                      start=start, end=(end - 1))
 
+    def getResidual(self, filterType='forwardFilter'):
+        """ get the residuals for data after filtering or smoothing.
+
+        If the working dates are not (0, self.n - 1),
+        then a warning will prompt stating the actual filtered dates.
+
+        Args:
+            filterType: the type of residuals to be returned. Could be
+                        'forwardFilter', 'backwardSmoother', and 'predict'.
+                        Default to 'forwardFilter'.
+
+        Returns:
+            A list of residuals based on the choice
+
+        """
+        # get the working date
+        start, end = self._checkAndGetWorkingDates(filterType=filterType)
+        end += 1 # To get the result for the last date.
+        # get the mean for the fitlered data
+        # get out of the matrix form
+        if filterType == 'forwardFilter':
+            return self._1DmatrixToArray(
+                [self.data[i] - self.result.filteredObs[i]
+                 for i in range(start, end)])
+        elif filterType == 'backwardSmoother':
+            return self._1DmatrixToArray(
+                [self.data[i] - self.result.smoothedObs[i]
+                 for i in range(start, end)])
+        elif filterType == 'predict':
+            return self._1DmatrixToArray(
+                [self.data[i] - self.result.predictedObs[i]
+                 for i in range(start, end)])
+        else:
+            raise NameError('Incorrect filter type.')
+
     def getInterval(self, p=0.95, filterType='forwardFilter', name='main'):
         """ get the confidence interval for data or component.
 
