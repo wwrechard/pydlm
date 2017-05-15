@@ -386,5 +386,29 @@ class testDlm(unittest.TestCase):
 
         self.assertAlmostEqual(mse2, mse_expect)
 
+    def testGetResidual(self):
+        # for forward filter
+        filter_type = 'forwardFilter'
+        self.dlm5.fitForwardFilter()
+        filteredTrend = self.dlm5.getMean(filterType=filter_type)
+        filteredResidual = self.dlm5.getResidual(filterType=filter_type)
+        self.assertEqual(len(filteredResidual), self.dlm5.n)
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(- filteredTrend[i] - filteredResidual[i] +
+                        self.dlm5.data[i])
+        self.assertAlmostEqual(diff, 0)
+
+        # for backward smoother
+        filter_type = 'backwardSmoother'
+        self.dlm5.fitBackwardSmoother()
+        filteredTrend = self.dlm5.getMean(filterType=filter_type)
+        filteredResidual = self.dlm5.getResidual(filterType=filter_type)
+        diff = 0.0
+        for i in range(len(filteredTrend)):
+            diff += abs(- filteredTrend[i] - filteredResidual[i] +
+                        self.dlm5.data[i])
+        self.assertAlmostEqual(diff, 0) 
+
 if __name__ == '__main__':
     unittest.main()
