@@ -34,6 +34,7 @@ class modelTuner:
                 is supported.
         loss:   the optimization loss function. Currently only 'mse' (one-day
                 ahead prediction) is supported.
+    
     """
 
     def __init__(self, method='gradient_descent', loss='mse'):
@@ -45,7 +46,16 @@ class modelTuner:
         self.discounts = None
 
     def tune(self, untunedDLM, maxit=100, step = 1.0):
+        """ Main function for tuning the DLM model.
 
+        Args:
+            untunedDLM: The DLM object that needs tuning
+            maxit: The maximum number of iteractions for gradient descent.
+            step: the moving length at each iteraction.
+
+        Returns:
+            A tuned DLM object in unintialized status.
+        """
         # make a deep copy of the original dlm
         tunedDLM = deepcopy(untunedDLM)
         tunedDLM.showInternalMessage(False)
@@ -80,6 +90,11 @@ class modelTuner:
         return tunedDLM
 
     def getDiscounts(self):
+        """ Get the tuned discounting factors. One for each component (even the
+            component being multi-dimensional, only one discounting factor will
+            be assigned to one component). Initialized to None.
+
+        """
         return self.discounts
 
     def find_gradient(self, discounts, DLM):

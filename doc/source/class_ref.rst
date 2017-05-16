@@ -39,3 +39,9 @@ Class Reference
 
 .. autoclass:: pydlm.longSeason
     :members:
+
+:class:`modelTuner`
+-------------------
+
+.. autoclass:: pydlm.modelTuner
+    :members:

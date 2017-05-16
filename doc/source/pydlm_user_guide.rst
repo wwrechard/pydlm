@@ -179,7 +179,7 @@ Long-seasonality
 The :class:`longSeason` class is a complement class for
 :class:`seasonality`. It allows constructing seasonality component that
 does not change every step. For example, the time unit is day, but
-client wants to add a monthly seasonality, then :class:`longSeason` is
+user wants to add a monthly seasonality, then :class:`longSeason` is
 the correct choice.
 
   monthly = longSeason(period=12, stay=30, data=data, name='monthly', w=1e7)
@@ -444,6 +444,48 @@ If user decide to go back to the original setting, they can use
 
   myDLM.resetPlotOptions()
 
+Model Tuning and evaluation
+---------------------------
+The discounting factor of DLM determines how fast the model adapts to
+the new data. It could cause troublesome when users actually want the
+model itself to figure that out. The :class:`modelTuner` provides
+users automatic tool for tuning the discounting factors:: 
+
+  from pydlm import modelTuner
+  myTuner = modelTuner(method='gradient_descent', loss='mse')
+  tunedDLM = myTuner.tune(myDLM, maxit=100)
+
+The tuned discounting factor will be set inside the `tunedDLM`. Users
+can examine the tuned value from `myTuner`::
+
+  tuned_discounts = myTuner.getDiscounts()
+
+After tuning, `myDLM` will remain unchanged and `tunedDLM` will
+contain the tuned discounting factos and will be in uninitialized
+status. Users need to run::
+
+  tunedDLM.fit()
+
+before any other analysis on `tunedDLM`. The :class:`dlm` also provides
+a simpler way to tune the discounting factor if the user would like
+`myDLM` to be altered directly::
+
+  myDLM.tune()
+  
+The tuner makes use of the MSE (one-day ahead prediction loss) and the
+gradient descent algorithm to tune the discounting factor to achieve
+the minimum loss. The discounting factors are assumed to be different
+across components but the same within a component. For now, only the
+MSE loss and the gradient descent algorithm is supported.
+
+To ease the evaluation of the performance of the model fitting, the
+model also provides the residual time series and the one-day a head
+prediction error via::
+
+  mse = myDLM.getMSE()
+  residual = myDLM.getResidual(filterType='backwardSmoother')
+
+Users can use these values to evaluate and choose the optimal model.
 
 Advanced Settings
 -----------------

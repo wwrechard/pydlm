@@ -113,6 +113,19 @@ The two different settings give different adaptiveness
 .. image:: ./img/intro_discount_09.png
 	   :width: 49%
 
+The discounting factor can be auto-tuned by the :class:`modelTuner`
+provided by the package::
+
+  from pydlm import modelTuner
+  myTuner = modelTuner(method='gradient_descent', loss='mse')
+  tunedDLM = myTuner.tune(myDLM, maxit=100)
+
+and users can get the MSE of each model for performance comparison::
+
+  myDLM_mse = myDLM.getMSE()
+  tunedDLM.fit()
+  tunedDLM_mse = tunedDLM.getMSE()
+
 The filtered results and latent states can be retrieved easily::
 
   # get the filtered and smoothed results
@@ -123,6 +136,9 @@ The filtered results and latent states can be retrieved easily::
 
   filteredCI = myDLM.getInterval(filterType='forwardFilter')
   smoothedCI = myDLM.getInterval(filterType='backwardSmoother')
+
+  # get the residual time series
+  residual = myDLM.getResidual(filterType='backwardSmoother')
 
   # get the filtered and smoothed mean for a given component
   filteredTrend = myDLM.getMean(filterType='forwardFilter', name='lineTrend')
