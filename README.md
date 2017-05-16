@@ -4,7 +4,7 @@
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`.
 
-Updates in 0.1.1.8 (pip update-to-date)
+Updates in 0.1.1.8
 ------------------
 * Add an modelTuner class to auto-tune the discounting factors using gradient descent.
 * Add model evaluation methods for geting residuals and MSE (one-day a head predicted loss).
@@ -118,7 +118,7 @@ newData3 = {'b': [3]}
 
 Installation
 ------------
-You can currently get the package from `pypi` by
+You can currently get the package (version 0.1.1.8) from `pypi` by
 
       $ pip install pydlm
 
