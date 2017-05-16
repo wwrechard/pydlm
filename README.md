@@ -4,14 +4,15 @@
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`.
 
-Updates in 0.1.1.7
--------------------
-Special Thanks to Dr. Nick Gayeski for helping identify all these issues!
-
-* Add an option to let different component evolve independently (default)
-* Bug fixing: change the default prior covariance for the components to match the results of BATS
-* Bug fixing: deprecate the hand-written generalized inverse function and switch to numpy's built-in one.
-* Add an easy specification for component prior on covariance and the model prior on observational noise (see the example and the user manual)
+Updates in 0.1.1.8
+------------------
+* Add an modelTuner class to auto-tune the discounting factors using gradient descent.
+* Add model evaluation methods for geting residuals and MSE (one-day a head predicted loss).
+* Bug fix: Fix the incorrect return length of the DLM results.
+* Add travis Build test and coverage test (Thanks @liguopku).
+* Modify the tests on all Numpy matrix to pass Python3 tests.
+* dynamic component now accepts Numpy Matrix as feature input (Thanks @xgdgsc).
+* Update the doc to be more human readable (Thanks @xgdgsc).
 
 A simple example
 -----------------
@@ -54,7 +55,15 @@ The result shows
 <img src="/doc/source/img/example_plot_all.png" width=80%/>
 </p>
 
-It looks pretty nice for the one-day ahead prediction accuracy. We can also plot the two coefficients `a` and `b` and see how they
+It looks pretty nice for the one-day ahead prediction accuracy. We can get the acumulated one-day ahead prediction loss by calling
+```python
+mydlm.getMSE()
+```
+and ask `mydlm` to tune the discounting factors to improve that metric
+```python
+mydlm.tune()
+```
+We can also plot the two coefficients `a` and `b` and see how they
 change when more data is added
 ```python
 mydlm.turnOff('predict')
@@ -122,6 +131,14 @@ You can also get the latest from [github]
 
 Changelogs
 ----------------
+Updates in 0.1.1.7
+(Special Thanks to Dr. Nick Gayeski for helping identify all these issues!)
+
+* Add an option to let different component evolve independently (default)
+* Bug fixing: change the default prior covariance for the components to match the results of BATS
+* Bug fixing: deprecate the hand-written generalized inverse function and switch to numpy's built-in one.
+* Add an easy specification for component prior on covariance and the model prior on observational noise (see the example and the user manual)
+
 updates in 0.1.1.1
 
 + Fix bugs in latent states retrieval
