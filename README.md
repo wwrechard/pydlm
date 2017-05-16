@@ -14,6 +14,13 @@ Updates in 0.1.1.8
 * dynamic component now accepts Numpy Matrix as feature input (Thanks @xgdgsc).
 * Update the doc to be more human readable (Thanks @xgdgsc).
 
+What's next
+-----------
+* Extend to multi-variate DLM (Q3)
+* Add more examples and template models with real world data (Q3)
+* Support non-Gaussian noise and Evolutions via Sequential Monte Carlo (SMC) sampling (Q4)
+* Refactor the code to be proto buffer based
+
 A simple example
 -----------------
 we give a simple example on linear regression to illustrate how to use the `pydlm` for analyzing data. The data is generated via the following process
