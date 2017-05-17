@@ -264,7 +264,14 @@ class dlm(_dlm):
         days.
 
         The predict result is based on all the data before date and predict the
-        observation at date + days.
+        observation at date + days. 
+
+        The prediction could be on the last day and into the future or in 
+        the middle of the time series and ignore the rest. For predicting into
+        the future, the new features must be supplied to featureDict. For 
+        prediction in the middle, the user can still supply the features which
+        will be used priorily. The old features will be used if featureDict is
+        None.
 
         Args:
             date: the index when the prediction based on. Default to the
@@ -302,6 +309,8 @@ class dlm(_dlm):
         >>> myDLM.predict(featureDict=featureDict_day1)
         >>> myDLM.continuePredict(featureDict=featureDict_day2)
         >>> myDLM.continuePredict(featureDict=featureDict_day3)
+
+        The featureDict acts the same way as in predict().
 
         Args:
             featureDict: the feature set for the dynamic components, stored

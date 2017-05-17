@@ -367,6 +367,12 @@ class _dlm:
     # used by _continuePredict.
     def _oneDayAheadPredict(self, date, featureDict=None):
         """ One day ahead prediction based on the date and the featureDict.
+        The prediction could be on the last day and into the future or in 
+        the middle of the time series and ignore the rest. For predicting into
+        the future, the new features must be supplied to featureDict. For 
+        prediction in the middle, the user can still supply the features which
+        will be used priorily. The old features will be used if featureDict is
+        None.
 
         Args:
             date: the prediction starts (based on the observation before and
@@ -405,7 +411,8 @@ class _dlm:
         """ Continue predicting one day after _oneDayAheadPredict or
         after _continuePredict. After using
         _oneDayAheadPredict, the user can continue predicting by using
-        _continuePredict and the new featureDict.
+        _continuePredict. The featureDict act the same as in
+        _oneDayAheadPredict.
 
         Args:
             featureDict: the new feature value for some dynamic components.
@@ -436,7 +443,6 @@ class _dlm:
                                     (currentDate + 1)] + self.result.predictStatus[2]
             if featureDict is None:
                 featureDict = {}
-
             featureDict[name] = feature
 
         self._constructEvaluationForPrediction(featureDict=featureDict,
@@ -485,8 +491,8 @@ class _dlm:
                     (self.builder.componentIndex[name][1] + 1)] = featureDict[name]
             else:
                 if date is None:
-                    raise NameError('Both date and featureDict are ' +
-                                    'not provided for component ' + name)
+                    raise NameError('The feature of ' + name + ' is lacking, '
+                                    'but the date is not provided.')
                 comp = componentCollection[name]
                 comp.updateEvaluation(date)
                 self.builder.model.evaluation[
