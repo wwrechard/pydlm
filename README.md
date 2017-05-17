@@ -21,6 +21,34 @@ What's next
 * Support non-Gaussian noise and Evolutions via Sequential Monte Carlo (SMC) sampling (Q4)
 * Refactor the code to be proto buffer based
 
+Changes in the current Github (dev) version
+-------------------------------------------
+* Add dlm.predictN() which allows prediction over multiple days.
+
+Installation
+------------
+You can currently get the package (version 0.1.1.8) from `pypi` by
+
+      $ pip install pydlm
+
+You can also get the latest from [github]
+(https://github.com/wwrechard/PyDLM)
+
+      $ git clone git@github.com:wwrechard/pydlm.git pydlm
+      $ cd pydlm
+      $ sudo python setup.py install
+
+`pydlm` depends on the following modules,
+
+* `numpy`     (for core functionality)
+*  `matplotlib` (for plotting results)
+* `Sphinx`    (for generating documentation)
+* `unittest`  (for testing)
+
+Documentation
+-------------
+Detailed documentation is provided in [PyDLM](https://pydlm.github.io/) with special attention to the [User manual](https://pydlm.github.io/#dynamic-linear-models-user-manual).
+
 A simple example
 -----------------
 we give a simple example on linear regression to illustrate how to use the `pydlm` for analyzing data. The data is generated via the following process
@@ -115,26 +143,11 @@ newData2 = {'b': [4]}
 newData3 = {'b': [3]}
 (predictMean, predictVar) = mydlm.continuePredict(featureDict=newData3)
 ```
-
-Installation
-------------
-You can currently get the package (version 0.1.1.8) from `pypi` by
-
-      $ pip install pydlm
-
-You can also get the latest from [github]
-(https://github.com/wwrechard/PyDLM)
-
-      $ git clone git@github.com:wwrechard/pydlm.git pydlm
-      $ cd pydlm
-      $ sudo python setup.py install
-
-`pydlm` depends on the following modules,
-
-* `numpy`     (for core functionality)
-*  `matplotlib` (for plotting results)
-* `Sphinx`    (for generating documentation)
-* `unittest`  (for testing)
+or using the simpler `dlm.predictN`
+```python
+  newData = {'b': [[5], [4], [3]]}
+  (predictMean, predictVar) = mydlm.predictN(N=3, date=mydlm.n-1, featureDict=newData)
+```
 
 Changelogs
 ----------------
@@ -154,7 +167,3 @@ updates in 0.1.1.1
 + Add more plot functionalities
 + Add the ribbon confidence interval
 + Add a simple example in documentation for using pydlm
-
-Documentation
--------------
-Detailed documentation is provided in [PyDLM](https://pydlm.github.io/) with special attention to the [User manual](https://pydlm.github.io/#dynamic-linear-models-user-manual).
