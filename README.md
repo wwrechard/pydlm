@@ -23,7 +23,7 @@ What's next
 
 Changes in the current Github (dev) version
 -------------------------------------------
-* Add dlm.predictN() which allows prediction over multiple days.
+* Add `dlm.predictN()` which allows prediction over multiple days.
 
 Installation
 ------------
