@@ -141,8 +141,8 @@ newData3 = {'b': [3]}
 ```
 or using the simpler `dlm.predictN`
 ```python
-  newData = {'b': [[5], [4], [3]]}
-  (predictMean, predictVar) = mydlm.predictN(N=3, date=mydlm.n-1, featureDict=newData)
+newData = {'b': [[5], [4], [3]]}
+(predictMean, predictVar) = mydlm.predictN(N=3, date=mydlm.n-1, featureDict=newData)
 ```
 
 Documentation
