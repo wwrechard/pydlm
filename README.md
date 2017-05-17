@@ -45,10 +45,6 @@ You can also get the latest from [github]
 * `Sphinx`    (for generating documentation)
 * `unittest`  (for testing)
 
-Documentation
--------------
-Detailed documentation is provided in [PyDLM](https://pydlm.github.io/) with special attention to the [User manual](https://pydlm.github.io/#dynamic-linear-models-user-manual).
-
 A simple example
 -----------------
 we give a simple example on linear regression to illustrate how to use the `pydlm` for analyzing data. The data is generated via the following process
@@ -148,6 +144,10 @@ or using the simpler `dlm.predictN`
   newData = {'b': [[5], [4], [3]]}
   (predictMean, predictVar) = mydlm.predictN(N=3, date=mydlm.n-1, featureDict=newData)
 ```
+
+Documentation
+-------------
+Detailed documentation is provided in [PyDLM](https://pydlm.github.io/) with special attention to the [User manual](https://pydlm.github.io/#dynamic-linear-models-user-manual).
 
 Changelogs
 ----------------
