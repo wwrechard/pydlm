@@ -271,7 +271,8 @@ Model prediction
 ----------------
 :class:`dlm` provides three predict functions: :func:`dlm.predict` and
 :func:`dlm.continuePredict` and :func:`dlm.predictN`. The last one is
-wrapper of the former two and is recommended to use.
+wrapper of the former two and is recommended to use. (The former two
+will be gradually deprecated).
 
 The :func:`dlm.predict` is a one-day ahead
 prediction function based on a user given date and feature set::
@@ -320,9 +321,17 @@ for multiple-day prediction. The `featureDict` can also be ignored if
 the prediction is requested on dates before the last day and the
 features on the predict day can be found from the old data.
 
-:func:`dlm.predictN` predicts over multiple days and is a wrapper of
-the two functions above. Using the same example, the results can be
-obtained by just called 
+:func:`dlm.predictN` (recommended) predicts over multiple days and is
+a wrapper of the two functions above. Using the same example, the
+results can be obtained by just called::
+
+  features = {'SP500':[[2090], [2010], [1990]], 'page':[[10, 20, 30,
+  40], [11, 21, 31, 41], [12, 22, 32, 42]]}
+  (predictMean, predictVar) = myDLM.predictN(N=3, date=myDLM.n-1,
+  featureDict=features)
+
+The `predictMean` and `predictVar` will be two lists of three elements
+containing the predicted mean and variance.
       
 Model amending
 --------------

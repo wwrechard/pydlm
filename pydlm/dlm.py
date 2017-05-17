@@ -331,10 +331,10 @@ class dlm(_dlm):
         """ N day ahead prediction based on the current data.
 
         This function is a convenient wrapper of predict() and
-        continuePredict(). If the prediction is onto the future, i.e, > n, 
-        the featureDict has to contain the feature vectors for multiple days
-        for a dynamic component. For example, the dlm has a component named
-        'spy' which posseses two dimensions,
+        continuePredict(). If the prediction is into the future, i.e, > n, 
+        the featureDict has to contain all feature vectors for multiple days
+        for each dynamic component. For example, assume myDLM has a component
+        named 'spy' which posseses two dimensions,
 
         >>> featureDict_3day = {'spy': [[1, 2],[2, 3],[3, 4]]}
         >>> myDLM.predictN(N=3, featureDict=featureDict_3day)
