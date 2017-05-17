@@ -211,13 +211,13 @@ class testDlm(unittest.TestCase):
 
     def testContinuePredictWithDynamic(self):
         self.dlm4.fitForwardFilter()
-        featureDict = {'dynamic': 2.0}
+        featureDict = {'dynamic': [2.0]}
         (obs, var) = self.dlm4.predict(date=9,
                                        featureDict=featureDict)
         self.assertAlmostEqual(self.dlm4.result.predictStatus,
                                [9, 10, [5.0/6 * 2]])
 
-        featureDict = {'dynamic': 3.0}
+        featureDict = {'dynamic': [3.0]}
         (obs, var) = self.dlm4.continuePredict(featureDict=featureDict)
         self.assertAlmostEqual(self.dlm4.result.predictStatus,
                                [9, 11, [5.0/6 * 2, 5.0/6 * 3]])
@@ -228,6 +228,26 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(obs[0, 0], 100.03682874)
         (obs, var) = self.dlm5.continuePredict()
         self.assertAlmostEqual(obs[0, 0], 101.07480945)
+
+    def testPredictNWithoutDynamic(self):
+        self.dlm3.fitForwardFilter()
+        (obs, var) = self.dlm3.predictN(N=2, date=11)
+        self.assertAlmostEqual(self.dlm3.result.predictStatus,
+                               [11, 13, [-6.0/7, 6.0/7]])
+
+    def testPredictNWithDynamic(self):
+        self.dlm4.fitForwardFilter()
+        featureDict = {'dynamic': [[2.0], [3.0]]}
+        (obs, var) = self.dlm4.predictN(N=2, date=9,
+                                        featureDict=featureDict)
+        self.assertAlmostEqual(self.dlm4.result.predictStatus,
+                               [9, 11, [5.0/6 * 2, 5.0/6 * 3]])
+
+    def testPredictNWithAutoReg(self):
+        self.dlm5.fitForwardFilter()
+        (obs, var) = self.dlm5.predictN(N=2, date=99)
+        self.assertAlmostEqual(obs[0][0, 0], 100.03682874)
+        self.assertAlmostEqual(obs[1][0, 0], 101.07480945)
 
     def testGetLatentState(self):
         # for forward filter

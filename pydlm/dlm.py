@@ -260,8 +260,7 @@ class dlm(_dlm):
 
     # One day ahead prediction function
     def predict(self, date=None, featureDict=None):
-        """ One day ahead predict based on the current data for a specific future
-        days.
+        """ One day ahead predict based on the current data.
 
         The predict result is based on all the data before date and predict the
         observation at date + days. 
@@ -297,7 +296,7 @@ class dlm(_dlm):
                             ' after the filtered date')
 
         return self._oneDayAheadPredict(date=date, featureDict=featureDict)
-
+        
     def continuePredict(self, featureDict=None):
         """ Continue prediction after the one-day ahead predict.
 
@@ -314,7 +313,7 @@ class dlm(_dlm):
 
         Args:
             featureDict: the feature set for the dynamic components, stored
-                         in a for of {"component name": feature}. If the set
+                         in a for of {"component name": vector}. If the set
                          was not supplied, then the algo will re-use the old
                          feature. For days beyond the data, the featureDict
                          for every dynamic component must be provided.
@@ -326,6 +325,57 @@ class dlm(_dlm):
             raise NameError('continuePredict has to come after predict.')
 
         return self._continuePredict(featureDict=featureDict)
+
+    # N day ahead prediction
+    def predictN(self, N=1, date=None, featureDict=None):
+        """ N day ahead prediction based on the current data.
+
+        This function is a convenient wrapper of predict() and
+        continuePredict(). If the prediction is onto the future, i.e, > n, 
+        the featureDict has to contain the feature vectors for multiple days
+        for a dynamic component. For example, the dlm has a component named
+        'spy' which posseses two dimensions,
+
+        >>> featureDict_3day = {'spy': [[1, 2],[2, 3],[3, 4]]}
+        >>> myDLM.predictN(N=3, featureDict=featureDict_3day)
+
+        Args:
+            N:    The length of days to predict.
+            date: The index when the prediction based on. Default to the
+                  last day.
+            FeatureDict: The feature set for the dynamic Components, in a form
+                  of {"component_name": feature}, where the feature must have
+                  N elements of feature vectors. If the featureDict is not
+                  supplied, then the algo reuse those stored in the dynamic
+                  components. For dates beyond the last day, featureDict must
+                  be supplied.
+
+        Returns:
+            A tuple of two lists. (Predicted observation, variance of the predicted
+            observation)
+
+        """
+        if N < 1:
+            raise NameError('N has to be greater or equal to 1')
+        predictedObs = []
+        predictedVar = []
+
+        # call predict for the first day
+        getSingleDayFeature = lambda f, i: ({k: v[i] for k, v in f.iteritems()}
+                                            if f is not None else None)
+        # Construct the single day featureDict
+        featureDictOneDay = getSingleDayFeature(featureDict, 0)
+        (obs, var) = self.predict(date=date, featureDict=featureDictOneDay)
+        predictedObs.append(obs)
+        predictedVar.append(var)
+
+        # Continue predicting the remaining days
+        for i in range(1, N):
+            featureDictOneDay = getSingleDayFeature(featureDict, i)
+            (obs, var) = self.continuePredict(featureDict=featureDictOneDay)
+            predictedObs.append(obs)
+            predictedVar.append(var)
+        return (predictedObs, predictedVar)
 
 # =========================== result components =============================
 
