@@ -32,9 +32,10 @@ Example:
 # Kalman filter functionality for filtering the data
 
 from copy import deepcopy
+from numpy import matrix
 from pydlm.base.tools import getInterval
-from pydlm.tuner.dlmTuner import modelTuner
 from pydlm.func._dlm import _dlm
+from pydlm.tuner.dlmTuner import modelTuner
 
 class dlm(_dlm):
     """ The main class of the dynamic linear model.
@@ -357,6 +358,9 @@ class dlm(_dlm):
         """
         if N < 1:
             raise NameError('N has to be greater or equal to 1')
+        # Take care if features are numpy matrix
+        if isinstance(featureDict, matrix):
+            featureDict = featureDict.tolist()
         predictedObs = []
         predictedVar = []
 

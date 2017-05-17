@@ -249,6 +249,14 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(obs[0][0, 0], 100.03682874)
         self.assertAlmostEqual(obs[1][0, 0], 101.07480945)
 
+    def testPredictNWithDynamicMatrixInput(self):
+        self.dlm4.fitForwardFilter()
+        featureDict = {'dynamic': np.matrix([[2.0], [3.0]])}
+        (obs, var) = self.dlm4.predictN(N=2, date=9,
+                                        featureDict=featureDict)
+        self.assertAlmostEqual(self.dlm4.result.predictStatus,
+                               [9, 11, [5.0/6 * 2, 5.0/6 * 3]])
+
     def testGetLatentState(self):
         # for forward filter
         self.dlm5.fitForwardFilter()
