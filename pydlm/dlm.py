@@ -361,7 +361,7 @@ class dlm(_dlm):
         predictedVar = []
 
         # call predict for the first day
-        getSingleDayFeature = lambda f, i: ({k: v[i] for k, v in f.iteritems()}
+        getSingleDayFeature = lambda f, i: ({k: v[i] for k, v in f.items()}
                                             if f is not None else None)
         # Construct the single day featureDict
         featureDictOneDay = getSingleDayFeature(featureDict, 0)

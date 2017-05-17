@@ -271,7 +271,8 @@ Model prediction
 ----------------
 :class:`dlm` provides three predict functions: :func:`dlm.predict` and
 :func:`dlm.continuePredict` and :func:`dlm.predictN`. The last one is
-wrapper of the former two and is recommended to use.
+wrapper of the former two and is recommended to use. The former two
+will be gradually depra
 
 The :func:`dlm.predict` is a one-day ahead
 prediction function based on a user given date and feature set::
