@@ -36,7 +36,7 @@ class trend(component):
         >>> ctrend.createMeanPrior(mean = 1)
 
     Attributes:
-        d: the degree of the polynomial trend
+        d: the dimension of the latent states of the polynomial trend
         componentType: the type of the component, in this case, 'trend'
         name: the name of the trend component, to be supplied by user
               used in modeling and result extraction
