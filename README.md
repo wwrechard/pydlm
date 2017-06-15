@@ -31,8 +31,7 @@ You can currently get the package (version 0.1.1.8) from `pypi` by
 
       $ pip install pydlm
 
-You can also get the latest from [github]
-(https://github.com/wwrechard/PyDLM)
+You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 
       $ git clone git@github.com:wwrechard/pydlm.git pydlm
       $ cd pydlm
