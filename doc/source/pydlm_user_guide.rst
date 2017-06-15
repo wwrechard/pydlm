@@ -32,7 +32,7 @@ simultaneously in one model. Due to this nice property, users of this
 package can construct models simply by "adding" some component into
 the model as::
 
-  myDLM = dlm(data) + trend(2)
+  myDLM = dlm(data) + trend(1)
 
 The modeling process is simple.
 
@@ -54,6 +54,13 @@ The disadvantage of :mod:`pydlm`:
     + only for Gaussian noise
 
 
+Miscellaneous
+-------------
++ `PyDLM` index starts at 0 instead of 1, i.e., for any prediction or
+  modification that involves `date` argument, it corresponds to the
+  actual index in the array. For instance, for a time series with
+  length 10, the date of the last day is 9. 
+
 Modeling
 --------
 
@@ -67,14 +74,14 @@ linear trend, 7-day seasonality and control variables::
   SP500Index = [[2000] for i in range(100)] + [[2010] for i in range(100)]
   page = [[i, i + 1, i + 2, i + 3] for i in range(200)]
   myDLM = dlm(data)
-  myDLM = myDLM + trend(degree=2, discount=0.95, name='trend1')
+  myDLM = myDLM + trend(degree=1, discount=0.95, name='trend1')
   myDLM = myDLM + seasonality(period=7, discount=0.99, name='week')
   myDLM = myDLM + dynamic(features=SP500Index, discount=1, name='SP500')
   myDLM = myDLM + dynamic(features=page, discount=1, name='page')
 
 User can also use :func:`dlm.add` method to add new component::
 
-  myDLM.add(trend(degree=1, discount=0.99, name='trend2'))
+  myDLM.add(trend(degree=0, discount=0.99, name='trend2'))
 
 The imput :attr:`data` must be an 1d array or a list, since the current
 :class:`dlm` only supports one dimensional time series. Supporting for
@@ -118,14 +125,17 @@ package: trend, seasonality, dynamic and the auto-regression.
 
 Trend
 `````
-:class:`trend` class is a model component for trending
-behavior. The data might be increasing linearly or quadraticly, which
-can all be captured by :class:`trend`. The degree argument specifics
-the shape of the trend and `w` sets the prior covariance for the trend
-component (same for all the other components). The discounting factor
-will be explained later in next section::
+:class:`trend` class is a model component for trend
+behavior. The data might be const or increasing linearly or
+quadraticly, which can all be captured by :class:`trend`. The degree
+argument specifics the shape of the trend. `degree=0` indicates this
+is a const, `degree=1` indicates a line and `degree=2` stands for a
+quadratic curve and so on so forth. `w` sets the prior
+covariance for the trend component (same for all the other
+components). The discounting factor will be explained later in next
+section::
 
-  linearTrend = trend(degree=2, discount=0.99, name='trend1', w=1e7)
+  linearTrend = trend(degree=1, discount=0.99, name='trend1', w=1e7)
 
 Seasonality
 ```````````
@@ -180,7 +190,7 @@ The :class:`longSeason` class is a complement class for
 :class:`seasonality`. It allows constructing seasonality component that
 does not change every step. For example, the time unit is day, but
 user wants to add a monthly seasonality, then :class:`longSeason` is
-the correct choice.
+the correct choice::
 
   monthly = longSeason(period=12, stay=30, data=data, name='monthly', w=1e7)
 
@@ -365,7 +375,7 @@ Deleting existing data
 To delete any existing data, user can simply use the :func:`dlm.popout`
 function from :class:`dlm` on a specific date, for example::
 
-  myDLM.popout(1)
+  myDLM.popout(0)
 
 Different from :func:`dlm.append`, :func:`dlm.popout` will be executed
 automatically for all components, so the user does not need to conduct

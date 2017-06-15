@@ -24,6 +24,7 @@ What's next
 Changes in the current Github (dev) version
 -------------------------------------------
 * Add `dlm.predictN()` which allows prediction over multiple days.
+* Change the `degree` of `trend` to match the actual meaning in polynomial, i.e, `degree=0` stands for constant and `degree=1` stands for linear trend and so on so forth.
 
 Installation
 ------------
@@ -143,6 +144,7 @@ or using the simpler `dlm.predictN`
 newData = {'b': [[5], [4], [3]]}
 (predictMean, predictVar) = mydlm.predictN(N=3, date=mydlm.n-1, featureDict=newData)
 ```
+because `pydlm` index starts from 0, so the `date` of the last day is `n - 1` instead of `n`.
 
 Documentation
 -------------

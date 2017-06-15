@@ -21,13 +21,14 @@ model::
 
   from pydlm import dlm, trend, dynamic
   mydlm = dlm(y)
-  mydlm = mydlm + trend(degree=1, discount=0.98, name='a', w=10.0)
+  mydlm = mydlm + trend(degree=0, discount=0.98, name='a', w=10.0)
   mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b', w=10.0)
 
 In the model, we add two components :class:`trend` and
 :class:`dynamic`. The trend `a` is one of the systematical components
-that can be used to characterize the intrisic property of a time
-series, and trend is particularly suitable for our case. It has a
+that used to characterize a time series, and trend is particularly
+suitable for this case. `degree=0` indicates this is a constant and
+`degree=1` indicates a line and so on so forth. It has a 
 discount factor of 0.98 as we believe the baseline can gradually shift
 overtime and we specify a prior covariance with 10.0 on the
 diagonal. The dynamic component `b` is modeling the regression

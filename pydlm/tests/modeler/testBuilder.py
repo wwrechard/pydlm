@@ -12,7 +12,7 @@ class testBuilder(unittest.TestCase):
 
     def setUp(self):
         self.features = np.random.rand(10, 2).tolist()
-        self.trend = trend(degree=3, w=1.0)
+        self.trend = trend(degree=2, w=1.0)
         self.seasonality = seasonality(period=7, w=1.0)
         self.dynamic = dynamic(self.features, w=1.0)
         self.autoReg = autoReg(degree=3,

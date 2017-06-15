@@ -17,8 +17,8 @@ Complex models can be constructed via simple operations::
   # construct the base
   myDLM = dlm(data)
   # adding model components
-  # add a second-order trend (linear trending) with prior covariance 1.0
-  myDLM = myDLM + trend(2, name='lineTrend', w=1.0)
+  # add a first-order trend (linear trending) with prior covariance 1.0
+  myDLM = myDLM + trend(1, name='lineTrend', w=1.0)
   # add a 7 day seasonality with prior covariance 1.0
   myDLM = myDLM + seasonality(7, name='7day', w=1.0)
   # add a 3 step auto regression
@@ -91,18 +91,18 @@ reconstruct the model and refit::
 `pydlm` supports missing observations::
 
   data = [1, 0, 0, 1, 0, 0, None, 0, 1, None, None, 0, 0]
-  myDLM = dlm(data) + trend(2, w=1.0)
+  myDLM = dlm(data) + trend(1, w=1.0)
   myDLM.fit()  # fit() will fit both forward filter and backward smoother
 
 It also includes the discounting factor, which can be used to control how rapidly the model should adapt to the new data::
 
   data = [0] * 100 + [3] * 100
-  myDLM = dlm(data) + trend(2, discount=1.0, w=1.0)
+  myDLM = dlm(data) + trend(1, discount=1.0, w=1.0)
   myDLM.fit()
   myDLM.plot()
   
   myDLM.delete('trend')
-  myDLM = myDLM + trend(2, discount=0.8, w=1.0)
+  myDLM = myDLM + trend(1, discount=0.8, w=1.0)
   myDLM.fit()
   myDLM.plot()
   
@@ -150,7 +150,7 @@ The filtered results and latent states can be retrieved easily::
 
 For online updates::
 
-  myDLM = dlm([]) + trend(2) + seasonality(7)
+  myDLM = dlm([]) + trend(1) + seasonality(7)
   for t in range(0, len(data)):
   ...     myDLM.append([data[t]])
   ...     myDLM.fitForwardFilter()

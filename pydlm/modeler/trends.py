@@ -22,7 +22,7 @@ class trend(component):
     It decribes a latent polynomial trending in the time series data.
 
     Args:
-        degree: the degree of the polynomial
+        degree: the degree of the polynomial. 0: constant; 1: linear...
         discount: the discount factor
         name: the name of the trend component
         w: the value to set the prior covariance. Default to a diagonal
@@ -50,14 +50,14 @@ class trend(component):
     """
 
     def __init__(self,
-                 degree = 1,
+                 degree = 0,
                  discount = 0.99,
                  name = 'trend',
                  w=1e7):
 
-        if degree <= 0:
-            raise NameError('degree has to be positive')
-        self.d = degree
+        if degree < 0:
+            raise NameError('degree has to be non-negative')
+        self.d = degree + 1
         self.name = name
         self.componentType = 'trend'
         self.discount = np.ones(self.d) * discount
