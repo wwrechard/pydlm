@@ -79,8 +79,9 @@ class modelTuner:
                 print('Converge successfully!')
             else:
                 print('The algorithm stops without converging.')
-                if min(discounts) <= 0.1 + self.err or max(discounts) >= 1 - 2 * self.err:
-                    print('Possible reason: some discount is too close to 1 or 0.1')
+                if min(discounts) <= 0.7 + self.err or max(discounts) >= 1 - 2 * self.err:
+                    print('Possible reason: some discount is too close to 1 or 0.7' +
+                          ' (0.7 is smallest discount that is permissible.')
                 else:
                     print('It might require more step to converge.' +
                           ' Use tune(..., maixt = <a larger number>) instead.')
@@ -114,8 +115,8 @@ class modelTuner:
         return gradient
 
     def cutoff(self, a):
-        if a < 0.1:
-            return 0.1
+        if a < 0.7:
+            return 0.7
 
         if a >= 1:
             return 0.99999

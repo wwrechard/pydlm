@@ -817,7 +817,8 @@ class _dlm:
         mse = 0
         for i in range(self.result.filteredSteps[0],
                        self.result.filteredSteps[1] + 1):
-            mse += (self.data[i] - self.result.predictedObs[i]) ** 2
+            if self.data[i] is not None:
+                mse += (self.data[i] - self.result.predictedObs[i]) ** 2
 
         mse = mse / (self.result.filteredSteps[1] + 1 -
                       self.result.filteredSteps[0])

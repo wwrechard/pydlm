@@ -18,6 +18,7 @@ class test_dlm(unittest.TestCase):
         self.dlm4 = _dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
         self.dlm5 = _dlm(range(100))
         self.dlm6 = _dlm(range(100))
+        self.dlm7 = _dlm([0, 1, None, 1, 0, 1, -1])
         self.dlm1.builder + trend(degree=0, discount=1, w=1.0)
         self.dlm2.builder + trend(degree=0, discount=1e-12, w=1.0)
         self.dlm3.builder + seasonality(period=2, discount=1, w=1.0)
@@ -29,18 +30,21 @@ class test_dlm(unittest.TestCase):
         self.dlm6.builder + trend(degree=0, discount=0.9, w=1.0) + \
             seasonality(period=2, discount=0.8, w=1.0) + \
             autoReg(degree=3, data=range(100), discount=1.0)
+        self.dlm7.builder + trend(degree=0, discount=1, w=1.0)
         self.dlm1._initialize()
         self.dlm2._initialize()
         self.dlm3._initialize()
         self.dlm4._initialize()
         self.dlm5._initialize()
         self.dlm6._initialize()
+        self.dlm7._initialize()
         self.dlm1.options.innovationType='whole'
         self.dlm2.options.innovationType='whole'
         self.dlm3.options.innovationType='whole'
         self.dlm4.options.innovationType='whole'
         self.dlm5.options.innovationType='whole'
         self.dlm6.options.innovationType='whole'
+        self.dlm7.options.innovationType='whole'
 
     def testForwardFilter(self):
         self.dlm1._forwardFilter(start=0, end=19, renew=False)
@@ -283,8 +287,8 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(diff, 0)
 
     def testComputeMSE(self):
-        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
-        self.dlm1.result.filteredSteps = (0, 19)
+        self.dlm1._forwardFilter(start=0, end=19, renew=False)
+        self.dlm1.result.filteredSteps=(0, 19)
         mse1 = self.dlm1._getMSE()
         mse_expect = 0
         for i in range(20):
@@ -293,12 +297,23 @@ class test_dlm(unittest.TestCase):
         mse_expect /= 20
         self.assertAlmostEqual(mse1, mse_expect)
 
-        self.dlm2._forwardFilter(start = 0, end = 19, renew = False)
-        self.dlm2.result.filteredSteps = (0, 19)
+        self.dlm2._forwardFilter(start=0, end=19, renew=False)
+        self.dlm2.result.filteredSteps=(0, 19)
         mse2 = self.dlm2._getMSE()
         mse_expect = 2.0/20
+        self.assertAlmostEqual(mse2, mse_expect)
 
-        self.assertAlmostEqual(mse2, mse_expect)        
+        # Test missing data
+        self.dlm7._forwardFilter(start=0, end=6, renew=False)
+        self.dlm7.result.filteredSteps=(0, 6)
+        mse3 = self.dlm7._getMSE()
+        mse_expect = 0
+        for i in range(7):
+            if self.dlm7.data[i] is not None:
+                mse_expect += (self.dlm7.result.predictedObs[i] -
+                               self.dlm7.data[i]) ** 2
+        mse_expect /= 7
+        self.assertAlmostEqual(mse3, mse_expect)
 
     def testGetDiscount(self):
         discounts = self.dlm6._getDiscounts()
