@@ -238,8 +238,8 @@ class testDlm(unittest.TestCase):
     def testPredictNWithAutoReg(self):
         self.dlm5.fitForwardFilter()
         (obs, var) = self.dlm5.predictN(N=2, date=99)
-        self.assertAlmostEqual(obs[0][0, 0], 100.03682874)
-        self.assertAlmostEqual(obs[1][0, 0], 101.07480945)
+        self.assertAlmostEqual(obs[0], 100.03682874)
+        self.assertAlmostEqual(obs[1], 101.07480945)
 
     def testPredictNWithDynamicMatrixInput(self):
         self.dlm4.fitForwardFilter()
