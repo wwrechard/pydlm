@@ -412,6 +412,42 @@ def plotComponent(time, data, result, options):
 
         plt.legend(loc='best', shadow=True)
 
+
+# =========================== plot for prediction ========================
+def plotPrediction(time, data, predictedTime,
+                   predictedData, predictedVar, options):
+    """
+    Function for ploting N-day ahead prediction
+
+    Args:
+        time: the data time
+        data: the original data
+        predictedTime: the predicted time period
+        predictedData: the predicted data
+        predictedVar: the predicted variance
+        options: options for the plot, for details please refer to @dlm
+    """
+    # plot the original data
+    plotData(time, data, showDataPoint=options.showDataPoint,
+             color=options.dataColor,
+             label='time series')
+    # overlay the predicted data
+    plotData(predictedTime, predictedData,
+             showDataPoint=options.showFittedPoint,
+             color=options.predictedColor,
+             label='N-day prediction')
+    # overlay confidence interval
+    if options.showConfidenceInterval:
+        upper, lower = getInterval(predictedData,
+                                   predictedVar,
+                                   p=options.confidence)
+
+        plotInterval(time=predictedTime,
+                     upper=upper, lower=lower,
+                     intervalType=options.intervalType,
+                     color=options.predictedColor)
+    
+    
 # =========================== basic functions ============================
 
 

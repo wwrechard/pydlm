@@ -379,7 +379,8 @@ class dlm(_dlm):
             (obs, var) = self.continuePredict(featureDict=featureDictOneDay)
             predictedObs.append(obs)
             predictedVar.append(var)
-        return (predictedObs, predictedVar)
+        return (self._1DmatrixToArray(predictedObs),
+                self._1DmatrixToArray(predictedVar))
 
 # =========================== result components =============================
 
@@ -975,6 +976,8 @@ class dlm(_dlm):
 
         if self.time is None:
             time = range(len(self.data))
+        else:
+            time = self.time
 
         # initialize the figure
         dlmPlot.plotInitialize()
@@ -1055,6 +1058,8 @@ class dlm(_dlm):
         # provide a fake time for plotting
         if self.time is None:
             time = range(len(self.data))
+        else:
+            time = self.time
 
         # change option setting if some results are not available
         if not self.initialized:
@@ -1089,6 +1094,41 @@ class dlm(_dlm):
             raise NameError('No such component.')
 
         dlmPlot.plotout()
+
+    def plotPredictN(self, N=1, date=None, featureDict=None):
+        if date is None:
+            date = self.n - 1
+
+        # load the library only when needed
+        # import pydlm.plot.dlmPlot as dlmPlot
+        self.loadPlotLibrary()
+
+        # provide a fake time for plotting
+        if self.time is None:
+            time = range(len(self.data))
+        else:
+            time = self.time
+
+        # change option setting if some results are not available
+        if not self.initialized:
+            raise NameError('The model must be constructed and' +
+                            ' fitted before ploting.')
+
+        # check the filter status and automatically turn off bad plots
+        self._checkPlotOptions()
+
+        predictedTimeRange = range(date, date + N)
+        predictedData, predictedVar = self.predictN(
+            N=N, date=date, featureDict=featureDict)
+        dlmPlot.plotPrediction(
+            time=time, data=self.data,
+            predictedTime=predictedTimeRange,
+            predictedData=predictedData,
+            predictedVar=predictedVar,
+            options=self.options)
+
+        dlmPlot.plotout()
+                               
 # ================================ control options =========================
 
     def showOptions(self):
