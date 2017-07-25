@@ -10,5 +10,6 @@
 build/
 *.sh
 *.sh~
+*.csv~
 dist/
 pydlm.egg-info/
