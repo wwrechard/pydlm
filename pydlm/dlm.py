@@ -1096,6 +1096,23 @@ class dlm(_dlm):
         dlmPlot.plotout()
 
     def plotPredictN(self, N=1, date=None, featureDict=None):
+        """
+        Function to plot the N-day prediction results.
+
+        The input is the same as `dlm.predictN`. For details,
+        please refer to that function.
+
+        Args:
+            N:    The length of days to predict.
+            date: The index when the prediction based on. Default to the
+                  last day.
+            FeatureDict: The feature set for the dynamic Components, in a form
+                  of {"component_name": feature}, where the feature must have
+                  N elements of feature vectors. If the featureDict is not
+                  supplied, then the algo reuses those stored in the dynamic
+                  components. For dates beyond the last day, featureDict must
+                  be supplied.
+        """
         if date is None:
             date = self.n - 1
 
