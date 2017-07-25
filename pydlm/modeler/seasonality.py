@@ -34,7 +34,7 @@ class seasonality(component):
         discount: the discount factor
         name: the name of the trend component
         w: the value to set the prior covariance. Default to a diagonal
-           matrix with 1e7 on the diagonal.
+           matrix with 100 on the diagonal.
 
     Examples:
         >>>  # create a 7-day seasonality:
@@ -62,7 +62,7 @@ class seasonality(component):
                  period = 7,
                  discount = 0.99,
                  name = 'seasonality',
-                 w=1e7):
+                 w=100):
 
         if period <= 1:
             raise NameError('Period has to be greater than 1.')
