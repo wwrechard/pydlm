@@ -1,6 +1,7 @@
 #==================================================================
 #
-#  Put data description here
+#  This example use the data from Google data science blog post
+#  http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html
 #
 #==================================================================
 
