@@ -19,9 +19,11 @@ for line in data_file:
     for i, data_piece in enumerate(line.strip().split(',')):
         data_map[variables[i]].append(float(data_piece))
 
-# plot the raw data
 time_series = data_map[variables[0]]
+features = [[data_map[variables[j]][i] for j in range(1, len(variables)) ]
+            for i in range(len(time_series))]
 
+# Plot the raw data
 import matplotlib.pyplot as plt
 import pydlm.plot.dlmPlot as dlmPlot
 dlmPlot.plotData(range(len(time_series)),
@@ -38,11 +40,35 @@ from pydlm import dlm, trend, seasonality
 linear_trend = trend(degree=1, discount=0.95, name='linear_trend', w=10)
 # A seasonality
 seasonal52 = seasonality(period=52, discount=0.99, name='seasonal52', w=10)
-# Build DLM and fit
+
 simple_dlm = dlm(time_series) + linear_trend + seasonal52
 simple_dlm.fit()
+
 # Plot the fitted results
+simple_dlm.turnOff('data points')
 simple_dlm.plot()
 # Plot each component (attribution)
 simple_dlm.plot('linear_trend')
 simple_dlm.plot('seasonal52')
+# Plot the prediction give the first 350 days and forcast the next 200 days.
+simple_dlm.plotPredictN(N=200, date=350)
+# Plot the prediction give the first 250 days and forcast the next 200 days.
+simple_dlm.plotPredictN(N=200, date=250)
+
+# Build a dynamic regression model
+from pydlm import dynamic
+regressor10 = dynamic(features=features, discount=1.0, name='regressor10', w=10)
+drm = dlm(time_series) + linear_trend + seasonal52 + regressor10
+drm.fit()
+
+# Plot the fitted results
+drm.turnOff('data points')
+drm.plot()
+# Plot each component (attribution)
+drm.plot('linear_trend')
+drm.plot('seasonal52')
+drm.plot('regressor10')
+# Plot the prediction give the first 300 days and forcast the next 150 days.
+drm.plotPredictN(N=150, date=300)
+# Plot the prediction give the first 250 days and forcast the next 200 days.
+drm.plotPredictN(N=200, date=250)

@@ -93,7 +93,7 @@ class _dlm:
             self.plotFilteredData = True
             self.plotSmoothedData = True
             self.plotPredictedData = True
-            self.showDataPoint = True
+            self.showDataPoint = False
             self.showFittedPoint = False
             self.showConfidenceInterval = True
             self.dataColor = 'black'

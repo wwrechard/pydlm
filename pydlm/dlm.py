@@ -945,7 +945,7 @@ class dlm(_dlm):
         self.options.plotFilteredData = True
         self.options.plotSmoothedData = True
         self.options.plotPredictedData = True
-        self.options.showDataPoint = True
+        self.options.showDataPoint = False
         self.options.showFittedPoint = False
         self.options.showConfidenceInterval = True
         self.options.dataColor = 'black'
