@@ -4,23 +4,6 @@
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich functionality time series modeling library for python. This library implementes the Bayesian dynamic linear model (Harrison and West, 1999) for time series data. Time series modeling is easy with `pydlm`.
 
-Updates in 0.1.1.8
-------------------
-* Add an modelTuner class to auto-tune the discounting factors using gradient descent.
-* Add model evaluation methods for geting residuals and MSE (one-day a head predicted loss).
-* Bug fix: Fix the incorrect return length of the DLM results.
-* Add travis Build test and coverage test (Thanks @liguopku).
-* Modify the tests on all Numpy matrix to pass Python3 tests.
-* dynamic component now accepts Numpy Matrix as feature input (Thanks @xgdgsc).
-* Update the doc to be more human readable (Thanks @xgdgsc).
-
-What's next
------------
-* Extend to multi-variate DLM (Q3)
-* Add more examples and template models with real world data (Q3)
-* Support non-Gaussian noise and Evolutions via Sequential Monte Carlo (SMC) sampling (Q4)
-* Refactor the code to be proto buffer based
-
 Changes in the current Github (dev) version
 -------------------------------------------
 * Add an example from Google data science blog (Soon to update the readme page with the new example)
@@ -48,106 +31,120 @@ You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 * `Sphinx`    (for generating documentation)
 * `unittest`  (for testing)
 
-A simple example
+Google data science post example
 -----------------
-we give a simple example on linear regression to illustrate how to use the `pydlm` for analyzing data. The data is generated via the following process
-```python
-import numpy as np
-n = 100
-a = 1.0 + np.random.normal(0, 5, n) # the intercept
-x = np.random.normal(0, 2, n) # the control variable
-b = 3.0 # the coefficient
-y = a + b * x
-```
-In the above code, `a` is the baseline random walk centered around 1.0 and `b` is the coefficient for a control variable. The goal is to
-decompose `y` and learn the value of `a` and `b`. We first build the model
-```python
-from pydlm import dlm, trend, dynamic
-mydlm = dlm(y)
-mydlm = mydlm + trend(degree=1, discount=0.98, name='a', w=10.0)
-mydlm = mydlm + dynamic(features=[[v] for v in x], discount=1, name='b', w=10.0)
-```
-In the model, we add two components `trend` and`dynamic`. The trend `a` is one of the systematical components used to characterize the time series, and trend is particularly suitable for this case. `degree=1` indicates this is a constant and `degree=2` indicates a line and so on so forth. It has a discount factor of 0.98 as we believe the baseline can gradually shift overtime. The dynamic component `b` is modeling the regression component. We specify its discounting factor to be 1.0 since we believe `b` should be a constant. The `dynamic`class only accepts 2-d list for feature arugment (since the control variable could be multi-dimensional). Thus, we change `x` to 2d list. In addition, we believe these two processes `a` and `b` evolve independently and set (the following is currently the default assumption, so actually no need to set)
-```python
-mydlm.evolveMode('independent')
-```
-This can also be set to 'dependent' if the computation efficiency is a concern. The default prior on the covariance of each component is a
-diagonal matrix with 1e7 on the diagonal and we changed this value in building the component by specifying `w` (more details please refer to the user manual). The prior on the observational noise (default to 1.0) can be set by
-```python
-mydlm.noisePrior(2.0)
-```
-We then fit the model by typing
-```python
-mydlm.fit()
-```
-After some information printed on the screen, we are done (yeah! :p) and we can fetch and examine our results. We can first visualize the fitted results and see how well the model fits the data
-```python
-mydlm.plot()
-```
-The result shows
+We use the example from the [Google data science post](http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html) to illustrate the actual usage of `pydlm`. The code and data is placed under `examples/unemployment_insurance/...`. The data is the weekly number of initial claims for unemployment during 2004 - 2012 and is available from the R-package `bsts` which is another popular time series modeling tool. The raw data is shown below (left)
 <p align="center">
-<img src="/doc/source/img/example_plot_all.png" width=80%/>
+<img src="/doc/source/img/unemployment_2.png" width=48%/>
+<img src="/doc/source/img/unemployment_1.png" width=48%/>
+</p>
+We can see strong annual pattern and some local trend from the data.
+<h4> A simple model </h4>
+Following the post, we first build a simple model with only linear trend and seasonality component.
+
+```python
+from pydlm import dlm, trend, seasonality
+# A linear trend
+linear_trend = trend(degree=1, discount=0.95, name='linear_trend', w=10)
+# A seasonality
+seasonal52 = seasonality(period=52, discount=0.99, name='seasonal52', w=10)
+# Build a simple dlm
+simple_dlm = dlm(time_series) + linear_trend + seasonal52
+```
+
+In the actual code, the original time series data is scored in the variable `time_series`. `degree=1` indicates the trend is a linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Usually, the seasonality is more stable, so we set the discount factor to 0.99 for seasonality and 0.95 for linear trend to allow some flexibility. `w=10` is the prior guess on the variance of the component, the larger the uncertain. Once the model is built, we can easily fit the model and plot the result (above figure, right)
+
+```python
+# Fit the model
+simple_dlm.fit()
+# Plot the fitted results
+simple_dlm.turnOff('data points')
+simple_dlm.plot()
+```
+
+The blue curve is the forward filtering result, the green curve is the one-day ahead prediction and the red curve is the backward smoothed result. The one-day ahead prediction shows this simple model captures the time series somewhat good but loses track around the peak at Week 280 (which is between year 2008 - 2009). The one-day ahead mean prediction error is **0.173*
+
+```python
+simple_dlm.getMSE()
+```
+
+We can also decompose the time series to each of its component
+
+```python
+# Plot each component (attribute the time series to each component)
+simple_dlm.turnOff('predict plot')
+simple_dlm.turnOff('filtered plot')
+simple_dlm.plot('linear_trend')
+simple_dlm.plot('seasonal52')
+```
+
+<p align="center">
+<img src="/doc/source/img/unemployment_3-1.png" width=49%/>
+<img src="/doc/source/img/unemployment_4-1.png" width=49%/>
 </p>
 
-It looks pretty nice for the one-day ahead prediction accuracy. We can get the acumulated one-day ahead prediction loss by calling
+Most of the time series shape is attributed to the local linear trend and the strong seasonality pattern is easily seen. To further verify the performance, we use the simple model for long-term forecasting. In particular, we use the previous **351 week**'s data to forecast the next **200 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**. 
+
 ```python
-mydlm.getMSE()
+# Plot the prediction give the first 351 weeks and forcast the next 200 weeks.
+simple_dlm.plotPredictN(date=350, N=200)
+# Plot the prediction give the first 251 weeks and forcast the next 200 weeks.
+simple_dlm.plotPredictN(date=250, N=200)
 ```
-and ask `mydlm` to tune the discounting factors to improve that metric
-```python
-mydlm.tune()
-```
-We can also plot the two coefficients `a` and `b` and see how they
-change when more data is added
-```python
-mydlm.turnOff('predict')
-mydlm.plotCoef(name='a')
-mydlm.plotCoef(name='b')
-```
-and we have
+
+The result shows below
 <p align="center">
-<img src="/doc/source/img/example_plot_a.png" width=49%/>
-<img src="/doc/source/img/example_plot_b.png" width=49%/>
+<img src="/doc/source/img/unemployment_5.png" width=49%/>
+<img src="/doc/source/img/unemployment_6.png" width=49%/>
 </p>
+After the crisis peak around 2008 - 2009 (Week 280), the simple model can well forecast the next 200 weeks using the old data (left figure). However, the model fails to capture the peak and downtrending if we start forecasting before Week 280 (right figure).
 
-We see that the latent state of `b` quickly shift from 0 (which is our initial guess on the parameter) to around 3.0 and the confidence
-interval explodes and then narrows down as more data is added.
+<h4> Dynamic linear regression </h4>
+Now we build a more sophiscated model with the other variables in the data. The other variables are stored in the variable `features` in the actual code. To build the dynamic linear regression model, we simply add a new component
 
-Once we are happy about the result, we can fetch the results
 ```python
-# get the smoothed time series
-smoothedSeries = mydlm.getMean(filterType='backwardSmoother')
-smoothedVar = mydlm.getVar(filterType='backwardSmoother')
-smoothedCI = mydlm.getInterval(filterType='backwardSmoother')
+# Build a dynamic regression model
+from pydlm import dynamic
+regressor10 = dynamic(features=features, discount=1.0, name='regressor10', w=10)
+drm = dlm(time_series) + linear_trend + seasonal52 + regressor10
+drm.fit()
+drm.getMSE()
 
-# get the coefficients
-coef_a = mydlm.getLatentState(filterType='backwardSmoother', name='a')
-coef_a_var = mydlm.getLatentCov(filterType='backwardSmoother', name='a')
-coef_b = mydlm.getLatentState(filterType='backwardSmoother', name='b')
-coef_b_var = mydlm.getLatentCov(filterType='backwardSmoother', name='b')
+# Plot the fitted results
+drm.turnOff('data points')
+drm.plot()
 ```
-We can then use `coef_a` and `coef_b` for further analysis. If we want to predict the future observation based on the current data, we
-can do
+
+`dynamic` is the component for dynamically changed control variables, which accepts `features` as its argument. We plot the fitted result (top left)
+<p align="center">
+<img src="/doc/source/img/unemployment_7.png" width=48%/>
+<img src="/doc/source/img/unemployment_8-1.png" width=48%/>
+<img src="/doc/source/img/unemployment_9-1.png" width=48%/>
+<img src="/doc/source/img/unemployment_10-1.png" width=48%/>
+</p>
+and the one-day ahead prediction curve looks much better around the crisis peak and the mean prediction error is **0.099**. Similarly, we can also decompose the time series to the three components (result shows above)
+
 ```python
-# prepare the new feature
-newData1 = {'b': [5]}
-# one-day ahead prediction from the last day
-(predictMean, predictVar) = mydlm.predict(date=mydlm.n-1, featureDict=newData1)
-
-# continue predicting for next day
-newData2 = {'b': [4]}
-(predictMean, predictVar) = mydlm.continuePredict(featureDict=newData2)
-
-# continue predicting for the third day
-newData3 = {'b': [3]}
-(predictMean, predictVar) = mydlm.continuePredict(featureDict=newData3)
+drm.turnOff('predict plot')
+drm.turnOff('filtered plot')
+drm.plot('linear_trend')
+drm.plot('seasonal52')
+drm.plot('regressor10')
 ```
-or using the simpler `dlm.predictN`
+
+This time the shape of the time series is attributed mostly to the regressor and the linear trend looks more linear. If we do long-term forecasting, i.e., use the previous **301 week**'s data to forecast the next **150 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**
+
 ```python
-newData = {'b': [[5], [4], [3]]}
-(predictMean, predictVar) = mydlm.predictN(N=3, date=mydlm.n-1, featureDict=newData)
+drm.plotPredictN(date=300, N=150)
+drm.plotPredictN(date=250, N=200)
 ```
-because `pydlm` index starts from 0, so the `date` of the last day is `n - 1` instead of `n`.
+
+The results look much better compared to the simple model
+
+<p align="center">
+<img src="/doc/source/img/unemployment_11.png" width=48%/>
+<img src="/doc/source/img/unemployment_12.png" width=48%/>
+</p>
 
 Documentation
 -------------
@@ -155,6 +152,17 @@ Detailed documentation is provided in [PyDLM](https://pydlm.github.io/) with spe
 
 Changelogs
 ----------------
+
+Updates in 0.1.1.8
+
+* Add an modelTuner class to auto-tune the discounting factors using gradient descent.
+* Add model evaluation methods for geting residuals and MSE (one-day a head predicted loss).
+* Bug fix: Fix the incorrect return length of the DLM results.
+* Add travis Build test and coverage test (Thanks @liguopku).
+* Modify the tests on all Numpy matrix to pass Python3 tests.
+* dynamic component now accepts Numpy Matrix as feature input (Thanks @xgdgsc).
+* Update the doc to be more human readable (Thanks @xgdgsc).
+
 Updates in 0.1.1.7
 (Special Thanks to Dr. Nick Gayeski for helping identify all these issues!)
 
