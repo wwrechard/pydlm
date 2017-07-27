@@ -54,12 +54,13 @@ simple_dlm.fit()
 simple_dlm.turnOff('data points')
 simple_dlm.plot()
 # Plot each component (attribution)
-simple_dlm.turnOff('predict')
+simple_dlm.turnOff('predict plot')
+simple_dlm.turnOff('filtered plot')
 simple_dlm.plot('linear_trend')
 simple_dlm.plot('seasonal52')
-# Plot the prediction give the first 350 days and forcast the next 200 days.
+# Plot the prediction give the first 350 weeks and forcast the next 200 weeks.
 simple_dlm.plotPredictN(N=200, date=350)
-# Plot the prediction give the first 250 days and forcast the next 200 days.
+# Plot the prediction give the first 250 weeks and forcast the next 200 weeks.
 simple_dlm.plotPredictN(N=200, date=250)
 
 # Build a dynamic regression model
@@ -72,11 +73,12 @@ drm.fit()
 drm.turnOff('data points')
 drm.plot()
 # Plot each component (attribution)
-drm.turnOff('predict')
+drm.turnOff('predict plot')
+drm.turnOff('filtered plot')
 drm.plot('linear_trend')
 drm.plot('seasonal52')
 drm.plot('regressor10')
-# Plot the prediction give the first 300 days and forcast the next 150 days.
+# Plot the prediction give the first 300 weeks and forcast the next 150 weeks.
 drm.plotPredictN(N=150, date=300)
-# Plot the prediction give the first 250 days and forcast the next 200 days.
+# Plot the prediction give the first 250 weeks and forcast the next 200 weeks.
 drm.plotPredictN(N=200, date=250)
