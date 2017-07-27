@@ -1,5 +1,6 @@
 # ignore all .py~ files
 changelog~
+*.md~
 *.yml~
 *.py~
 *.gitignore~
