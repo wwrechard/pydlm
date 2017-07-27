@@ -33,7 +33,7 @@ You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 
 Google data science post example
 -----------------
-We use the example from the [Google data science post](http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html) to showcase `pydlm`. The code and data is placed under `examples/unemployment_insurance/...`. The data is the weekly counts of initial claims for unemployment during 2004 - 2012 and is available from the R package `bsts` (which is a popular R package for time series modeling, like R `dlm`). The raw data is shown below (left)
+We use the example from the [Google data science post](http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html) to showcase `pydlm`. The code and data is placed under `examples/unemployment_insurance/...`. The data is the weekly counts of initial claims for unemployment during 2004 - 2012 and is available from the R package `bsts` (which is a popular R package for time series modeling). The raw data is shown below (left)
 <p align="center">
 <img src="/doc/source/img/unemployment_2.png" width=48%/>
 <img src="/doc/source/img/unemployment_1.png" width=48%/>
