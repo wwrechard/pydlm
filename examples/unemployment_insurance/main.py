@@ -3,9 +3,8 @@
 #  This example use the data from Google data science blog post
 #  http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html
 #
-#  Make sure your working directly is pointing to
-#  `examples/unemployment_insurance/` before you try the line-by-line
-#  script.
+#  Make sure your working directly is pointing to the folder where
+#  `main.py` locates and `data.csv` is in the same folder.
 #
 #==================================================================
 
