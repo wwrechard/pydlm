@@ -52,7 +52,7 @@ seasonal52 = seasonality(period=52, discount=0.99, name='seasonal52', w=10)
 simple_dlm = dlm(time_series) + linear_trend + seasonal52
 ```
 
-In the actual code, the time series data is scored in the variable `time_series`. `degree=1` indicates the trend is a linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Usually, the seasonality is more stable, so we set the discount factor to 0.99 for seasonality and 0.95 for linear trend to allow some flexibility. `w=10` is the prior guess on the variance of the component, the larger the uncertain. For actual meaning of these parameters, please refer to the [user manual](https://pydlm.github.io/#dynamic-linear-models-user-manual). After the model built, we can fit the model and plot the result (shown above, right figure)
+In the actual code, the time series data is scored in the variable `time_series`. `degree=1` indicates the trend is a linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Since the seasonality is generally more stable, we set its discount factor to 0.99. For local linear trend, we use 0.95 to allow for some flexibility. `w=10` is the prior guess on the variance of each component, the larger number the more uncertain. For actual meaning of these parameters, please refer to the [user manual](https://pydlm.github.io/#dynamic-linear-models-user-manual). After the model built, we can fit the model and plot the result (shown above, right figure)
 
 ```python
 # Fit the model
