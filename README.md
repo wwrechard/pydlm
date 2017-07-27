@@ -62,13 +62,13 @@ simple_dlm.turnOff('data points')
 simple_dlm.plot()
 ```
 
-The blue curve is the forward filtering result, the green curve is the one-day ahead prediction and the red curve is the backward smoothed result. The light-colored ribbon around the curve is the confidence interval (you might need to zoom-in to see it). The one-day ahead prediction shows this simple model captures the time series somewhat good but loses track around the peak at Week 280 (which is between year 2008 - 2009). The one-day ahead mean prediction error is **0.173*
+The blue curve is the forward filtering result, the green curve is the one-day ahead prediction and the red curve is the backward smoothed result. The light-colored ribbon around the curve is the confidence interval (you might need to zoom-in to see it). The one-day ahead prediction shows this simple model captures the time series somewhat good but loses accuracy around the peak crisis at Week 280 (which is between year 2008 - 2009). The one-day-ahead mean prediction error is **0.173**
 
 ```python
 simple_dlm.getMSE()
 ```
 
-We can also decompose the time series to each of its component
+We can decompose the time series to each of its components
 
 ```python
 # Plot each component (attribute the time series to each component)
@@ -83,7 +83,7 @@ simple_dlm.plot('seasonal52')
 <img src="/doc/source/img/unemployment_4-1.png" width=49%/>
 </p>
 
-Most of the time series shape is attributed to the local linear trend and the strong seasonality pattern is easily seen. To further verify the performance, we use this simple model for long-term forecasting. In particular, we use the previous **351 week**'s data to forecast the next **200 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**. We lay the predicted results over the real data
+Most of the time series shape is attributed to the local linear trend and the strong seasonality pattern is easily seen. To further verify the performance, we use this simple model for long-term forecasting. In particular, we use the previous **351 week**'s data to forecast the next **200 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**. We lay the predicted results on top of the real data
 
 ```python
 # Plot the prediction give the first 351 weeks and forcast the next 200 weeks.
@@ -97,7 +97,7 @@ simple_dlm.plotPredictN(date=250, N=200)
 <img src="/doc/source/img/unemployment_6.png" width=49%/>
 </p>
 
-From the figure we see that, after the crisis peak around 2008 - 2009 (Week 280), the simple model can accurately forecast the next 200 weeks (left figure) given the first 351 weeks. However, the model fails to capture the change near the peak if the forecasting start before Week 280 (right figure).
+From the figure we see that after the crisis peak around 2008 - 2009 (Week 280), the simple model can accurately forecast the next 200 weeks (left figure) given the first 351 weeks. However, the model fails to capture the change near the peak if the forecasting start before Week 280 (right figure).
 
 <h4> Dynamic linear regression </h4>
 Now we build a more sophiscated model with extra variables in the data file. The extra variables are stored in the variable `features` in the actual code. To build the dynamic linear regression model, we simply add a new component
@@ -115,7 +115,7 @@ drm.turnOff('data points')
 drm.plot()
 ```
 
-`dynamic` is the component for dynamically changed control variables, which accepts `features` as its argument. The above code plots the fitted result (top left)
+`dynamic` is the component for modeling dynamically changing predictors, which accepts `features` as its argument. The above code plots the fitted result (top left)
 
 <p align="center">
 <img src="/doc/source/img/unemployment_7.png" width=48%/>
