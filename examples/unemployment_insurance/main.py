@@ -3,6 +3,10 @@
 #  This example use the data from Google data science blog post
 #  http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html
 #
+#  Make sure your working directly is pointing to
+#  `examples/unemployment_insurance/` before you try the line-by-line
+#  script.
+#
 #==================================================================
 
 # Read data file
@@ -20,6 +24,7 @@ for line in data_file:
     for i, data_piece in enumerate(line.strip().split(',')):
         data_map[variables[i]].append(float(data_piece))
 
+# Extract and store the data.
 time_series = data_map[variables[0]]
 features = [[data_map[variables[j]][i] for j in range(1, len(variables)) ]
             for i in range(len(time_series))]
@@ -49,6 +54,7 @@ simple_dlm.fit()
 simple_dlm.turnOff('data points')
 simple_dlm.plot()
 # Plot each component (attribution)
+simple_dlm.turnOff('predict')
 simple_dlm.plot('linear_trend')
 simple_dlm.plot('seasonal52')
 # Plot the prediction give the first 350 days and forcast the next 200 days.
@@ -66,6 +72,7 @@ drm.fit()
 drm.turnOff('data points')
 drm.plot()
 # Plot each component (attribution)
+drm.turnOff('predict')
 drm.plot('linear_trend')
 drm.plot('seasonal52')
 drm.plot('regressor10')
