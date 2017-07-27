@@ -68,7 +68,7 @@ The blue curve is the forward filtering result, the green curve is the one-day a
 simple_dlm.getMSE()
 ```
 
-We can decompose the time series to each of its components
+We can decompose the time series into each of its components
 
 ```python
 # Plot each component (attribute the time series to each component)
@@ -115,7 +115,7 @@ drm.turnOff('data points')
 drm.plot()
 ```
 
-`dynamic` is the component for modeling dynamically changing predictors, which accepts `features` as its argument. The above code plots the fitted result (top left)
+`dynamic` is the component for modeling dynamically changing predictors, which accepts `features` as its argument. The above code plots the fitted result (top left).
 
 <p align="center">
 <img src="/doc/source/img/unemployment_7.png" width=48%/>
@@ -124,7 +124,7 @@ drm.plot()
 <img src="/doc/source/img/unemployment_10-1.png" width=48%/>
 </p>
 
-and the one-day ahead prediction curve looks much better than the simple model, particularly around the crisis peak. The mean prediction error is **0.099** which is a 100% improvement over the simple model. Similarly, we also decompose the time series to the three components
+The one-day ahead prediction looks much better than the simple model, particularly around the crisis peak. The mean prediction error is **0.099** which is a 100% improvement over the simple model. Similarly, we also decompose the time series into the three components
 
 ```python
 drm.turnOff('predict plot')
@@ -134,7 +134,7 @@ drm.plot('seasonal52')
 drm.plot('regressor10')
 ```
 
-The results are shown in the above fitures. This time, the shape of the time series is mostly attributed to the regressor and the linear trend looks more linear. If we do long-term forecasting again, i.e., use the previous **301 week**'s data to forecast the next **150 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**
+This time, the shape of the time series is mostly attributed to the regressor and the linear trend looks more linear. If we do long-term forecasting again, i.e., use the previous **301 week**'s data to forecast the next **150 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**
 
 ```python
 drm.plotPredictN(date=300, N=150)
