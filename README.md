@@ -52,7 +52,7 @@ seasonal52 = seasonality(period=52, discount=0.99, name='seasonal52', w=10)
 simple_dlm = dlm(time_series) + linear_trend + seasonal52
 ```
 
-In the actual code, the time series data is scored in the variable `time_series`. `degree=1` indicates the trend is a linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Usually, the seasonality is more stable, so we set the discount factor to 0.99 for seasonality and 0.95 for linear trend to allow some flexibility. `w=10` is the prior guess on the variance of the component, the larger the uncertain. For detailed meaning of these parameters, please refer to the [user manual](https://pydlm.github.io/#dynamic-linear-models-user-manual). Once the model is built, we can easily fit the model and plot the result (above, right figure)
+In the actual code, the time series data is scored in the variable `time_series`. `degree=1` indicates the trend is a linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Usually, the seasonality is more stable, so we set the discount factor to 0.99 for seasonality and 0.95 for linear trend to allow some flexibility. `w=10` is the prior guess on the variance of the component, the larger the uncertain. For actual meaning of these parameters, please refer to the [user manual](https://pydlm.github.io/#dynamic-linear-models-user-manual). After the model built, we can fit the model and plot the result (shown above, right figure)
 
 ```python
 # Fit the model
@@ -62,7 +62,7 @@ simple_dlm.turnOff('data points')
 simple_dlm.plot()
 ```
 
-The blue curve is the forward filtering result, the green curve is the one-day ahead prediction and the red curve is the backward smoothed result. The one-day ahead prediction shows this simple model captures the time series somewhat good but loses track around the peak at Week 280 (which is between year 2008 - 2009). The one-day ahead mean prediction error is **0.173*
+The blue curve is the forward filtering result, the green curve is the one-day ahead prediction and the red curve is the backward smoothed result. The light-colored ribbon around the curve is the confidence interval (you might need to zoom-in to see it). The one-day ahead prediction shows this simple model captures the time series somewhat good but loses track around the peak at Week 280 (which is between year 2008 - 2009). The one-day ahead mean prediction error is **0.173*
 
 ```python
 simple_dlm.getMSE()
