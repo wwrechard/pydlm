@@ -6,7 +6,7 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible, user-friendly and rich
 
 Changes in the current Github (dev) version
 -------------------------------------------
-* Add an example from Google data science blog (Soon to update the readme page with the new example)
+* Add an example from Google data science blog and updated the homepage
 * Add `dlm.plotPredictN()` which plots the prediction result from `dlm.predictN()` on top of the time series data.
 * Add `dlm.predictN()` which allows prediction over multiple days.
 * Change the `degree` of `trend` to match the actual meaning in polynomial, i.e, `degree=0` stands for constant and `degree=1` stands for linear trend and so on so forth.
