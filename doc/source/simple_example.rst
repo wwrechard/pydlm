@@ -77,7 +77,7 @@ and we have
 .. image:: ./img/example_plot_a.png
     :width: 49%
 .. image:: ./img/example_plot_b.png
-x    :width: 49%
+    :width: 49%
 
 We see that the latent state of `b` quickly shift from 0 (which is our
 initial guess on the parameter) to around 3.0 and the confidence
