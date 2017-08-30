@@ -4,7 +4,7 @@
 
 Welcome to [pydlm](https://pydlm.github.io/), a flexible and user-friendly time series modeling library for python. This library implements the Bayesian dynamic linear model (Harrison and West, 1999) for time series data.
 
-Version 0.1.1.9 released on `pypi`
+Version 0.1.1.9 released on PyPI
 -------------------------------------------
 * Add an example from Google data science blog and updated the homepage
 * Add `dlm.plotPredictN()` which plots the prediction result from `dlm.predictN()` on top of the time series data.
