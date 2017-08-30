@@ -1,5 +1,12 @@
 Changelog
 ----------------
+eUpdates in 0.1.1.9
+
+* Add an example from Google data science blog and updated the homepage
+* Add `dlm.plotPredictN()` which plots the prediction result from `dlm.predictN()` on top of the time series data.
+* Add `dlm.predictN()` which allows prediction over multiple days.
+* Change the `degree` of `trend` to match the actual meaning in polynomial, i.e, `degree=0` stands for constant and `degree=1` stands for linear trend and so on so forth.
+* Add support for missing data in `modelTuner` and `.getMSE()` (Thanks @sun137653577)
 
 Updates in 0.1.1.8
 
