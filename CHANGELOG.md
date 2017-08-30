@@ -1,6 +1,6 @@
 Changelog
 ----------------
-eUpdates in 0.1.1.9
+Updates in 0.1.1.9
 
 * Add an example from Google data science blog and updated the homepage
 * Add `dlm.plotPredictN()` which plots the prediction result from `dlm.predictN()` on top of the time series data.
