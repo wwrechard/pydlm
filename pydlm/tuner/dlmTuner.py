@@ -70,7 +70,7 @@ class modelTuner:
             for i in range(maxit):
                 gradient = self.find_gradient(discounts, tunedDLM)
                 discounts -= gradient * step
-                discounts = map(lambda x: self.cutoff(x), discounts)
+                discounts = list(map(lambda x: self.cutoff(x), discounts))
                 tunedDLM._setDiscounts(discounts)
                 tunedDLM.fitForwardFilter()
                 self.current_mse = tunedDLM._getMSE()
