@@ -350,7 +350,7 @@ def plotComponent(time, data, result, options):
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(data['filteredMean'],
-                                       map(abs, data['filteredVar']),
+                                       list(map(abs, data['filteredVar'])),
                                        p=options.confidence)
 
             plotInterval(time=time[start:end],
@@ -376,7 +376,7 @@ def plotComponent(time, data, result, options):
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(data['predictedMean'],
-                                       map(abs, data['predictedVar']),
+                                       list(map(abs, data['predictedVar'])),
                                        p=options.confidence)
 
             plotInterval(time=time[start:end],
@@ -402,7 +402,7 @@ def plotComponent(time, data, result, options):
 
         if options.showConfidenceInterval:
             upper, lower = getInterval(data['smoothedMean'],
-                                       map(abs, data['smoothedVar']),
+                                       list(map(abs, data['smoothedVar'])),
                                        p=options.confidence)
 
             plotInterval(time=time[start:end],

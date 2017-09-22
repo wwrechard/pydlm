@@ -430,5 +430,10 @@ class testDlm(unittest.TestCase):
                         self.dlm5.data[i])
         self.assertAlmostEqual(diff, 0) 
 
+    def testTune(self):
+        # just make sure the tune can run
+        self.dlm5.fit()
+        self.dlm5.tune(maxit=10)
+
 if __name__ == '__main__':
     unittest.main()
