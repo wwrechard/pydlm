@@ -230,7 +230,9 @@ class testDlm(unittest.TestCase):
         (obs, var) = self.dlm6.predict(date=99)
         self.assertAlmostEqual(obs[0, 0], 100.02735)
         (obs, var) = self.dlm6.continuePredict()
-        self.assertAlmostEqual(obs[0, 0], 100.8884727)
+        self.assertAlmostEqual(obs[0, 0], 101.06011996)
+        (obs, var) = self.dlm6.continuePredict()
+        self.assertAlmostEqual(obs[0, 0], 102.0946503)
 
     def testPredictNWithoutDynamic(self):
         self.dlm3.fitForwardFilter()

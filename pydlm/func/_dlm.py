@@ -403,7 +403,7 @@ class _dlm:
 
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
-        self.result.predictStatus = [date, date + 1, [predictedObs]]
+        self.result.predictStatus = [date, date + 1, [predictedObs[0, 0]]]
 
         return (predictedObs, predictedObsVar)
 
@@ -424,6 +424,7 @@ class _dlm:
         if self.result.predictStatus is None:
             raise NameError('_continoousPredict can only be used after ' +
                             '_oneDayAheadPredict')
+        startDate = self.result.predictStatus[0]
         currentDate = self.result.predictStatus[1]
 
         # need to take care of the automaticComponents, especially the
@@ -439,8 +440,9 @@ class _dlm:
                 feature = self.result.predictStatus[2][-comp.d:]
             else:
                 extra = comp.d - len(self.result.predictStatus[2])
-                feature = self.data[(currentDate - extra + 1):
-                                    (currentDate + 1)] + self.result.predictStatus[2]
+                feature = self.data[(startDate - extra + 1):
+                                    (startDate + 1)] + self.result.predictStatus[2]
+            print (startDate, currentDate, feature)
             if featureDict is None:
                 featureDict = {}
             featureDict[name] = feature
@@ -451,7 +453,7 @@ class _dlm:
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
         self.result.predictStatus[1] += 1
-        self.result.predictStatus[2].append(predictedObs)
+        self.result.predictStatus[2].append(predictedObs[0, 0])
         return (predictedObs, predictedObsVar)
 
     def _constructEvaluationForPrediction(self,
