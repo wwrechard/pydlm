@@ -19,6 +19,7 @@ class testDlm(unittest.TestCase):
         self.dlm3 = dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
         self.dlm4 = dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
         self.dlm5 = dlm(range(100))
+        self.dlm6 = dlm(range(100))
         self.dlm1 + trend(degree=0, discount=1, w=1.0)
         self.dlm2 + trend(degree=0, discount=1e-12, w=1.0)
         self.dlm3 + seasonality(period=2, discount=1, w=1.0)
@@ -26,11 +27,14 @@ class testDlm(unittest.TestCase):
                             [[1] for i in range(5)], discount=1, w=1.0)
         self.dlm5 + trend(degree=0, discount=1, w=1.0) + \
             autoReg(degree=1, data=range(100), discount=1, w=1.0)
+        self.dlm6 + trend(degree=0, discount=1, w=1.0) + \
+            autoReg(degree=2, data=range(100), discount=1, w=1.0)
         self.dlm1.evolveMode('dependent')
         self.dlm2.evolveMode('dependent')
         self.dlm3.evolveMode('dependent')
         self.dlm4.evolveMode('dependent')
         self.dlm5.evolveMode('dependent')
+        self.dlm6.evolveMode('dependent')
 
     def testAdd(self):
         trend2 = trend(2, name='trend2')
@@ -221,6 +225,13 @@ class testDlm(unittest.TestCase):
         (obs, var) = self.dlm5.continuePredict()
         self.assertAlmostEqual(obs[0, 0], 101.07480945)
 
+    def testPredictWithAutoReg2(self):
+        self.dlm6.fitForwardFilter()
+        (obs, var) = self.dlm6.predict(date=99)
+        self.assertAlmostEqual(obs[0, 0], 100.02735)
+        (obs, var) = self.dlm6.continuePredict()
+        self.assertAlmostEqual(obs[0, 0], 100.8884727)
+
     def testPredictNWithoutDynamic(self):
         self.dlm3.fitForwardFilter()
         (obs, var) = self.dlm3.predictN(N=2, date=11)
@@ -233,7 +244,7 @@ class testDlm(unittest.TestCase):
         (obs, var) = self.dlm4.predictN(N=2, date=9,
                                         featureDict=featureDict)
         self.assertAlmostEqual(self.dlm4.result.predictStatus,
-                               [9, 11, [5.0/6 * 2, 5.0/6 * 3]])
+                               [9, 11, [5.0/6 * 2, 5.0/6 * 3]])   
 
     def testPredictNWithAutoReg(self):
         self.dlm5.fitForwardFilter()

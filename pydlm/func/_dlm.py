@@ -438,7 +438,7 @@ class _dlm:
             elif len(self.result.predictStatus[2]) >= comp.d:
                 feature = self.result.predictStatus[2][-comp.d:]
             else:
-                extra = comp.d - len(self.predictStatus[2])
+                extra = comp.d - len(self.result.predictStatus[2])
                 feature = self.data[(currentDate - extra + 1):
                                     (currentDate + 1)] + self.result.predictStatus[2]
             if featureDict is None:
