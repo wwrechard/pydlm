@@ -442,7 +442,6 @@ class _dlm:
                 extra = comp.d - len(self.result.predictStatus[2])
                 feature = self.data[(startDate - extra + 1):
                                     (startDate + 1)] + self.result.predictStatus[2]
-            print (startDate, currentDate, feature)
             if featureDict is None:
                 featureDict = {}
             featureDict[name] = feature
