@@ -53,7 +53,7 @@ class trend(component):
                  degree = 0,
                  discount = 0.99,
                  name = 'trend',
-                 w=1e7):
+                 w=100):
 
         if degree < 0:
             raise NameError('degree has to be non-negative')

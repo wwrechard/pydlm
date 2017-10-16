@@ -64,7 +64,7 @@ class dynamic(component):
                  features = None,
                  discount = 0.99,
                  name = 'dynamic',
-                 w=1e7):
+                 w=100):
 
         self.n = len(features)
         self.d = len(features[0])

@@ -66,7 +66,7 @@ class longSeason(dynamic):
                  stay=7,
                  discount=0.99,
                  name='longSeason',
-                 w=1e7):
+                 w=100):
 
         self.period = period
         self.stay = stay

@@ -57,7 +57,7 @@ class autoReg(dynamic):
                  degree=2,
                  discount=0.99,
                  name='ar2',
-                 w=1e7,
+                 w=100,
                  padding=0):
 
         if data is None:
