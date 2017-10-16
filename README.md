@@ -2,16 +2,23 @@
 =======================================================
 
 
-Welcome to [pydlm](https://pydlm.github.io/), a flexible and user-friendly time series modeling library for python. This library implements the Bayesian dynamic linear model (Harrison and West, 1999) for time series data.
+Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling library for python. This library is based on the Bayesian dynamic linear model (Harrison and West, 1999) and optimized for fast model fitting and inference.
 
 Updates in the github version
 -------------------------------------------
+* Add an auto noise initializer which initializes the model noise according to the scale of the time series. It is proved to improve the model performance over small scale data. To use auto initializer, simply call `dlm.noisePrior()` after constructing the model.
+```python
+mydlm = dlm(data) + trend(1)
+mydlm.noisePrior()
+mydlm.fit()
+```
+* Update the default variance of the components to be 100.
 * Fixed `map()` delayed evaluation bug for python3 (Thanks @bdewilde!).
 * Fixed bug in `continuePrediction()` for `autoReg` component. Now `predictN()` can work with `autoReg` (Thanks @Usman!).
 
 Installation
 ------------
-You can currently get the package (version 0.1.1.8) from `pypi` by
+You can get the package (current version 0.1.1.9) from `pypi` by
 
       $ pip install pydlm
 
@@ -30,14 +37,14 @@ You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 
 Google data science post example
 -----------------
-We use the example from the [Google data science post](http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html) to showcase `pydlm`. The code and data is placed under `examples/unemployment_insurance/...`. The data is the weekly counts of initial claims for unemployment during 2004 - 2012 and is available from the R package `bsts` (which is a popular R package for time series modeling). The raw data is shown below (left)
+We use the example from the [Google data science post](http://www.unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html) as an example to show how `pydlm` could be used to analyze the real world data. The code and data is placed under `examples/unemployment_insurance/...`. The dataset contains weekly counts of initial claims for unemployment during 2004 - 2012 and is available from the R package `bsts` (which is a popular R package for time series modeling). The raw data is shown below (left)
 <p align="center">
 <img src="/doc/source/img/unemployment_2.png" width=48%/>
 <img src="/doc/source/img/unemployment_1.png" width=48%/>
 </p>
-We can see strong annual pattern and some local trend from the data.
+We see strong annual pattern and some local trend from the data.
 <h4> A simple model </h4>
-Following the post, we first build a simple model with only local linear trend and seasonality component.
+Following the Google's post, we first build a simple model with only local linear trend and seasonality component.
 
 ```python
 from pydlm import dlm, trend, seasonality
@@ -49,7 +56,7 @@ seasonal52 = seasonality(period=52, discount=0.99, name='seasonal52', w=10)
 simple_dlm = dlm(time_series) + linear_trend + seasonal52
 ```
 
-In the actual code, the time series data is scored in the variable `time_series`. `degree=1` indicates the trend is a linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Since the seasonality is generally more stable, we set its discount factor to 0.99. For local linear trend, we use 0.95 to allow for some flexibility. `w=10` is the prior guess on the variance of each component, the larger number the more uncertain. For actual meaning of these parameters, please refer to the [user manual](https://pydlm.github.io/#dynamic-linear-models-user-manual). After the model built, we can fit the model and plot the result (shown above, right figure)
+In the actual code, the time series data is scored in the variable `time_series`. `degree=1` indicates the trend is linear (2 stands for quadratic) and `period=52` means the seasonality has a periodicy of 52. Since the seasonality is generally more stable, we set its discount factor to 0.99. For local linear trend, we use 0.95 to allow for some flexibility. `w=10` is the prior guess on the variance of each component, the larger number the more uncertain. For actual meaning of these parameters, please refer to the [user manual](https://pydlm.github.io/#dynamic-linear-models-user-manual). After the model built, we can fit the model and plot the result (shown above, right figure)
 
 ```python
 # Fit the model
