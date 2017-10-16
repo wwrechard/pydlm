@@ -1216,12 +1216,26 @@ class dlm(_dlm):
         """ To set the prior for the observational noise.
 
         Args:
-            prior: the prior of the observational noise. Default to 1.0
+            prior: the prior of the observational noise. The default
+        value is 1.0.
 
         Returns:
             A dlm object (for chaining purpose)
         """
         self.options.noise=prior
+        self.initialized = False
+
+        # for chaining
+        return self
+
+    def noisePrior(self):
+        """ To set the prior for the observational noise using the auto
+        noise initializer (currently, the variance of time series).
+
+        Returns:
+            A dlm object (for chaining purpose)
+        """
+        self.options.useAutoNoise = True
         self.initialized = False
 
         # for chaining

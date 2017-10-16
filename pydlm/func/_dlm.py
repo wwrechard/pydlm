@@ -11,6 +11,7 @@ It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 """
 from numpy import matrix
 from numpy import dot
+from numpy import var
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
 
@@ -103,6 +104,7 @@ class _dlm:
             self.separatePlot = True
             self.confidence = 0.95
             self.intervalType = 'ribbon'
+            self.useAutoNoise = False
 
     # an inner class to store all results
     class _result:
@@ -150,12 +152,21 @@ class _dlm:
         """ Initialize the model: initialize builder and filter.
 
         """
+        self._autoNoise()
         self.builder.initialize(noise=self.options.noise)
         self.Filter = kalmanFilter(discount=self.builder.discount,
                                    updateInnovation=self.options.innovationType,
                                    index=self.builder.componentIndex)
         self.result = self._result(self.n)
         self.initialized = True
+
+    def _autoNoise(self):
+        """ Auto initialize the noise parameter if options.useAutoNoise
+        is true.
+
+        """
+        if self.options.useAutoNoise:
+            self.options.noise = var(self.data)
 
     # use the forward filter to filter the data
     # start: the place where the filter started
