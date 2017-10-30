@@ -68,7 +68,7 @@ class _dlm:
     """
     # define the basic members
     # initialize the result
-    def __init__(self, data):
+    def __init__(self, data, **options):
 
         self.data = list(data)
         self.n = len(data)
@@ -76,7 +76,7 @@ class _dlm:
         self.builder = builder()
         self.Filter = None
         self.initialized = False
-        self.options = self._defaultOptions()
+        self.options = self._defaultOptions(**options)
         self.time = None
         self._printInfo = True
 
@@ -85,26 +85,26 @@ class _dlm:
         """ All plotting and fitting options
 
         """
-        def __init__(self):
-            self.noise = 1.0
-            self.stable = True
-            self.innovationType='component'
+        def __init__(self, **kwargs):
+            self.noise = kwargs.get('noise', 1.0)
+            self.stable = kwargs.get('stable', True)
+            self.innovationType = kwargs.get('component', 'component')
 
-            self.plotOriginalData = True
-            self.plotFilteredData = True
-            self.plotSmoothedData = True
-            self.plotPredictedData = True
-            self.showDataPoint = False
-            self.showFittedPoint = False
-            self.showConfidenceInterval = True
-            self.dataColor = 'black'
-            self.filteredColor = 'blue'
-            self.predictedColor = 'green'
-            self.smoothedColor = 'red'
-            self.separatePlot = True
-            self.confidence = 0.95
-            self.intervalType = 'ribbon'
-            self.useAutoNoise = False
+            self.plotOriginalData = kwargs.get('plotOriginalData', True)
+            self.plotFilteredData = kwargs.get('plotFilteredData', True)
+            self.plotSmoothedData = kwargs.get('plotSmoothedData', True)
+            self.plotPredictedData = kwargs.get('plotPredictedData', True)
+            self.showDataPoint = kwargs.get('showDataPoint', False)
+            self.showFittedPoint = kwargs.get('showFittedPoint', False)
+            self.showConfidenceInterval = kwargs.get('showConfidenceInterval', True)
+            self.dataColor = kwargs.get('dataColor', 'black')
+            self.filteredColor = kwargs.get('filteredColor', 'blue')
+            self.predictedColor = kwargs.get('predictedColor', 'green')
+            self.smoothedColor = kwargs.get('smoothedColor', 'red')
+            self.separatePlot = kwargs.get('seperatePlot', True)
+            self.confidence = kwargs.get('confidence', 0.95)
+            self.intervalType = kwargs.get('intervalType', 'ribbon')
+            self.useAutoNoise = kwargs.get('useAutoNoise', False)
 
     # an inner class to store all results
     class _result:
