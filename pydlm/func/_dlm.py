@@ -166,7 +166,8 @@ class _dlm:
 
         """
         if self.options.useAutoNoise:
-            self.options.noise = var(self.data)
+            trimmed_data = [x for x in self.data if x is not None]
+            self.options.noise = min(var(trimmed_data), 1)
 
     # use the forward filter to filter the data
     # start: the place where the filter started
