@@ -20,7 +20,7 @@ from pydlm.modeler.builder import builder
 # constructed by using the hidden functions in this class
 
 
-class _dlm:
+class _dlm(object):
     """ _dlm includes all hidden functions that used by the class dlm. These hidden
     methods provide the basic modeling, filtering, forecasting and smoothing of
     dlm.
@@ -81,7 +81,7 @@ class _dlm:
         self._printInfo = options.get('printInfo', True)
 
     # an inner class to store all options
-    class _defaultOptions:
+    class _defaultOptions(object):
         """ All plotting and fitting options
 
         """
@@ -107,7 +107,7 @@ class _dlm:
             self.useAutoNoise = kwargs.get('useAutoNoise', False)
 
     # an inner class to store all results
-    class _result:
+    class _result(object):
         """ Class to store the results
 
         """
