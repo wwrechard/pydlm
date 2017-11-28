@@ -368,6 +368,10 @@ class _dlm:
 
         return (predictedObs, predictedObsVar)
 
+    # Note the following functions will modify the status of the model, so they
+    # shall not be directly call through the main model if this behavior is not
+    # desired.
+    
     # featureDict contains all the features for prediction.
     # It is a dictionary with key equals to the name of the component and
     # the value as the new feature (a list). The function
