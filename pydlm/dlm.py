@@ -85,6 +85,12 @@ class dlm(_dlm):
         # help without doing import-check (expensive) every time
         # when plot function is called.
         self.plotLibLoaded = False
+
+        # This model is used for prediction. Prediction functions
+        # will change the model status to forecast at a particular
+        # date. Using a copied model will help the main model from
+        # being changed and behave abnormally.
+        self._predictModel = None
 # ===================== modeling components =====================
 
     # add component
@@ -296,7 +302,10 @@ class dlm(_dlm):
             raise NameError('Prediction can only be made right' +
                             ' after the filtered date')
 
-        return self._oneDayAheadPredict(date=date, featureDict=featureDict)
+        predictModel = deepcopy(self)
+        self._predictModel = predictModel
+        return self._predictModel._oneDayAheadPredict(date=date,
+                                                      featureDict=featureDict)
         
     def continuePredict(self, featureDict=None):
         """ Continue prediction after the one-day ahead predict.
@@ -322,10 +331,10 @@ class dlm(_dlm):
         Returns:
             A tupe. (predicted observation, variance)
         """
-        if self.result.predictStatus is None:
+        if self._predictModel is None:
             raise NameError('continuePredict has to come after predict.')
 
-        return self._continuePredict(featureDict=featureDict)
+        return self._predictModel._continuePredict(featureDict=featureDict)
 
     # N day ahead prediction
     def predictN(self, N=1, date=None, featureDict=None):

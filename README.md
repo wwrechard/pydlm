@@ -15,6 +15,7 @@ mydlm.fit()
 * Update the default variance of the components to be 100.
 * Fixed `map()` delayed evaluation bug for python3 (Thanks @bdewilde!).
 * Fixed bug in `continuePrediction()` for `autoReg` component. Now `predictN()` can work with `autoReg` (Thanks @Usman!).
+* Fixed a bug in `predictN()` which modifies the status of the dlm object. Now `dlm.predictN()` can be followed by `dlm.append()` and `dlm.fit()`. (Thanks @albertotb)
 
 Installation
 ------------
