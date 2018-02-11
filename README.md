@@ -6,7 +6,7 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling li
 
 Updates in the github version
 -------------------------------------------
-Version 0.1.1.10 released on PyPI.
+* Version 0.1.1.10 released on PyPI.
 
 Installation
 ------------
