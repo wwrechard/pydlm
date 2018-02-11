@@ -1221,32 +1221,23 @@ class dlm(_dlm):
         # for chaining
         return self
 
-    def noisePrior(self, prior=1.0):
-        """ To set the prior for the observational noise.
+    def noisePrior(self, prior=0):
+        """ To set the prior for the observational noise. Calling with empty
+        argument will enable the auto noise intializer (currently, the min of 1
+        and the variance of time series).
 
         Args:
-            prior: the prior of the observational noise. The default
-        value is 1.0.
+            prior: the prior of the observational noise.
 
         Returns:
             A dlm object (for chaining purpose)
         """
-        self.options.noise=prior
-        self.initialized = False
-
-        # for chaining
-        return self
-
-    def noisePrior(self):
-        """ To set the prior for the observational noise using the auto
-        noise initializer (currently, the min of 1 and the variance of time
-        series).
-
-        Returns:
-            A dlm object (for chaining purpose)
-        """
-        self.options.useAutoNoise = True
-        self.initialized = False
+        if prior > 0:
+            self.options.noise=prior
+            self.initialized = False
+        else:
+            self.options.useAutoNoise = True
+            self.initialized = False            
 
         # for chaining
         return self
