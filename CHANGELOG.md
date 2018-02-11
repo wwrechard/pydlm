@@ -1,5 +1,19 @@
 Changelog
 ----------------
+
+Upates in 0.1.1.10
+
+* Add an auto noise initializer which initializes the model noise according to the scale of the time series. It is proved to improve the model performance over small scale data. To use auto initializer, simply call `dlm.noisePrior()` after constructing the model.
+```python
+mydlm = dlm(data) + trend(1)
+mydlm.noisePrior()
+mydlm.fit()
+```
+* Update the default variance of the components to be 100.
+* Fixed `map()` delayed evaluation bug for python3 (Thanks @bdewilde!).
+* Fixed bug in `continuePrediction()` for `autoReg` component. Now `predictN()` can work with `autoReg` (Thanks @Usman!).
+* Fixed a bug in `predictN()` which modifies the status of the dlm object. Now `dlm.predictN()` can be followed by `dlm.append()` and `dlm.fit()`. (Thanks @albertotb)
+
 Updates in 0.1.1.9
 
 * Add an example from Google data science blog and updated the homepage
