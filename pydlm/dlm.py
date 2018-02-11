@@ -75,8 +75,8 @@ class dlm(_dlm):
     """
     # define the basic members
     # initialize the result
-    def __init__(self, data):
-        _dlm.__init__(self, data)
+    def __init__(self, data, **options):
+        super(dlm, self).__init__(data, **options)
 
         # indicate whether the plot modules has been loaded.
         # We add this flag, since we only import plot module
@@ -161,7 +161,7 @@ class dlm(_dlm):
         if self._printInfo:
             print('Starting forward filtering...')
         if not useRollingWindow:
-            # we start from the last step of previous fitering
+            # we start from the last step of previous filtering
             if self.result.filteredType == 'non-rolling':
                 start = self.result.filteredSteps[1] + 1
             else:
@@ -206,7 +206,7 @@ class dlm(_dlm):
         self._clean()
 
         if self._printInfo:
-            print('Forward fitering completed.')
+            print('Forward filtering completed.')
 
     def fitBackwardSmoother(self, backLength=None):
         """ Fit backward smoothing on the data. Starting from the last observed date.
