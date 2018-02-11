@@ -6,16 +6,7 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling li
 
 Updates in the github version
 -------------------------------------------
-* Add an auto noise initializer which initializes the model noise according to the scale of the time series. It is proved to improve the model performance over small scale data. To use auto initializer, simply call `dlm.noisePrior()` after constructing the model.
-```python
-mydlm = dlm(data) + trend(1)
-mydlm.noisePrior()
-mydlm.fit()
-```
-* Update the default variance of the components to be 100.
-* Fixed `map()` delayed evaluation bug for python3 (Thanks @bdewilde!).
-* Fixed bug in `continuePrediction()` for `autoReg` component. Now `predictN()` can work with `autoReg` (Thanks @Usman!).
-* Fixed a bug in `predictN()` which modifies the status of the dlm object. Now `dlm.predictN()` can be followed by `dlm.append()` and `dlm.fit()`. (Thanks @albertotb)
+Version 0.1.1.10 released on PyPI.
 
 Installation
 ------------
