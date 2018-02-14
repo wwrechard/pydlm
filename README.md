@@ -10,7 +10,7 @@ Updates in the github version
 
 Installation
 ------------
-You can get the package (current version 0.1.1.9) from `pypi` by
+You can get the package (current version 0.1.1.10) from `pypi` by
 
       $ pip install pydlm
 
