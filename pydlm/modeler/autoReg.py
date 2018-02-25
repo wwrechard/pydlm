@@ -37,15 +37,28 @@ class autoReg(component):
         name: the name of the trend component
         w: the value to set the prior covariance. Default to a diagonal
            matrix with 1e7 on the diagonal.
+        padding: either 0 or None. The number to be padded for the first degree
+                 days, as no previous data is observed to form the feature
+                 matrix
+    Examples:
+        >>>  # create a auto regression component:
+        >>> autoReg8 = autoReg(degree=8, name='autoreg8', discount = 0.99)
+        >>>  # change the autoReg8 to have covariance with diagonals are 2 and state 1
+        >>> autoReg8.createCovPrior(cov = 2)
+        >>> autoReg8.createMeanPrior(mean = 1)
 
     Attributes:
-        degree: the degree of autoregressive, i.e., how many days to look back
+        d: the degree of autoregressive, i.e., how many days to look back
         data (deprecatd): Users get a warning if this argument is used.
         discount factor: the discounting factor
         name: the name of the component
         padding: either 0 or None. The number to be padded for the first degree
                  days, as no previous data is observed to form the feature
                  matrix
+        evaluation: the evaluation matrix for this component
+        transition: the transition matrix for this component
+        covPrior: the prior guess of the covariance matrix of the latent states
+        meanPrior: the prior guess of the latent states
 
     """
 
@@ -93,7 +106,7 @@ class autoReg(component):
     def createTransition(self):
         """ Create the transition matrix.
 
-        For the dynamic component, the transition matrix is just the identity matrix
+        For the auto regressor component, the transition matrix is just the identity matrix
 
         """
         self.transition = np.matrix(np.eye(self.d))
