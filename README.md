@@ -6,6 +6,9 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling li
 
 Updates in the github version
 -------------------------------------------
+* Deprecate the `data` argument in the `autoReg` component. Now this component gets raw data directly from the main `dlm` class for constructing its regression features. User don't need to input when instantiate `autoReg`. This refactoring is for two purposes:
+  1. The prediction function is largely simplified as `autoReg` can now handle the forecasting by itself. 
+  2. This is towards the effort to separate `data` and `model` inside `dlm`. After this change, the internal dlm-builder only holds the model info (e.g., model status and structure) and does not depend on any time series data (except features in `dynamic`). As the next step, we will allow `dlm` to export the lightweighted dlm-builder and also recreated from the dlm-builder with new data, so that streaming/batch users won't suffer from the incremental data size.
 * Version 0.1.1.10 released on PyPI.
 
 Installation
