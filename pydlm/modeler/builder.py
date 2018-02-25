@@ -210,7 +210,8 @@ class builder:
 
     # initialize model for all the quantities
     # noise is the prior guess of the variance of the observed data
-    def initialize(self, noise=1):
+    # data is used by auto regressor.
+    def initialize(self, data=[], noise=1):
         """ Initialize the model. It construct the baseModel by assembling all
         quantities from the components.
 
@@ -270,7 +271,7 @@ class builder:
             self.automaticEvaluation = None
             for i in self.automaticComponents:
                 comp = self.automaticComponents[i]
-                comp.updateEvaluation(0)
+                comp.updateEvaluation(0, data)
                 transition = mt.matrixAddInDiag(transition, comp.transition)
                 evaluation = mt.matrixAddByCol(evaluation,
                                                comp.evaluation)
@@ -307,7 +308,8 @@ class builder:
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables
     # This function should be called only when dynamicComponents is not empty
-    def updateEvaluation(self, step):
+    # data is used by auto regressor.
+    def updateEvaluation(self, step, data):
         """ Update the evaluation matrix of the model to a specific date.
         It loops over all dynamic components and update their evaluation
         matrix and then reconstruct the model evaluation matrix by
@@ -333,6 +335,6 @@ class builder:
 
         for i in self.automaticComponents:
             comp = self.automaticComponents[i]
-            comp.updateEvaluation(step)
+            comp.updateEvaluation(step, data)
             self.model.evaluation[0, self.componentIndex[i][0]:
                                   (self.componentIndex[i][1] + 1)] = comp.evaluation

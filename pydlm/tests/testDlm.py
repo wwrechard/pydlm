@@ -11,6 +11,7 @@ class testDlm(unittest.TestCase):
 
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
+        self.data5 = range(100)
         self.features = np.random.random((20, 2)).tolist()
         self.trend0 = trend(degree=0, discount=1.0, w=1.0)
         self.trend1 = trend(degree=0, discount=1.0)
@@ -18,17 +19,17 @@ class testDlm(unittest.TestCase):
         self.dlm2 = dlm(self.data)
         self.dlm3 = dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
         self.dlm4 = dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
-        self.dlm5 = dlm(range(100))
-        self.dlm6 = dlm(range(100))
+        self.dlm5 = dlm(self.data5)
+        self.dlm6 = dlm(self.data5)
         self.dlm1 + trend(degree=0, discount=1, w=1.0)
         self.dlm2 + trend(degree=0, discount=1e-12, w=1.0)
         self.dlm3 + seasonality(period=2, discount=1, w=1.0)
         self.dlm4 + dynamic(features=[[0] for i in range(5)] +
                             [[1] for i in range(5)], discount=1, w=1.0)
         self.dlm5 + trend(degree=0, discount=1, w=1.0) + \
-            autoReg(degree=1, data=range(100), discount=1, w=1.0)
+            autoReg(degree=1, discount=1, w=1.0)
         self.dlm6 + trend(degree=0, discount=1, w=1.0) + \
-            autoReg(degree=2, data=range(100), discount=1, w=1.0)
+            autoReg(degree=2, discount=1, w=1.0)
         self.dlm1.evolveMode('dependent')
         self.dlm2.evolveMode('dependent')
         self.dlm3.evolveMode('dependent')
@@ -109,22 +110,6 @@ class testDlm(unittest.TestCase):
         dlm5 = dlm(self.data)
         dlm5 + self.trend1 + dynamic(features = self.features,
                                      discount = 1)
-        dlm5.fitForwardFilter()
-        self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) -
-                                      np.array(dlm5.result.filteredObs)), 0.0)
-
-    def testAppendAutomatic(self):
-        # we feed the data to dlm4 via two segments
-        dlm4 = dlm(self.data[0:11])
-        dlm4 + self.trend1 + autoReg(degree = 3, data = self.data[0:11],
-                                     discount = 1)
-        dlm4.fitForwardFilter()
-        dlm4.append(self.data[11 : 20])
-        dlm4.fitForwardFilter()
-
-        # we feed the data to dlm5 all at once
-        dlm5 = dlm(self.data)
-        dlm5 + self.trend1 + autoReg(degree = 3, data = self.data, discount = 1)
         dlm5.fitForwardFilter()
         self.assertAlmostEqual(np.sum(np.array(dlm4.result.filteredObs) -
                                       np.array(dlm5.result.filteredObs)), 0.0)
@@ -337,7 +322,7 @@ class testDlm(unittest.TestCase):
         trueAr = [item[1, 0] for item in self.dlm5.result.filteredState]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i]
 
         diff = 0.0
@@ -360,7 +345,7 @@ class testDlm(unittest.TestCase):
         trueAr = [item[1, 0] for item in self.dlm5.result.smoothedState]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i]
 
         diff = 0.0
@@ -385,7 +370,7 @@ class testDlm(unittest.TestCase):
         trueAr = [item[1, 1] for item in self.dlm5.result.filteredCov]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i] * comp.evaluation.T
 
         diff = 0.0
@@ -408,7 +393,7 @@ class testDlm(unittest.TestCase):
         trueAr = [item[1, 1] for item in self.dlm5.result.smoothedCov]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i] * comp.evaluation.T
 
         diff = 0.0

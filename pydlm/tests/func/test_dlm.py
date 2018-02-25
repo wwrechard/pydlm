@@ -12,12 +12,13 @@ class test_dlm(unittest.TestCase):
 
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
+        self.data5 = range(100)
         self.dlm1 = _dlm(self.data)
         self.dlm2 = _dlm(self.data)
         self.dlm3 = _dlm([-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
         self.dlm4 = _dlm([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
-        self.dlm5 = _dlm(range(100))
-        self.dlm6 = _dlm(range(100))
+        self.dlm5 = _dlm(self.data5)
+        self.dlm6 = _dlm(self.data5)
         self.dlm7 = _dlm([0, 1, None, 1, 0, 1, -1])
         self.dlm1.builder + trend(degree=0, discount=1, w=1.0)
         self.dlm2.builder + trend(degree=0, discount=1e-12, w=1.0)
@@ -26,10 +27,10 @@ class test_dlm(unittest.TestCase):
                                     [[1] for i in range(5)], discount=1,
                                     w=1.0)
         self.dlm5.builder + trend(degree=0, discount=1, w=1.0) + \
-            autoReg(degree=1, data=range(100), discount=1, w=1.0)
+            autoReg(degree=1, discount=1, w=1.0)
         self.dlm6.builder + trend(degree=0, discount=0.9, w=1.0) + \
             seasonality(period=2, discount=0.8, w=1.0) + \
-            autoReg(degree=3, data=range(100), discount=1.0)
+            autoReg(degree=3, discount=1.0)
         self.dlm7.builder + trend(degree=0, discount=1, w=1.0)
         self.dlm1._initialize()
         self.dlm2._initialize()
@@ -229,7 +230,7 @@ class test_dlm(unittest.TestCase):
         trueAr = [item[1, 0] for item in self.dlm5.result.filteredState]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i]
 
         diff = 0.0
@@ -245,7 +246,7 @@ class test_dlm(unittest.TestCase):
         trueAr = [item[1, 0] for item in self.dlm5.result.smoothedState]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i]
 
         diff = 0.0
@@ -262,7 +263,7 @@ class test_dlm(unittest.TestCase):
         trueAr = [item[1, 1] for item in self.dlm5.result.filteredCov]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i] * comp.evaluation.T
 
         diff = 0.0
@@ -278,7 +279,7 @@ class test_dlm(unittest.TestCase):
         trueAr = [item[1, 1] for item in self.dlm5.result.smoothedCov]
         comp = self.dlm5.builder.automaticComponents['ar2']
         for i in range(len(trueAr)):
-            comp.updateEvaluation(i)
+            comp.updateEvaluation(i, self.data5)
             trueAr[i] = comp.evaluation * trueAr[i] * comp.evaluation.T
 
         diff = 0.0

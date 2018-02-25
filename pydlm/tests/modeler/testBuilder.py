@@ -11,12 +11,12 @@ from pydlm.modeler.matrixTools import matrixTools as mt
 class testBuilder(unittest.TestCase):
 
     def setUp(self):
+        self.data = np.random.rand(10).tolist()
         self.features = np.random.rand(10, 2).tolist()
         self.trend = trend(degree=2, w=1.0)
         self.seasonality = seasonality(period=7, w=1.0)
         self.dynamic = dynamic(self.features, w=1.0)
         self.autoReg = autoReg(degree=3,
-                               data=np.random.rand(10).tolist(),
                                w=1.0)
         self.builder1 = builder()
 
@@ -56,7 +56,7 @@ class testBuilder(unittest.TestCase):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
                         + self.autoReg
 
-        self.builder1.initialize()
+        self.builder1.initialize(data=self.data)
         self.assertAlmostEqual(np.sum(
             np.abs(self.builder1.model.evaluation
                    - mt.matrixAddByCol(mt.matrixAddByCol(
@@ -67,9 +67,7 @@ class testBuilder(unittest.TestCase):
     def testInitializeEvaluatoin(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic
         self.builder1.dynamicComponents['dynamic'].updateEvaluation(8)
-        self.builder1.initialize()
-        print(self.builder1.model.evaluation, mt.matrixAddByCol(
-            self.trend.evaluation, self.dynamic.evaluation))
+        self.builder1.initialize(data=self.data)
         self.assertAlmostEqual(np.sum(
             np.abs(self.builder1.model.evaluation -
                    mt.matrixAddByCol(self.trend.evaluation,
@@ -79,14 +77,14 @@ class testBuilder(unittest.TestCase):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
                         + self.autoReg
 
-        self.builder1.initialize()
-        self.builder1.updateEvaluation(2)
+        self.builder1.initialize(data=self.data)
+        self.builder1.updateEvaluation(2, self.data)
         self.assertAlmostEqual(np.sum(
             np.abs(self.builder1.model.evaluation
                    - mt.matrixAddByCol(mt.matrixAddByCol(
                        self.trend.evaluation,
                        np.matrix([self.features[2]])),
-                                       np.matrix(self.autoReg.features[2])))), 0.0)
+                                       np.matrix(self.autoReg.evaluation)))), 0.0)
 
 if __name__ == '__main__':
     unittest.main()

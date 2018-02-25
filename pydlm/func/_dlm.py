@@ -71,6 +71,10 @@ class _dlm(object):
     def __init__(self, data, **options):
 
         self.data = list(data)
+        # padded_data is used by auto regressor. It is the raw data with missing value
+        # replaced by forward filter results. (Missing value include the out of scope
+        # predictions.
+        self.padded_data = self.data
         self.n = len(data)
         self.result = None
         self.builder = builder()
@@ -153,7 +157,7 @@ class _dlm(object):
 
         """
         self._autoNoise()
-        self.builder.initialize(noise=self.options.noise)
+        self.builder.initialize(noise=self.options.noise, data=self.padded_data)
         self.Filter = kalmanFilter(discount=self.builder.discount,
                                    updateInnovation=self.options.innovationType,
                                    index=self.builder.componentIndex)
@@ -231,7 +235,7 @@ class _dlm(object):
             # first check whether we need to update evaluation or not
             if len(self.builder.dynamicComponents) > 0 or \
                len(self.builder.automaticComponents) > 0:
-                self.builder.updateEvaluation(step)
+                self.builder.updateEvaluation(step, self.padded_data)
 
             # check if rewnew is needed
             if renew and step - lastRenewPoint > self.builder.renewTerm \
@@ -318,7 +322,7 @@ class _dlm(object):
 
             if len(self.builder.dynamicComponents) > 0 or \
                len(self.builder.automaticComponents) > 0:
-                self.builder.updateEvaluation(day)
+                self.builder.updateEvaluation(day, self.padded_data)
 
             # then we use the backward filter to filter the result
             self.Filter.backwardSmoother(
@@ -360,7 +364,7 @@ class _dlm(object):
             # update the evaluation vector
             if len(self.builder.dynamicComponents) > 0 or \
                len(self.builder.automaticComponents) > 0:
-                self.builder.updateEvaluation(date + i)
+                self.builder.updateEvaluation(date + i, self.padded_data)
 
             self.Filter.predict(self.builder.model)
             predictedObs[i - 1] = self.builder.model.prediction.obs
@@ -409,8 +413,11 @@ class _dlm(object):
 
         # get the correct status of the model
         self._setModelStatus(date=date)
-        self._constructEvaluationForPrediction(featureDict=featureDict,
-                                               date=date + 1)
+        self._constructEvaluationForPrediction(
+            date=date + 1,
+            featureDict=featureDict,
+            padded_data=self.padded_data[:(date + 1)])
+        
         # initialize the prediction status
         self.builder.model.prediction.step = 0
 
@@ -419,7 +426,11 @@ class _dlm(object):
 
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
-        self.result.predictStatus = [date, date + 1, [predictedObs[0, 0]]]
+        self.result.predictStatus = [
+            date,                   # start_date
+            date + 1,               # current_date
+            [predictedObs[0, 0]]    # all historical predictions
+        ]
 
         return (predictedObs, predictedObsVar)
 
@@ -443,27 +454,11 @@ class _dlm(object):
         startDate = self.result.predictStatus[0]
         currentDate = self.result.predictStatus[1]
 
-        # need to take care of the automaticComponents, especially the
-        # auto regressive component. The newly predicted value becomes
-        # the new feature for autoReg components. We need to artifically
-        # construct the feature for autoReg. These values are stored
-        # in result.predictStatus[2]
-        for name in self.builder.automaticComponents:
-            comp = self.builder.automaticComponents[name]
-            if comp.componentType != 'autoReg':
-                continue
-            elif len(self.result.predictStatus[2]) >= comp.d:
-                feature = self.result.predictStatus[2][-comp.d:]
-            else:
-                extra = comp.d - len(self.result.predictStatus[2])
-                feature = self.data[(startDate - extra + 1):
-                                    (startDate + 1)] + self.result.predictStatus[2]
-            if featureDict is None:
-                featureDict = {}
-            featureDict[name] = feature
-
-        self._constructEvaluationForPrediction(featureDict=featureDict,
-                                               date=currentDate + 1)
+        self._constructEvaluationForPrediction(
+            date=currentDate + 1,
+            featureDict=featureDict,
+            padded_data=self.padded_data[:(startDate + 1)] +
+                        self.result.predictStatus[2])
         self.Filter.predict(self.builder.model)
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
@@ -471,9 +466,11 @@ class _dlm(object):
         self.result.predictStatus[2].append(predictedObs[0, 0])
         return (predictedObs, predictedObsVar)
 
+    # This function will modify the status of the object, use with caution.
     def _constructEvaluationForPrediction(self,
+                                          date,
                                           featureDict=None,
-                                          date=None):
+                                          padded_data=None):
         """ Construct the evaluation matrix based on date and featureDict.
 
         Used for prediction. Features provided in the featureDict will be used
@@ -485,36 +482,30 @@ class _dlm(object):
                          for update the feature for the corresponding component.
             date: if a dynamic component name is not found in featureDict, the
                   algorithm is using its old feature on the given date.
+            padded_data: is the mix of the raw data and the predicted data. It is
+                  used by auto regressor.
 
         """
-        if featureDict is None and date is None:
-            raise NameError('FeatureDict and date cannot be None ' +
-                            'at the same time.')
-        # find the correct evaluation vector
-        if featureDict is None:
-            self.builder.updateEvaluation(date)
-        else:
-            self._updateFeatureValues(
-                date, featureDict, self.builder.automaticComponents)
-            self._updateFeatureValues(
-                date, featureDict, self.builder.dynamicComponents)
-        self.builder.model.evaluation = matrix(self.builder.model.evaluation)
-
-    def _updateFeatureValues(self, date, featureDict, componentCollection):
-        for name in componentCollection:
-            if name in featureDict:
-                self.builder.model.evaluation[
-                    0, self.builder.componentIndex[name][0]:
-                    (self.builder.componentIndex[name][1] + 1)] = featureDict[name]
-            else:
-                if date is None:
-                    raise NameError('The feature of ' + name + ' is lacking, '
-                                    'but the date is not provided.')
-                comp = componentCollection[name]
-                comp.updateEvaluation(date)
-                self.builder.model.evaluation[
-                    0, self.builder.componentIndex[name][0]:
-                    (self.builder.componentIndex[name][1] + 1)] = comp.evaluation
+        # New features are provided. Update dynamic componnet.
+        # We distribute the featureDict back to dynamicComponents. If the date is
+        # out of bound, we append the feature to the feature set. If the date is
+        # within range, we replace the old feature with the new feature.
+        if featureDict is not None:
+            for name in featureDict:
+                if name in self.builder.dynamicComponents:
+                    comp = self.builder.dynamicComponents[name]                    
+                    # the date is within range
+                    if date < comp.n:
+                        comp.features[date] = featureDict[name]
+                        comp.n += 1
+                    elif date < comp.n + 1:
+                        comp.features.append(featureDict[name])
+                        comp.n += 1
+                    else:
+                        raise NameError("Feature is missing between the last predicted " +
+                                        "day and the new day")
+                        
+        self.builder.updateEvaluation(date, padded_data)
 
 # =========================== model helper function ==========================
 
@@ -533,7 +524,7 @@ class _dlm(object):
                           step=date)
         if len(self.builder.dynamicComponents) > 0 or \
            len(self.builder.automaticComponents) > 0:
-            self.builder.updateEvaluation(date)
+            self.builder.updateEvaluation(date, self.padded_data)
 
     # reset model to initial status
     def _resetModelStatus(self):
@@ -563,6 +554,9 @@ class _dlm(object):
             result.predictedCov[step] = model.prediction.sysVar
             result.noiseVar[step] = model.noiseVar
             result.df[step] = model.df
+            # pad missing value with filtered result
+            if self.data[step] is None:
+                self.padded_data[step] = result.filteredObs[step]
 
         elif filterType == 'backwardSmoother':
             result.smoothedState[step] = model.state
@@ -738,8 +732,10 @@ class _dlm(object):
                                               start=start, end=end)
         result = []
         for k, i in enumerate(range(start, end)):
-            if name not in self.builder.staticComponents:
+            if name in self.builder.dynamicComponents:
                 comp.updateEvaluation(i)
+            elif name in self.builder.automaticComponents:
+                comp.updateEvaluation(i, self.padded_data)
             result.append(dot(comp.evaluation,
                               componentState[k]).tolist()[0][0])
         return result
@@ -766,8 +762,10 @@ class _dlm(object):
                                           start=start, end=end)
         result = []
         for k, i in enumerate(range(start, end)):
-            if name not in self.builder.staticComponents:
+            if name in self.builder.dynamicComponents:
                 comp.updateEvaluation(i)
+            elif name in self.builder.automaticComponents:
+                comp.updateEvaluation(i, self.padded_data)
             result.append(dot(
                 dot(comp.evaluation,
                     componentCov[k]), comp.evaluation.T).tolist()[0][0])

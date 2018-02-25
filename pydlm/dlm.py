@@ -368,8 +368,10 @@ class dlm(_dlm):
         if N < 1:
             raise NameError('N has to be greater or equal to 1')
         # Take care if features are numpy matrix
-        if isinstance(featureDict, matrix):
-            featureDict = featureDict.tolist()
+        if featureDict is not None:
+            for name in featureDict:
+                if isinstance(featureDict[name], matrix):
+                    featureDict[name] = featureDict[name].tolist()
         predictedObs = []
         predictedVar = []
 
