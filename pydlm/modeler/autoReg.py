@@ -94,7 +94,7 @@ class autoReg(component):
             raise NameError("There is no sufficient data for creating autoregressor.")
         # We pad numbers if the step is too early
         self.evaluation = matrix([[self.padding] * (self.d - step) +
-                                  data[max(0, (step - self.d)) : step]])
+                                  list(data[max(0, (step - self.d)) : step])])
 
     def createTransition(self):
         """ Create the transition matrix.
