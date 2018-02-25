@@ -46,7 +46,7 @@ class testDlm(unittest.TestCase):
         self.dlm1 = self.dlm1 + dynamic2
         self.assertEqual(self.dlm1.builder.dynamicComponents['d2'], dynamic2)
 
-        ar3 = autoReg(degree=3,data=self.data, name='ar3')
+        ar3 = autoReg(degree=3, name='ar3')
         self.dlm1 = self.dlm1 + ar3
         self.assertEqual(self.dlm1.builder.automaticComponents['ar3'], ar3)
 
