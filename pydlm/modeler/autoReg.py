@@ -30,13 +30,8 @@ class autoReg(component):
     when fetching the latents from autoReg component, use this order to
     correctly align the coefficients.
 
-    (TODO: change the implementation of autoReg, so that the component uses
-     filteredObs as the feature instead of the observed data. To do this, we
-     might need pass the dlm as a parameter to autoReg, so that autoReg can
-     fetch the filtered observation on the fly)
-
     Args:
-        data: the time series data
+        data (deprecated): Users get a warning if this argument is used.
         degree: the order of the autoregressive component
         discount: the discount factor
         name: the name of the trend component
@@ -45,8 +40,7 @@ class autoReg(component):
 
     Attributes:
         degree: the degree of autoregressive, i.e., how many days to look back
-        data: the time series data used for constructing the autoregressive
-              features
+        data (deprecatd): Users get a warning if this argument is used.
         discount factor: the discounting factor
         name: the name of the component
         padding: either 0 or None. The number to be padded for the first degree
@@ -56,7 +50,7 @@ class autoReg(component):
     """
 
     def __init__(self,
-                 data=None,
+                 data=None,  # DEPRECATED
                  degree=2,
                  discount=0.99,
                  name='ar2',
@@ -64,7 +58,7 @@ class autoReg(component):
                  padding=0):
 
         if data is not None:
-            warn('The data argument in autoReg is deprecated. Please do not use it.')
+            warn('The data argument in autoReg is deprecated. Please avoid using it.')
 
         self.componentType = 'autoReg'
         self.d = degree

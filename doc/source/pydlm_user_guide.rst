@@ -177,7 +177,12 @@ the model, i.e., the direct linear or non-linear dependency between
 the current observation and the previous days. User needs to specify
 the number of days of the dependency::
 
-  AR3 = autoReg(degree=3, data=data, discount=0.99, name='ar3', w=1e7)
+  AR3 = autoReg(degree=3, discount=0.99, name='ar3', w=1e7)
+
+There is once a `data` argument needed for constructing autoregression
+features but is now deprecated. :class:`autoReg` can now fetch the
+data directly from the main :class:`dlm` class and no need to provide
+during instantiation.
 
 In this example, the latent stats for Auto-regression are aligned in a
 way of [today - 3, today - 2, today - 1]. So when fetching the
