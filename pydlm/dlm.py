@@ -671,6 +671,16 @@ class dlm(_dlm):
         return self._getLatentCov(name=name, filterType=filterType,
                                   start=start, end=(end - 1))
 
+    def exportBuilder():
+        """ Export the dlm builder. Currently the method only support dlm without
+        dynamic components.
+
+        """
+        if length(self.builder.dynamicComponents) > 0:
+            raise ValueError('Cannot export dlm builder with dynamic components.')
+
+        return self.builder
+        
 # ======================= data appending, popping and altering ===============
 
     # Append new data or features to the dlm
