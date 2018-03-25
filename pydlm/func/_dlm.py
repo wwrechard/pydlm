@@ -9,7 +9,6 @@ This piece of code include all the hidden methods and members of the class dlm.
 It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
-from numpy import matrix
 from numpy import dot
 from numpy import var
 from pydlm.base.kalmanFilter import kalmanFilter

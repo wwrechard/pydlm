@@ -15,6 +15,7 @@ view componets of a given dlm. Builder will finally assemble all the components
 # customized model
 import numpy as np
 from pydlm.base.baseModel import baseModel
+from copy import deepcopy
 from pydlm.modeler.matrixTools import matrixTools as mt
 
 # The builder will be the main class for construting dlm
@@ -44,6 +45,7 @@ class builder:
         statePrior: the prior mean of the latent state
         sysVarPrior: the prior of the covariance of the latent states
         noiseVar: the prior of the observation noise
+        initialDegreeFreedom: the initial degree of freedom.
         discount: the discounting factor, please refer to @kalmanFilter for
                   more details
         renewTerm: used for aiding the stability of the model. The renewTerm
@@ -100,6 +102,7 @@ class builder:
         self.statePrior = None
         self.sysVarPrior = None
         self.noiseVar = None
+        self.initialDegreeFreedom = 1
 
         # record the discount factor for the model
         self.discount = None
@@ -290,7 +293,7 @@ class builder:
                                noiseVar=np.matrix(noise),
                                sysVar=sysVar,
                                state=state,
-                               df=1)
+                               df=self.initialDegreeFreedom)
         self.model.initializeObservation()
 
         # compute the renew period
@@ -305,6 +308,47 @@ class builder:
         if self._printInfo:
             print('Initialization finished.')
 
+    # Initialize from another builder exported from other dlm class
+    def initializeFromBuilder(self, data, exported_builder):
+        # Copy the components
+        self.staticComponents = deepcopy(exported_builder.staticComponents)
+        self.automaticComponents = deepcopy(exported_builder.automaticComponents)
+        self.dynamicComponents = deepcopy(exported_builder.dynamicComponents)
+        self.componentIndex = deepcopy(exported_builder.componentIndex)
+        self.discount = deepcopy(exported_builder.discount)
+        self.initialDegreeFreedom = exported_builder.model.df
+
+        # Copy the model states
+        self.statePrior = exported_builder.model.state
+        self.sysVarPrior = exported_builder.model.sysVar
+        self.noiseVar = exported_builder.model.noiseVar
+        self.transition = exported_builder.transition
+        self.evaluation = exported_builder.evaluation
+        # update the evaluation to the current.
+        self.updateEvaluation(step=0, data=data)
+
+    
+        self.model = baseModel(transition=self.transition,
+                               evaluation=self.evaluation,
+                               noiseVar=self.noiseVar,
+                               sysVar=self.sysVarPrior,
+                               state=self.statePrior,
+                               df=self.initialDegreeFreedom)
+        self.model.initializeObservation()
+
+        # compute the renew period
+        if self.renewDiscount is None:
+            self.renewDiscount = np.min(self.discount)
+
+        if self.renewDiscount < 1.0 - 1e-8:
+            self.renewTerm = np.log(0.001 * (1 - self.renewDiscount)) \
+                             / np.log(self.renewDiscount)
+        
+        self.initilized = True
+        self.initialized = True
+        if self._printInfo:
+            print('Initialization finished.')
+            
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables
     # This function should be called only when dynamicComponents is not empty
