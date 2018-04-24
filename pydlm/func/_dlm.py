@@ -608,13 +608,6 @@ class _dlm(object):
             self._printInfo = False
             self.builder._printInfo = False
 
-    def _clean(self):
-        """ Clean up everything that needs to be reset. A common
-        place to take care of of them.
-
-        """
-        self.result.predictStatus = None
-
     # function to judge whether a component is in the model
     def _checkComponent(self, name):
         """ Check whether a component is contained by the dlm.

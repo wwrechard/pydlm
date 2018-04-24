@@ -202,9 +202,6 @@ class dlm(_dlm):
         self.turnOn('filtered plot')
         self.turnOn('predict plot')
 
-        # reset everything that needs reset
-        self._clean()
-
         if self._printInfo:
             print('Forward filtering completed.')
 
@@ -249,9 +246,6 @@ class dlm(_dlm):
 
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
         self.turnOn('smoothed plot')
-
-        # reset everything that needs reset
-        self._clean()
 
         if self._printInfo:
             print('Backward smoothing completed.')
@@ -679,7 +673,7 @@ class dlm(_dlm):
         if length(self.builder.dynamicComponents) > 0:
             raise ValueError('Cannot export dlm builder with dynamic components.')
 
-        return self.builder
+        return deepcopy(self.builder)
         
 # ======================= data appending, popping and altering ===============
 
@@ -726,9 +720,6 @@ class dlm(_dlm):
         else:
             raise NameError('Such dynamic component does not exist.')
 
-        # reset everything that needs reset
-        self._clean()
-
     # pop the data of a specific date out
     def popout(self, date):
         """ Pop out the data for a given date
@@ -767,9 +758,6 @@ class dlm(_dlm):
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
-
-        # reset everything that needs reset
-        self._clean()
 
     # alter the data of a specific days
     def alter(self, date, data, component='main'):
@@ -821,9 +809,6 @@ class dlm(_dlm):
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
-
-        # reset everything that needs reset
-        self._clean()
 
     # ignore the data of a given date
     def ignore(self, date):
