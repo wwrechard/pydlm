@@ -344,7 +344,6 @@ class builder:
             self.renewTerm = np.log(0.001 * (1 - self.renewDiscount)) \
                              / np.log(self.renewDiscount)
         
-        self.initilized = True
         self.initialized = True
         if self._printInfo:
             print('Initialization finished.')

@@ -163,6 +163,14 @@ class _dlm(object):
         self.result = self._result(self.n)
         self.initialized = True
 
+    def _initializeFromBuilder(self, exported_builder):
+        self.builder.initializeFromBuilder(data=self.data, exported_builder=exported_builder)
+        self.Filter = kalmanFilter(discount=self.builder.discount,
+                                   updateInnovation=self.options.innovationType,
+                                   index=self.builder.componentIndex)
+        self.result = self._result(self.n)
+        self.initialized = True
+
     def _autoNoise(self):
         """ Auto initialize the noise parameter if options.useAutoNoise
         is true.

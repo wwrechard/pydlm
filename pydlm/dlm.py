@@ -89,8 +89,32 @@ class dlm(_dlm):
         # This model is used for prediction. Prediction functions
         # will change the model status to forecast at a particular
         # date. Using a copied model will help the main model from
-        # being changed and behave abnormally.
+        # being changed and behaving abnormally.
         self._predictModel = None
+
+    def exportModel(self):
+        """ Export the dlm builder. Currently the method only support dlm without
+        dynamic components.
+
+        """
+        if length(self.builder.dynamicComponents) > 0:
+            raise ValueError('Cannot export dlm builder with dynamic components.')
+
+        if not self.initialized:
+            raise ValueError('Cannot export dlm before the model was initilized.')
+
+        return deepcopy(self.builder)
+
+    def buildFromModel(self, model):
+        """ Construct the dlm with exported model from other DLM with status.
+
+        Args:
+            model: The exported model from other dlm. Must be the return from
+                   dlm.exportModel()
+
+        """
+        self._initializeFromBuilder(exported_builder=model)
+
 # ===================== modeling components =====================
 
     # add component
@@ -665,16 +689,6 @@ class dlm(_dlm):
         return self._getLatentCov(name=name, filterType=filterType,
                                   start=start, end=(end - 1))
 
-    def exportBuilder():
-        """ Export the dlm builder. Currently the method only support dlm without
-        dynamic components.
-
-        """
-        if length(self.builder.dynamicComponents) > 0:
-            raise ValueError('Cannot export dlm builder with dynamic components.')
-
-        return deepcopy(self.builder)
-        
 # ======================= data appending, popping and altering ===============
 
     # Append new data or features to the dlm
