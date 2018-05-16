@@ -82,6 +82,7 @@ class _dlm(object):
         self.options = self._defaultOptions(**options)
         self.time = None
         self._printInfo = options.get('printInfo', True)
+        self.builder._printInfo = self._printInfo
 
     # an inner class to store all options
     class _defaultOptions(object):
