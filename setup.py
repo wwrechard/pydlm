@@ -26,6 +26,7 @@ setup(
       'matplotlib',
     ],
     tests_require = [
+      'unittest',
     ],
     extras_require = {
         'docs': [
