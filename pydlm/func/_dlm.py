@@ -564,7 +564,7 @@ class _dlm(object):
             result.df[step] = model.df
             # pad missing value with filtered result
             if self.data[step] is None:
-                self.padded_data[step] = result.filteredObs[step]
+                self.padded_data[step] = result.filteredObs[step][0,0]
 
         elif filterType == 'backwardSmoother':
             result.smoothedState[step] = model.state
