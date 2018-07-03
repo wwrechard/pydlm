@@ -2,7 +2,7 @@
 =======================================================
 
 
-Welcome to [pydlm-lite](https://pydlm.github.io/), the lite version of the main `pydlm` package where the plotting functionality and the dependency on the matplotlib has been removed. Most refactoring work will be conducted on this package to improve the class on multi-threading and online learning. In the meanwhile, the main `pydlm` package will remain in the current structure.
+Welcome to [pydlm-lite](https://pydlm.github.io/), the lite version of the main `pydlm` package where the plotting functionality and the dependency on the `matplotlib` has been removed. Most refactoring work will be conducted on this package to improve the class on multi-threading and online learning. In the meanwhile, the main `pydlm` package will remain in the same structure as the current status.
 
 Going forward, the two packages will be developed towards two different directions
 
