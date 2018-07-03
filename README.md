@@ -2,7 +2,15 @@
 =======================================================
 
 
-Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling library for python. This library is based on the Bayesian dynamic linear model (Harrison and West, 1999) and optimized for fast model fitting and inference.
+Welcome to [pydlm-lite](https://pydlm.github.io/), a flexible time series modeling library for python. This library is based on the Bayesian dynamic linear model (Harrison and West, 1999) and optimized for fast model fitting and inference.
+
+This is the lite version of the main `pydlm` package where the plotting functionality and the dependency on the matplotlib has been removed. Most refactoring work will be conducted on this package to improve the class on multi-threading and online learning. In the meanwhile, the main `pydlm` package will remain in the current structure.
+
+Going forward, the two packages will be developed towards two different directions
+
+1. `pydlm` will support more sophisticated models and more advanced algorithm such as sequential monte carlo. The algorithm will be optimized in terms of accuracy rather than latency. The primary use case is on advanced inference and data analysis with small datasets.
+
+2. `pydlm-lite` will mainly focus on normal-normal and poisson-gamma models with the fastest possible fitting algorithm. The class design will support concurrency and online updating. The primary use case is scalable anomaly detection and forecasting with millions of time series.
 
 Updates in the github version
 -------------------------------------------
@@ -11,16 +19,12 @@ Updates in the github version
   2. Time series data will be passed in as an argument to the `fit` or `forwardFilter` and the fitted result will be returned as well as the model status.
   3. Model status can also be passed into `fit` and `forwardFilter` as a prior.
   The goal is to make the `dlm` class state-independent, so that the class is thread-safe and can be shared by multiple threads for parallel processing. While in progress, all the old class behavior will be kept.
-* Deprecate the `data` argument in the [`autoReg`](https://pydlm.github.io/class_ref.html#autoreg) component. Now this component gets raw data directly from the main `dlm` class for constructing its regression features. User don't need to input when instantiate `autoReg`. This refactoring is for two purposes:
-  1. The prediction function is largely simplified as `autoReg` can now handle the forecasting by itself. 
-  2. This is towards the effort to separate `data` and `model` inside `dlm`. After this change, the internal dlm-builder only holds the model info (e.g., model status and structure) and does not depend on any time series data (except features in `dynamic`). As the next step, we will allow `dlm` to export the lightweighted dlm-builder and also recreated from the dlm-builder with new data, so that streaming/batch users won't suffer from the incremental data size.
-* Version 0.1.1.10 released on PyPI.
 
 Installation
 ------------
 You can get the package (current version 0.1.1.10) from `pypi` by
 
-      $ pip install pydlm
+      $ pip install pydlm-lite
 
 You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 
@@ -31,7 +35,6 @@ You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 `pydlm` depends on the following modules,
 
 * `numpy`     (for core functionality)
-*  `matplotlib` (for plotting results)
 * `Sphinx`    (for generating documentation)
 * `unittest`  (for testing)
 
@@ -61,9 +64,6 @@ In the actual code, the time series data is scored in the variable `time_series`
 ```python
 # Fit the model
 simple_dlm.fit()
-# Plot the fitted results
-simple_dlm.turnOff('data points')
-simple_dlm.plot()
 ```
 
 The blue curve is the forward filtering result, the green curve is the one-day ahead prediction and the red curve is the backward smoothed result. The light-colored ribbon around the curve is the confidence interval (you might need to zoom-in to see it). The one-day ahead prediction shows this simple model captures the time series somewhat good but loses accuracy around the peak crisis at Week 280 (which is between year 2008 - 2009). The one-day-ahead mean squared prediction error is **0.173** which can be obtained by calling
@@ -75,11 +75,8 @@ simple_dlm.getMSE()
 We can decompose the time series into each of its components
 
 ```python
-# Plot each component (attribute the time series to each component)
-simple_dlm.turnOff('predict plot')
-simple_dlm.turnOff('filtered plot')
-simple_dlm.plot('linear_trend')
-simple_dlm.plot('seasonal52')
+simple_dlm.getMean(filterType='backwardSmoother', name='linear_trend')
+simple_dlm.getMean(filterType='backwardSmoother', name='seasonal52')
 ```
 
 <p align="center">
@@ -90,10 +87,10 @@ simple_dlm.plot('seasonal52')
 Most of the time series shape is attributed to the local linear trend and the strong seasonality pattern is easily seen. To further verify the performance, we use this simple model for long-term forecasting. In particular, we use the previous **351 week**'s data to forecast the next **200 weeks** and the previous **251 week**'s data to forecast the next **200 weeks**. We lay the predicted results on top of the real data
 
 ```python
-# Plot the prediction give the first 351 weeks and forcast the next 200 weeks.
-simple_dlm.plotPredictN(date=350, N=200)
-# Plot the prediction give the first 251 weeks and forcast the next 200 weeks.
-simple_dlm.plotPredictN(date=250, N=200)
+# predict given the first 351 weeks and forcast the next 200 weeks.
+simple_dlm.predictN(date=350, N=200)
+# predict given the first 251 weeks and forcast the next 200 weeks.
+simple_dlm.predictN(date=250, N=200)
 ```
 
 <p align="center">
@@ -113,10 +110,6 @@ regressor10 = dynamic(features=features, discount=1.0, name='regressor10', w=10)
 drm = dlm(time_series) + linear_trend + seasonal52 + regressor10
 drm.fit()
 drm.getMSE()
-
-# Plot the fitted results
-drm.turnOff('data points')
-drm.plot()
 ```
 
 `dynamic` is the component for modeling dynamically changing predictors, which accepts `features` as its argument. The above code plots the fitted result (top left).
@@ -131,10 +124,8 @@ drm.plot()
 The one-day ahead prediction looks much better than the simple model, particularly around the crisis peak. The mean prediction error is **0.099** which is a 100% improvement over the simple model. Similarly, we also decompose the time series into the three components
 
 ```python
-drm.turnOff('predict plot')
-drm.turnOff('filtered plot')
-drm.plot('linear_trend')
-drm.plot('seasonal52')
+drm.getMean(filterType='backwardSmoother', name='linear_trend')
+drm.getMean(filterType='backwardSmoother', name='seasonal52')
 drm.plot('regressor10')
 ```
 
