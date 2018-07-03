@@ -23,7 +23,6 @@ setup(
     include_package_data = False,
     install_requires = [
       'numpy',
-      'matplotlib',
     ],
     tests_require = [
       'unittest',
