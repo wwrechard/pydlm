@@ -1,15 +1,15 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'pydlm',
-    version = '0.1.1.11',
+    name = 'pydlm-lite',
+    version = '0.1.1.1',
     author = 'Xiangyu Wang',
     author_email = 'wwrechard@gmail.com',
     description = ('A python library for the Bayesian dynamic linear ' +
       'model for time series modeling'),
     license = 'BSD',
-    keywords = 'dlm bayes bayesian kalman filter smoothing dynamic model',
-    url = 'https://github.com/wwrechard/pydlm',
+    keywords = 'dlm bayes bayesian kalman filter smoothing dynamic model multi-threading online',
+    url = 'https://github.com/wwrechard/pydlm/tree.pydlm-lite',
     packages = find_packages(),
     classifiers = [
       'Development Status :: 3 - Alpha',
