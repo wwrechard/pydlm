@@ -4,7 +4,7 @@
 
 The lite version of the main `pydlm` package where the plotting functionality and the dependency on the `matplotlib` has been removed. Most refactoring work will be conducted on this package to improve the class on multi-threading and online learning. In the meanwhile, the main `pydlm` package will remain in its current structure for future development.
 
-Going forward, the two packages will be developed towards two different directions
+Going forward, the two packages will be developed under two different principles:
 
 1. `pydlm` will support more sophisticated models and more advanced algorithm such as sequential monte carlo. The algorithm will be optimized in terms of accuracy rather than latency. The primary use case is on advanced inference and data analysis with small datasets.
 
