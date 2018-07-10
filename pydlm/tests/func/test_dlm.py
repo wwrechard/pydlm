@@ -31,7 +31,8 @@ class test_dlm(unittest.TestCase):
         self.dlm6.builder + trend(degree=0, discount=0.9, w=1.0) + \
             seasonality(period=2, discount=0.8, w=1.0) + \
             autoReg(degree=3, discount=1.0)
-        self.dlm7.builder + trend(degree=0, discount=1, w=1.0)
+        self.dlm7.builder + trend(degree=0, discount=1, w=1.0) + \
+            autoReg(degree=1)
         self.dlm1._initialize()
         self.dlm2._initialize()
         self.dlm3._initialize()
