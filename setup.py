@@ -29,7 +29,7 @@ setup(
     ],
     extras_require = {
         'docs': [
-          'Sphinx',
+          'sphinx',
         ],
     },
 )

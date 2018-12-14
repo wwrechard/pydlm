@@ -11,6 +11,7 @@ python:
   # command to install dependencies.
 install:
   - sudo apt-get install python-matplotlib
+  - pip install sphinx
   - python setup.py install
   - pip install coveralls
 script: 
