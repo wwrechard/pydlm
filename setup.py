@@ -11,6 +11,7 @@ setup(
     keywords = 'dlm bayes bayesian kalman filter smoothing dynamic model',
     url = 'https://github.com/wwrechard/pydlm',
     packages = find_packages(),
+    zip_safe= False,
     classifiers = [
       'Development Status :: 3 - Alpha',
       'Intended Audience :: Science/Research',
@@ -29,7 +30,7 @@ setup(
     ],
     extras_require = {
         'docs': [
-          'sphinx',
+          'Sphinx',
         ],
     },
 )
