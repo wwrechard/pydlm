@@ -34,10 +34,12 @@ Example:
 from copy import deepcopy
 from numpy import matrix
 from pydlm.base.tools import getInterval
-from pydlm.func._dlm import _dlm
+from pydlm.func._dlmPredict import _dlmPredict
+from pydlm.func._dlmGet import _dlmGet
+from pydlm.func._dlmTune import _dlmTune
 from pydlm.tuner.dlmTuner import modelTuner
 
-class dlm(_dlm):
+class dlm(_dlmPredict, _dlmGet, _dlmTune):
     """ The main class of the dynamic linear model.
 
 
