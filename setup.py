@@ -31,7 +31,5 @@ setup(
         'docs': [
           'Sphinx',
         ],
-        'tests': [
-        ],
     },
 )
