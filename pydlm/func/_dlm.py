@@ -9,7 +9,6 @@ This piece of code include all the hidden methods and members of the class dlm.
 It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
-from numpy import dot
 from numpy import var
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
@@ -20,9 +19,7 @@ from pydlm.modeler.builder import builder
 
 
 class _dlm(object):
-    """ _dlm includes all hidden functions that used by the class dlm. These hidden
-    methods provide the basic modeling, filtering, forecasting and smoothing of
-    dlm.
+    """ _dlm includes all basic functions for building dlm model.
 
     Attributes:
         data: the observed time series data
@@ -47,8 +44,6 @@ class _dlm(object):
                            date
         _predictInSample: predict the latent state and observation for a given
                           period of time (deprecated)
-        _oneDayAheadPredict: predict one day a head.
-        _continuePredict: continue predicting one day after _oneDayAheadPredict
         _resetModelStatus: reset the model status to its prior status
         _setModelStatus: set the model status to a specific date
         _defaultOptions: a class to store and set default options
@@ -57,11 +52,6 @@ class _dlm(object):
         _reverseCopy: copy the result from the _result class to the model
         _checkFeatureSize: check whether the features's n matches the data's n
         _checkComponent: check whether a component is in dlm
-        _getComponent: get the component if it is in dlm
-        _getLatentState: get the latent state for a given component
-        _getLatentCov: get the latent covariance for a given component
-        _getComponentMean: get the mean of a given component
-        _getComponentVar: get the variance of a given component
         _checkPlotOptions: set the correct options according to the fit
         _checkAndGetWorkingDates: get the correct filtering dates
     """
@@ -181,7 +171,7 @@ class _dlm(object):
             trimmed_data = [x for x in self.data if x is not None]
             self.options.noise = min(var(trimmed_data), 1)
 
-    # use the forward filter to filter the data
+   # use the forward filter to filter the data
     # start: the place where the filter started
     # end: the place where the filter ended
     # save: the index for dates where the filtered results should be saved,
@@ -266,8 +256,6 @@ class _dlm(object):
                            step=step,
                            filterType='forwardFilter')
 
-#        self.result.filteredSteps = (0, end)
-
     # use the backward smooth to smooth the state
     # start: the last date of the backward filtering chain
     # days: number of days to go back from start
@@ -344,8 +332,6 @@ class _dlm(object):
                        step=day,
                        filterType='backwardSmoother')
 
-#        self.result.smoothedSteps = (end, start)
-
     # Forecast the result based on filtered chains
     def _predictInSample(self, date, days=1):
         """ Predict the model's status based on the model of a specific day
@@ -379,141 +365,6 @@ class _dlm(object):
             predictedObsVar[i - 1] = self.builder.model.prediction.obsVar
 
         return (predictedObs, predictedObsVar)
-
-    # Note the following functions will modify the status of the model, so they
-    # shall not be directly call through the main model if this behavior is not
-    # desired.
-    
-    # featureDict contains all the features for prediction.
-    # It is a dictionary with key equals to the name of the component and
-    # the value as the new feature (a list). The function
-    # will first use the features provided in this feature dict, if not
-    # found, it will fetch the default feature from the component. If
-    # it could not find feature for some component, it returns an error
-    # The intermediate result will be stored in result.predictStatus as
-    # (start_date, next_pred_date, [all_predicted_values]), which will be
-    # used by _continuePredict.
-    def _oneDayAheadPredict(self, date, featureDict=None):
-        """ One day ahead prediction based on the date and the featureDict.
-        The prediction could be on the last day and into the future or in 
-        the middle of the time series and ignore the rest. For predicting into
-        the future, the new features must be supplied to featureDict. For 
-        prediction in the middle, the user can still supply the features which
-        will be used priorily. The old features will be used if featureDict is
-        None.
-
-        Args:
-            date: the prediction starts (based on the observation before and
-                  on this date)
-            featureDict: the new feature value for some dynamic components.
-                         must be specified in a form of {component_name: value}
-                         if the feature for some dynamic component is not
-                         supplied. The algorithm will use the features from
-                         the old data. (which means if the prediction is out
-                         of sample, then all dynamic component must be provided
-                         with the new feature value)
-
-        Returns:
-            A tuple of (predicted_mean, predicted_variance)
-        """
-        if date > self.n - 1:
-            raise NameError('The date is beyond the data range.')
-
-        # get the correct status of the model
-        self._setModelStatus(date=date)
-        self._constructEvaluationForPrediction(
-            date=date + 1,
-            featureDict=featureDict,
-            padded_data=self.padded_data[:(date + 1)])
-        
-        # initialize the prediction status
-        self.builder.model.prediction.step = 0
-
-        # start predicting
-        self.Filter.predict(self.builder.model)
-
-        predictedObs = self.builder.model.prediction.obs
-        predictedObsVar = self.builder.model.prediction.obsVar
-        self.result.predictStatus = [
-            date,                   # start_date
-            date + 1,               # current_date
-            [predictedObs[0, 0]]    # all historical predictions
-        ]
-
-        return (predictedObs, predictedObsVar)
-
-    def _continuePredict(self, featureDict=None):
-        """ Continue predicting one day after _oneDayAheadPredict or
-        after _continuePredict. After using
-        _oneDayAheadPredict, the user can continue predicting by using
-        _continuePredict. The featureDict act the same as in
-        _oneDayAheadPredict.
-
-        Args:
-            featureDict: the new feature value for some dynamic components.
-                         see @_oneDayAheadPredict
-
-        Returns:
-            A tuple of (predicted_mean, predicted_variance)
-        """
-        if self.result.predictStatus is None:
-            raise NameError('_continoousPredict can only be used after ' +
-                            '_oneDayAheadPredict')
-        startDate = self.result.predictStatus[0]
-        currentDate = self.result.predictStatus[1]
-
-        self._constructEvaluationForPrediction(
-            date=currentDate + 1,
-            featureDict=featureDict,
-            padded_data=self.padded_data[:(startDate + 1)] +
-                        self.result.predictStatus[2])
-        self.Filter.predict(self.builder.model)
-        predictedObs = self.builder.model.prediction.obs
-        predictedObsVar = self.builder.model.prediction.obsVar
-        self.result.predictStatus[1] += 1
-        self.result.predictStatus[2].append(predictedObs[0, 0])
-        return (predictedObs, predictedObsVar)
-
-    # This function will modify the status of the object, use with caution.
-    def _constructEvaluationForPrediction(self,
-                                          date,
-                                          featureDict=None,
-                                          padded_data=None):
-        """ Construct the evaluation matrix based on date and featureDict.
-
-        Used for prediction. Features provided in the featureDict will be used
-        preferrably. If the feature is not found in featureDict, the algorithm
-        will seek it based on the old data and the date.
-
-        Args:
-            featureDict: a dictionary containing {dynamic_component_name: value}
-                         for update the feature for the corresponding component.
-            date: if a dynamic component name is not found in featureDict, the
-                  algorithm is using its old feature on the given date.
-            padded_data: is the mix of the raw data and the predicted data. It is
-                  used by auto regressor.
-
-        """
-        # New features are provided. Update dynamic componnet.
-        # We distribute the featureDict back to dynamicComponents. If the date is
-        # out of bound, we append the feature to the feature set. If the date is
-        # within range, we replace the old feature with the new feature.
-        if featureDict is not None:
-            for name in featureDict:
-                if name in self.builder.dynamicComponents:
-                    comp = self.builder.dynamicComponents[name]                    
-                    # the date is within range
-                    if date < comp.n:
-                        comp.features[date] = featureDict[name]
-                        comp.n += 1
-                    elif date < comp.n + 1:
-                        comp.features.append(featureDict[name])
-                        comp.n += 1
-                    else:
-                        raise NameError("Feature is missing between the last predicted " +
-                                        "day and the new day")
-                        
-        self.builder.updateEvaluation(date, padded_data)
 
 # =========================== model helper function ==========================
 
@@ -654,124 +505,6 @@ class _dlm(object):
             raise NameError('No such component.')
         return comp
 
-    # function to get the corresponding latent state
-    def _getLatentState(self, name, filterType, start, end):
-        """ Get the latent states of a given component.
-
-        Args:
-            name: the name of the component.
-            filterType: the type of the latent states to be returned.
-                        could be "forwardFilter", "backwardSmoother" or
-                        "predict".
-            start: the start date for the latent states to be returned.
-            end: the end date to be returned.
-
-        Returns:
-            A list of latent states.
-        """
-        end += 1
-        indx = self.builder.componentIndex[name]
-        patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0]
-
-        if filterType == 'forwardFilter':
-            return list(map(patten, self.result.filteredState[start:end]))
-        elif filterType == 'backwardSmoother':
-            return list(map(patten, self.result.smoothedState[start:end]))
-        elif filterType == 'predict':
-            return list(map(patten, self.result.predictedState[start:end]))
-        else:
-            raise NameError('Incorrect filter type')
-
-    # function to get the corresponding latent covariance
-    def _getLatentCov(self, name, filterType, start, end):
-        """ Get the latent covariance of a given component.
-
-        Args:
-            name: the name of the component.
-            filterType: the type of the latent covariance to be returned.
-                        could be "forwardFilter", "backwardSmoother" or
-                        "predict".
-            start: the start date for the latent covariance to be returned.
-            end: the end date to be returned.
-
-        Returns:
-            A list of latent covariance.
-        """
-        end += 1
-        indx = self.builder.componentIndex[name]
-        patten = lambda x: x if x is None \
-                 else x[indx[0]:(indx[1] + 1), indx[0]:(indx[1] + 1)]
-
-        if filterType == 'forwardFilter':
-            return list(map(patten, self.result.filteredCov[start:end]))
-        elif filterType == 'backwardSmoother':
-            return list(map(patten, self.result.smoothedCov[start:end]))
-        elif filterType == 'predict':
-            return list(map(patten, self.result.predictedCov[start:end]))
-        else:
-            raise NameError('Incorrect filter type')
-
-    # function to get the component mean
-    def _getComponentMean(self, name, filterType, start, end):
-        """ Get the mean of a given component.
-
-        Args:
-            name: the name of the component.
-            filterType: the type of the mean to be returned.
-                        could be "forwardFilter", "backwardSmoother" or
-                        "predict".
-            start: the start date for the mean to be returned.
-            end: the end date to be returned.
-
-        Returns:
-            A list of mean.
-        """
-        end += 1
-        comp = self._fetchComponent(name)
-        componentState = self._getLatentState(name=name,
-                                              filterType=filterType,
-                                              start=start, end=end)
-        result = []
-        for k, i in enumerate(range(start, end)):
-            if name in self.builder.dynamicComponents:
-                comp.updateEvaluation(i)
-            elif name in self.builder.automaticComponents:
-                comp.updateEvaluation(i, self.padded_data)
-            result.append(dot(comp.evaluation,
-                              componentState[k]).tolist()[0][0])
-        return result
-
-    # function to get the component variance
-    def _getComponentVar(self, name, filterType, start, end):
-        """ Get the variance of a given component.
-
-        Args:
-            name: the name of the component.
-            filterType: the type of the variance to be returned.
-                        could be "forwardFilter", "backwardSmoother" or
-                        "predict".
-            start: the start date for the variance to be returned.
-            end: the end date to be returned.
-
-        Returns:
-            A list of variance.
-        """
-        end += 1
-        comp = self._fetchComponent(name)
-        componentCov = self._getLatentCov(name=name,
-                                          filterType=filterType,
-                                          start=start, end=end)
-        result = []
-        for k, i in enumerate(range(start, end)):
-            if name in self.builder.dynamicComponents:
-                comp.updateEvaluation(i)
-            elif name in self.builder.automaticComponents:
-                comp.updateEvaluation(i, self.padded_data)
-            result.append(dot(
-                dot(comp.evaluation,
-                    componentCov[k]), comp.evaluation.T).tolist()[0][0])
-        return result
-
     # check start and end dates that has been filtered on
     def _checkAndGetWorkingDates(self, filterType):
         """ Check the filter status and return the dates that have
@@ -819,58 +552,6 @@ class _dlm(object):
 
         if self.result.smoothedSteps[1] == -1:
             self.options.plotSmoothedData = False
-
-#====================== function for discount tuning =========================
-    # get the mse from the model
-    def _getMSE(self):
-        
-        if not self.initialized:
-            raise NameError('need to fit the model first')
-
-        if self.result.filteredSteps[1] == -1:
-            raise NameError('need to run forward filter first')
-
-        mse = 0
-        for i in range(self.result.filteredSteps[0],
-                       self.result.filteredSteps[1] + 1):
-            if self.data[i] is not None:
-                mse += (self.data[i] - self.result.predictedObs[i]) ** 2
-
-        mse = mse / (self.result.filteredSteps[1] + 1 -
-                      self.result.filteredSteps[0])
-        return mse[0,0]
-
-    # get the discount from the model
-    def _getDiscounts(self):
-        
-        if not self.initialized:
-            raise NameError('need to fit the model before one can' +
-                            'fetch the discount factors')
-
-        discounts = []
-        for comp in self.builder.componentIndex:
-            indx = self.builder.componentIndex[comp]
-            discounts.append(self.builder.discount[indx[0]])
-        return discounts
-
-    # set the model discount, this should never expose to the user
-    # change the discount in the component would change the whole model.
-    # change those in filter and builder only change the discounts
-    # temporarily and will be corrected if we rebuild the model.
-    def _setDiscounts(self, discounts, change_component=False):
-
-        if not self.initialized:
-            raise NameError('need to fit the model first')
-
-        for i, comp in enumerate(self.builder.componentIndex):
-            indx = self.builder.componentIndex[comp]
-            self.builder.discount[indx[0]: (indx[1] + 1)] = discounts[i]
-            if change_component:
-                component = self._fetchComponent(name=comp)
-                component.discount = self.builder.discount[indx[0]: (indx[1] + 1)]
-
-        self.Filter.updateDiscount(self.builder.discount)
-        self.result.filteredSteps = [0, -1]
 
     # whether to show the internal message
     def showInternalMessage(self, show=True):
