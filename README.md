@@ -6,6 +6,7 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling li
 
 Updates in the github version
 -------------------------------------------
+* A temporary fix on the `predict()` complexity bug (due to incorrect self-referencing, thanks romainjln@ and buhbuhtig@!). The fixed `predict()` complxity is O(n). The goal is to make it O(1).
 * A lite version [pydlm-lite](https://github.com/wwrechard/pydlm-lite) has been created where dependencies on `matplotlib` was removed. Going forward, most code refactoring on improving multi-threading and online learning will be done on the `pydlm-lite` package. The development on `pydlm` package will primarily focus on supporting broader model classes and more advanced sampling algorithms.
 * Version 0.1.1.10 released on PyPI.
 
