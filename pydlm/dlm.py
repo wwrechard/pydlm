@@ -322,8 +322,10 @@ class dlm(_dlmPredict, _dlmGet, _dlmTune):
             raise NameError('Prediction can only be made right' +
                             ' after the filtered date')
 
-        predictModel = deepcopy(self)
-        self._predictModel = predictModel
+        # Clear the existing predictModel before the deepcopy to avoid recurrent
+        # recurrent copy which could explode the memory and complexity.
+        self._predictModel = None
+        self._predictModel = deepcopy(self)
         return self._predictModel._oneDayAheadPredict(date=date,
                                                       featureDict=featureDict)
         
