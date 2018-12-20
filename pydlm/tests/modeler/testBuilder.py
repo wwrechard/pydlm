@@ -10,6 +10,7 @@ from pydlm.modeler.matrixTools import matrixTools as mt
 
 class testBuilder(unittest.TestCase):
 
+
     def setUp(self):
         self.data = np.random.rand(10).tolist()
         self.features = np.random.rand(10, 2).tolist()
@@ -20,11 +21,12 @@ class testBuilder(unittest.TestCase):
                                w=1.0)
         self.builder1 = builder()
 
+    
     def testInitialization(self):
-
         self.assertEqual(len(self.builder1.staticComponents), 0)
         self.assertEqual(len(self.builder1.dynamicComponents), 0)
         self.assertEqual(len(self.builder1.automaticComponents), 0)
+
 
     def testAddAndDelete(self):
         self.builder1 = self.builder1 + self.trend
@@ -52,6 +54,7 @@ class testBuilder(unittest.TestCase):
         self.builder1 = self.builder1 + self.autoReg
         self.assertEqual(len(self.builder1.automaticComponents), 1)
 
+
     def testInitialize(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
                         + self.autoReg
@@ -64,6 +67,7 @@ class testBuilder(unittest.TestCase):
                        self.dynamic.evaluation),
                         self.autoReg.evaluation))), 0.0)
 
+
     def testInitializeEvaluatoin(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic
         self.builder1.dynamicComponents['dynamic'].updateEvaluation(8)
@@ -72,6 +76,7 @@ class testBuilder(unittest.TestCase):
             np.abs(self.builder1.model.evaluation -
                    mt.matrixAddByCol(self.trend.evaluation,
                                      self.dynamic.evaluation))), 0.0)
+
 
     def testUpdate(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
@@ -85,6 +90,7 @@ class testBuilder(unittest.TestCase):
                        self.trend.evaluation,
                        np.matrix([self.features[2]])),
                                        np.matrix(self.autoReg.evaluation)))), 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

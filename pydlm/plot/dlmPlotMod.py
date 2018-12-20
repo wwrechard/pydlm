@@ -1,4 +1,4 @@
-from pydlm.func._dlm import _dlm
+from pydlm.core._dlm import _dlm
 
 class dlmPlotModule(_dlm):
     """ A dlm module containing all plot methods

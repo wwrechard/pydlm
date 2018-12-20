@@ -7,7 +7,7 @@ The code for all get methods
 
 """
 from numpy import dot
-from pydlm.func._dlm import _dlm
+from pydlm.core._dlm import _dlm
 
 
 class _dlmGet(_dlm):
@@ -20,7 +20,8 @@ class _dlmGet(_dlm):
         _getComponentMean: get the mean of a given component
         _getComponentVar: get the variance of a given component
     """
-    
+
+
     # function to get the corresponding latent state
     def _getLatentState(self, name, filterType, start, end):
         """ Get the latent states of a given component.
@@ -48,6 +49,7 @@ class _dlmGet(_dlm):
             return list(map(patten, self.result.predictedState[start:end]))
         else:
             raise NameError('Incorrect filter type')
+
 
     # function to get the corresponding latent covariance
     def _getLatentCov(self, name, filterType, start, end):
@@ -78,6 +80,7 @@ class _dlmGet(_dlm):
         else:
             raise NameError('Incorrect filter type')
 
+
     # function to get the component mean
     def _getComponentMean(self, name, filterType, start, end):
         """ Get the mean of a given component.
@@ -107,6 +110,7 @@ class _dlmGet(_dlm):
             result.append(dot(comp.evaluation,
                               componentState[k]).tolist()[0][0])
         return result
+
 
     # function to get the component variance
     def _getComponentVar(self, name, filterType, start, end):

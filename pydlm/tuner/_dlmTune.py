@@ -7,7 +7,7 @@ The code for all tuning methods
 
 """
 
-from pydlm.func._dlm import _dlm
+from pydlm.core._dlm import _dlm
 
 
 class _dlmTune(_dlm):
@@ -18,6 +18,7 @@ class _dlmTune(_dlm):
         _getDiscounts: obtain the discounts (for different components).
         _setDiscounts: set discounts for different components.
     """
+
 
     # get the mse from the model
     def _getMSE(self):
@@ -38,6 +39,7 @@ class _dlmTune(_dlm):
                       self.result.filteredSteps[0])
         return mse[0,0]
 
+
     # get the discount from the model
     def _getDiscounts(self):
         
@@ -50,6 +52,7 @@ class _dlmTune(_dlm):
             indx = self.builder.componentIndex[comp]
             discounts.append(self.builder.discount[indx[0]])
         return discounts
+
 
     # set the model discount, this should never expose to the user
     # change the discount in the component would change the whole model.

@@ -33,10 +33,11 @@ Example:
 
 from copy import deepcopy
 from numpy import matrix
-from pydlm.dlmPredictMod import dlmPredictModule
-from pydlm.dlmAccessMod import dlmAccessModule
-from pydlm.dlmTuneMod import dlmTuneModule
-from pydlm.dlmPlotMod import dlmPlotModule
+from pydlm.predict.dlmPredictMod import dlmPredictModule
+from pydlm.access.dlmAccessMod import dlmAccessModule
+from pydlm.tuner.dlmTuneMod import dlmTuneModule
+from pydlm.plot.dlmPlotMod import dlmPlotModule
+
 
 class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
     """ The main class of the dynamic linear model.
@@ -74,6 +75,8 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
              doubles or numpy 1d array.
 
     """
+
+
     # define the basic members
     # initialize the result
     def __init__(self, data, **options):
@@ -84,6 +87,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         # date. Using a copied model will help the main model from
         # being changed and behaving abnormally.
         self._predictModel = None
+
 
     def exportModel(self):
         """ Export the dlm builder. Currently the method only support dlm without
@@ -98,6 +102,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         return deepcopy(self.builder)
 
+
     def buildFromModel(self, model):
         """ Construct the dlm with exported model from other DLM with status.
 
@@ -109,6 +114,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         self._initializeFromBuilder(exported_builder=model)
 
 # ===================== modeling components =====================
+
 
     # add component
     def add(self, component):
@@ -128,10 +134,12 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         """
         self.__add__(component)
 
+
     def __add__(self, component):
         self.builder.__add__(component)
         self.initialized = False
         return self
+
 
     # list all components
     def ls(self):
@@ -139,6 +147,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         """
         self.builder.ls()
+
 
     # delete one component
     def delete(self, name):
@@ -152,6 +161,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         self.initialized = False
 
 # ========================== model training component =======================
+
 
     def fitForwardFilter(self, useRollingWindow=False, windowLength=3):
         """ Fit forward filter on the available data.
@@ -222,6 +232,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         if self._printInfo:
             print('Forward filtering completed.')
 
+
     def fitBackwardSmoother(self, backLength=None):
         """ Fit backward smoothing on the data. Starting from the last observed date.
 
@@ -267,6 +278,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         if self._printInfo:
             print('Backward smoothing completed.')
 
+
     def fit(self):
         """ An easy caller for fitting both the forward filter and backward smoother.
 
@@ -274,11 +286,9 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         self.fitForwardFilter()
         self.fitBackwardSmoother()
 
-# =========================== model prediction ==============================
-
-
 
 # ======================= data appending, popping and altering ===============
+
 
     # Append new data or features to the dlm
     def append(self, data, component='main'):
@@ -323,6 +333,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         else:
             raise NameError('Such dynamic component does not exist.')
 
+
     # pop the data of a specific date out
     def popout(self, date):
         """ Pop out the data for a given date
@@ -361,6 +372,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
+
 
     # alter the data of a specific days
     def alter(self, date, data, component='main'):
@@ -413,6 +425,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
 
+
     # ignore the data of a given date
     def ignore(self, date):
         """ Ignore the data for a specific day. treat it as missing data
@@ -427,10 +440,8 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         self.alter(date=date, data=None, component='main')
 
-# ============================= plot component =========================
-
-                               
 # ================================ control options =========================
+
 
     def showOptions(self):
         """ Print out all the option values
@@ -439,6 +450,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         allItems = vars(self.options)
         for item in allItems:
             print(item + ': ' + str(allItems[item]))
+
 
     def stableMode(self, use=True):
         """ Turn on the stable mode, i.e., using the renewal strategy.
@@ -463,6 +475,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             self.options.stable = False
         else:
             raise NameError('Incorrect option input')
+
 
     def evolveMode(self, evoType='dependent'):
         """ Control whether different component evolve indpendently. If true,
@@ -495,6 +508,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         # for chaining
         return self
+
 
     def noisePrior(self, prior=0):
         """ To set the prior for the observational noise. Calling with empty

@@ -2,10 +2,11 @@ import unittest
 
 from pydlm.modeler.trends import trend
 from pydlm.modeler.autoReg import autoReg
-from pydlm.func._dlmGet import _dlmGet
+from pydlm.access._dlmGet import _dlmGet
 
 
 class test_dlmGet(unittest.TestCase):
+
 
     def setUp(self):
         self.data5 = range(100)
@@ -14,6 +15,7 @@ class test_dlmGet(unittest.TestCase):
             autoReg(degree=1, discount=1, w=1.0)
         self.dlm5._initialize()
         self.dlm5.options.innovationType='whole'
+
 
     def testGetLatentState(self):
         # for forward filter
@@ -46,6 +48,7 @@ class test_dlmGet(unittest.TestCase):
             diff += abs(smoothedTrend[i][0] -
                         self.dlm5.result.smoothedState[i][0, 0])
         self.assertAlmostEqual(diff, 0)
+
 
     def testGetLatentCov(self):
         # for forward filter
@@ -113,6 +116,7 @@ class test_dlmGet(unittest.TestCase):
             diff += abs(arTrend[i] - trueAr[i])
         self.assertAlmostEqual(diff, 0)
 
+
     def testComponentVar(self):
         self.dlm5._forwardFilter(start=0, end=99, renew=False)
         self.dlm5.result.filteredSteps = [0, 99]
@@ -145,6 +149,7 @@ class test_dlmGet(unittest.TestCase):
         for i in range(len(arTrend)):
             diff += abs(arTrend[i] - trueAr[i])
         self.assertAlmostEqual(diff, 0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,11 +1,12 @@
 from copy import deepcopy
 from pydlm.base.tools import getInterval
-from pydlm.func._dlmGet import _dlmGet
+from pydlm.access._dlmGet import _dlmGet
 
 
 class dlmAccessModule(_dlmGet):
     """ A dlm module for all the access methods
     """
+
 
     def getAll(self):
         """ get all the _result class which contains all results

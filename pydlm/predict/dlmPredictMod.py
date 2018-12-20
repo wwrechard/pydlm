@@ -1,10 +1,11 @@
 from copy import deepcopy
 from numpy import matrix
-from pydlm.func._dlmPredict import _dlmPredict
+from pydlm.predict._dlmPredict import _dlmPredict
 
 class dlmPredictModule(_dlmPredict):
     """ A dlm module containing all prediction methods.
     """
+
 
     # One day ahead prediction function
     def predict(self, date=None, featureDict=None):
@@ -49,7 +50,8 @@ class dlmPredictModule(_dlmPredict):
         self._predictModel = deepcopy(self)
         return self._predictModel._oneDayAheadPredict(date=date,
                                                       featureDict=featureDict)
-        
+
+
     def continuePredict(self, featureDict=None):
         """ Continue prediction after the one-day ahead predict.
 
@@ -78,6 +80,7 @@ class dlmPredictModule(_dlmPredict):
             raise NameError('continuePredict has to come after predict.')
 
         return self._predictModel._continuePredict(featureDict=featureDict)
+
 
     # N day ahead prediction
     def predictN(self, N=1, date=None, featureDict=None):

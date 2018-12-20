@@ -2,13 +2,11 @@ import numpy as np
 import unittest
 
 from pydlm.modeler.trends import trend
-from pydlm.modeler.seasonality import seasonality
-from pydlm.modeler.dynamic import dynamic
-from pydlm.modeler.autoReg import autoReg
-from pydlm.func._dlm import _dlm
+from pydlm.core._dlm import _dlm
 
 
 class test_dlm(unittest.TestCase):
+
 
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
@@ -21,6 +19,7 @@ class test_dlm(unittest.TestCase):
         self.dlm1.options.innovationType='whole'
         self.dlm2.options.innovationType='whole'
 
+
     def testForwardFilter(self):
         self.dlm1._forwardFilter(start=0, end=19, renew=False)
         self.assertAlmostEqual(np.sum(self.dlm1.result.filteredObs[0:9]), 0)
@@ -32,6 +31,7 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(self.dlm2.result.filteredObs[9][0, 0], 1.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[19][0, 0], 0.0)
 
+
     def testResetModelStatus(self):
         self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
@@ -41,6 +41,8 @@ class test_dlm(unittest.TestCase):
         self.dlm1._resetModelStatus()
         self.assertAlmostEqual(np.sum(self.dlm1.builder.model.state \
                                       - self.dlm1.builder.statePrior), 0.0)
+
+
     def testSetModelStatus(self):
         self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
@@ -49,6 +51,7 @@ class test_dlm(unittest.TestCase):
         self.dlm1._setModelStatus(date = 12)
         self.assertAlmostEqual(self.dlm1.builder.model.obs, \
                                self.dlm1.result.filteredObs[12])
+
 
     def testForwaredFilterConsectiveness(self):
         self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
@@ -63,6 +66,7 @@ class test_dlm(unittest.TestCase):
 
         self.assertAlmostEqual(np.sum(np.array(filtered1) - np.array(filtered2)), 0.0)
 
+
     def testBackwardSmoother(self):
         self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
         self.dlm1.result.filteredSteps = (0, 19)
@@ -76,6 +80,7 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[0][0, 0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[19][0, 0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[9][0, 0], 1.0)
+
 
 if __name__ == '__main__':
     unittest.main()

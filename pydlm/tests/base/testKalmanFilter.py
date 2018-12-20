@@ -6,7 +6,9 @@ from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.builder import builder
 from pydlm.base.kalmanFilter import kalmanFilter
 
+
 class testKalmanFilter(unittest.TestCase):
+
 
     def setUp(self):
         self.kf1 = kalmanFilter(discount=[1])
@@ -16,6 +18,7 @@ class testKalmanFilter(unittest.TestCase):
         self.trend0_90 = trend(degree=0, discount=0.9, w=1.0)
         self.trend0_98 = trend(degree=0, discount=0.98, w=1.0, name='a')
         self.trend1 = trend(degree=1, discount=1, w=1.0)
+
 
     def testForwardFilter(self):
         dlm = builder()
@@ -50,6 +53,7 @@ class testKalmanFilter(unittest.TestCase):
         self.assertAlmostEqual(dlm.model.obs[0, 0], 1)
         self.assertAlmostEqual(dlm.model.prediction.obs[0, 0], 1)
 
+
     def testForwardFilterMultiDim(self):
         dlm = builder()
         dlm.add(seasonality(period=2, discount=1, w=1.0))
@@ -62,6 +66,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf11.forwardFilter(dlm.model, -1)
         self.assertAlmostEqual(dlm.model.state[0][0, 0], -0.5)
         self.assertAlmostEqual(dlm.model.state[1][0, 0], 0.5)
+
 
     def testBackwardSmoother(self):
         dlm = builder()
@@ -77,6 +82,7 @@ class testKalmanFilter(unittest.TestCase):
                                   np.matrix([[0.375]]))
         self.assertAlmostEqual(dlm.model.obs[0, 0], 1.0/3)
         self.assertAlmostEqual(dlm.model.sysVar[0, 0], 0.18518519)
+
 
     # second order trend with discount = 1. The smoothed result should be
     # equal to a direct fit on the three data points, 0, 1, -1. Thus, the
@@ -96,6 +102,7 @@ class testKalmanFilter(unittest.TestCase):
                                    rawSysVar = cov1)
 
         self.assertAlmostEqual(dlm.model.obs[0, 0], 0.0)
+
 
     def testMissingData(self):
         dlm = builder()
@@ -117,6 +124,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf0.forwardFilter(dlm.model, 0)
         self.assertAlmostEqual(dlm.model.obs[0, 0], 0.0)
 
+
     def testMissingEvaluation(self):
         dlm = builder()
         dlm.add(self.trend0)
@@ -126,6 +134,7 @@ class testKalmanFilter(unittest.TestCase):
         self.kf1.forwardFilter(dlm.model, 1.0, dealWithMissingEvaluation = True)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
         self.assertAlmostEqual(dlm.model.transition, 1.0)
+
 
     def testEvolveMode(self):
         dlm = builder()
@@ -139,6 +148,7 @@ class testKalmanFilter(unittest.TestCase):
         kf2.forwardFilter(dlm.model, 1.0)
         self.assertAlmostEqual(dlm.model.innovation[0, 1], 0.0)
         self.assertAlmostEqual(dlm.model.innovation[1, 0], 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

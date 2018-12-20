@@ -1,5 +1,6 @@
 import math
 
+
 # define the error class for exceptions
 class matrixErrors(Exception):
     
@@ -13,11 +14,13 @@ class matrixErrors(Exception):
 # The class to check matrixErrors
 class checker:
 
+
     # checking if two matrix has the same dimension
     @staticmethod
     def checkMatrixDimension(A, B):
         if A.shape != B.shape:
             raise matrixErrors('The dimensions do not match!')
+
 
     # checking if a vector has the dimension as matrix
     @staticmethod
@@ -27,6 +30,7 @@ class checker:
         if vDim[0] != ADim[0] and vDim[0] != ADim[1] and \
            vDim[1] != ADim[0] and vDim[1] != ADim[1]:
             raise matrixErrors('The dimensions do not match!')
+
 
     # checking if a matrix is symmetric
     @staticmethod

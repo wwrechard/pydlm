@@ -3,10 +3,11 @@ import unittest
 from pydlm.modeler.trends import trend
 from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.autoReg import autoReg
-from pydlm.func._dlmTune import _dlmTune
+from pydlm.tuner._dlmTune import _dlmTune
 
 
 class test_dlmTune(unittest.TestCase):
+
 
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
@@ -29,6 +30,7 @@ class test_dlmTune(unittest.TestCase):
         self.dlm2.options.innovationType='whole'
         self.dlm6.options.innovationType='whole'
         self.dlm7.options.innovationType='whole'
+
 
     def testComputeMSE(self):
         self.dlm1._forwardFilter(start=0, end=19, renew=False)
@@ -59,12 +61,14 @@ class test_dlmTune(unittest.TestCase):
         mse_expect /= 7
         self.assertAlmostEqual(mse3, mse_expect)
 
+
     def testGetDiscount(self):
         discounts = self.dlm6._getDiscounts()
         self.assertTrue(0.9 in discounts)
         self.assertTrue(0.8 in discounts)
         self.assertTrue(1.0 in discounts)
-        
+
+
     def testSetDiscount(self):
         self.dlm6._setDiscounts([0.0, 0.1, 0.2], False)
         self.assertTrue(0.0 in self.dlm6.builder.discount)
@@ -80,6 +84,7 @@ class test_dlmTune(unittest.TestCase):
         self.dlm6._setDiscounts([0.0, 0.1, 0.2], True)
         self.assertTrue(self.dlm6.builder.staticComponents['trend'].discount in
                         [0.0, 0.1, 0.2])
+
 
 if __name__ == '__main__':
     unittest.main()

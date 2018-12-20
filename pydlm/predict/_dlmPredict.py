@@ -7,7 +7,7 @@ The code for all predicting methods
 
 """
 
-from pydlm.func._dlm import _dlm
+from pydlm.core._dlm import _dlm
 
 
 class _dlmPredict(_dlm):
@@ -17,6 +17,7 @@ class _dlmPredict(_dlm):
         _oneDayAheadPredict: predict one day a head.
         _continuePredict: continue predicting one day after _oneDayAheadPredict
     """
+
 
     # Note the following functions will modify the status of the model, so they
     # shall not be directly call through the main model if this behavior is not
@@ -80,6 +81,7 @@ class _dlmPredict(_dlm):
 
         return (predictedObs, predictedObsVar)
 
+
     def _continuePredict(self, featureDict=None):
         """ Continue predicting one day after _oneDayAheadPredict or
         after _continuePredict. After using
@@ -111,6 +113,7 @@ class _dlmPredict(_dlm):
         self.result.predictStatus[1] += 1
         self.result.predictStatus[2].append(predictedObs[0, 0])
         return (predictedObs, predictedObsVar)
+
 
     # This function will modify the status of the object, use with caution.
     def _constructEvaluationForPrediction(self,

@@ -60,6 +60,7 @@ class longSeason(dynamic):
 
     """
 
+
     def __init__(self,
                  data=None,
                  period=4,
@@ -90,6 +91,7 @@ class longSeason(dynamic):
         # modify the type to be autoReg
         self.componentType = 'longSeason'
 
+
     def createFeatureMatrix(self, period, stay, n, state):
         """ Create the feature matrix based on the supplied data and the degree.
 
@@ -119,6 +121,7 @@ class longSeason(dynamic):
 
         return features, nextState
 
+
     # the degree cannot be longer than data
     def checkDataLength(self):
         """ Check whether the degree is less than the time series length
@@ -126,6 +129,7 @@ class longSeason(dynamic):
         """
         if self.d >= self.n:
             raise NameError('The degree cannot be longer than the data series')
+
 
     # override
     def appendNewData(self, newData):
@@ -146,6 +150,7 @@ class longSeason(dynamic):
                                                           state=self.nextState)
         self.features.extend(newFeatures)
         self.n += len(newData)
+
 
     # override
     def popout(self, date):
@@ -186,6 +191,7 @@ class longSeason(dynamic):
         else:
             self.nextState[1] -= 1
 
+
     def alter(self, date, dataPoint):
         """ We do nothing to longSeason, when altering the main data
 
@@ -193,6 +199,7 @@ class longSeason(dynamic):
 
         # do nothing
         pass
+
 
     def updateEvaluation(self, step):
         """ update the evaluation matrix to a specific date

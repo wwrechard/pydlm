@@ -4,10 +4,11 @@ from pydlm.modeler.trends import trend
 from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.dynamic import dynamic
 from pydlm.modeler.autoReg import autoReg
-from pydlm.func._dlmPredict import _dlmPredict
+from pydlm.predict._dlmPredict import _dlmPredict
 
 
 class test_dlmPredict(unittest.TestCase):
+
 
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
@@ -31,6 +32,7 @@ class test_dlmPredict(unittest.TestCase):
         self.dlm4.options.innovationType='whole'
         self.dlm5.options.innovationType='whole'
 
+
     def testOneDayAheadPredictWithoutDynamic(self):
         self.dlm3._forwardFilter(start=0, end=11, renew=False)
         self.dlm3.result.filteredSteps = (0, 11)
@@ -45,6 +47,7 @@ class test_dlmPredict(unittest.TestCase):
         self.assertAlmostEqual(self.dlm3.result.predictStatus,
                                [2, 3, [3.0/5]])
 
+
     def testOneDayAheadPredictWithDynamic(self):
         self.dlm4._forwardFilter(start=0, end=9, renew=False)
         self.dlm4.result.filteredSteps = (0, 9)
@@ -52,6 +55,7 @@ class test_dlmPredict(unittest.TestCase):
         (obs, var) = self.dlm4._oneDayAheadPredict(date=9,
                                                    featureDict=featureDict)
         self.assertAlmostEqual(obs, 5.0/6 * 2)
+
 
     def testContinuePredictWithoutDynamic(self):
         self.dlm3._forwardFilter(start=0, end=11, renew=False)
@@ -62,6 +66,7 @@ class test_dlmPredict(unittest.TestCase):
         (obs, var) = self.dlm3._continuePredict()
         self.assertAlmostEqual(self.dlm3.result.predictStatus,
                                [11, 13, [-6.0/7, 6.0/7]])
+
 
     def testContinuePredictWithDynamic(self):
         self.dlm4._forwardFilter(start=0, end=9, renew=False)
@@ -77,6 +82,7 @@ class test_dlmPredict(unittest.TestCase):
         self.assertAlmostEqual(self.dlm4.result.predictStatus,
                                [9, 11, [5.0/6 * 2, 5.0/6 * 3]])
 
+
     def testPredictWithAutoReg(self):
         self.dlm5._forwardFilter(start=0, end=99, renew=False)
         self.dlm5.result.filteredSteps = [0, 99]
@@ -84,6 +90,7 @@ class test_dlmPredict(unittest.TestCase):
         self.assertAlmostEqual(obs[0, 0], 100.03682874)
         (obs, var) = self.dlm5._continuePredict()
         self.assertAlmostEqual(obs[0, 0], 101.07480945)
+
 
 if __name__ == '__main__':
     unittest.main()

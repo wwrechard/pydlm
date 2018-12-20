@@ -16,6 +16,7 @@ import pydlm.base.tools as tl
 # create trend component
 # We create the trend using the component class
 
+
 class trend(component):
     """ The trend component that features the polynomial trending,
     providing one building block for the dynamic linear model.
@@ -49,6 +50,7 @@ class trend(component):
 
     """
 
+
     def __init__(self,
                  degree = 0,
                  discount = 0.99,
@@ -74,12 +76,14 @@ class trend(component):
         self.createCovPrior(cov=w)
         self.createMeanPrior()
 
+
     def createEvaluation(self):
         """ Create the evaluation matrix
 
         """
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
+
 
     def createTransition(self):
         """Create the transition matrix
@@ -96,17 +100,20 @@ class trend(component):
         self.transition = np.matrix(np.zeros((self.d, self.d)))
         self.transition[np.triu_indices(self.d)] = 1
 
+
     def createCovPrior(self, cov=1e7):
         """Create the prior covariance matrix for the latent states.
 
         """
         self.covPrior = np.matrix(np.eye(self.d)) * cov
 
+
     def createMeanPrior(self, mean=0):
         """ Create the prior latent state
 
         """
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
+
 
     def checkDimensions(self):
         """ if user supplies their own covPrior and meanPrior, this can

@@ -1,9 +1,10 @@
-from pydlm.func._dlmTune import _dlmTune
+from pydlm.tuner._dlmTune import _dlmTune
 from pydlm.tuner.dlmTuner import modelTuner
 
 class dlmTuneModule(_dlmTune):
     """ A dlm model containing all tuning methods
     """
+
 
     def getMSE(self):
         """ Get the one-day ahead prediction mean square error. The mse is
@@ -14,6 +15,7 @@ class dlmTuneModule(_dlmTune):
         """
 
         return self._getMSE()
+
 
     def tune(self, maxit=100):
         """ Automatic tuning of the discounting factors. 
