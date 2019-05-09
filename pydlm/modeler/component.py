@@ -31,6 +31,31 @@ class component:
     """
     __metaclass__ = ABCMeta
 
+    def __init__(self):
+        """All members that need to be initialized."""
+        self.d = None
+        self.name = None
+        self.componentType = None
+        self.discount = None
+        self.evaluation = None
+        self.transition = None
+        self.covPrior = None
+        self.meanPrior = None
+
+    def __eq__(self, other):
+        """Define equal method used for == comparison"""
+        if not isinstance(other, component):
+            return NotImplemented
+        else:
+            return (self.equalOrNone(self.d, other.d) and
+                    self.equalOrNone(self.name, other.name) and
+                    self.equalOrNone(self.componentType, other.componentType) and
+                    self.npEqualOrNone(self.discount, other.discount) and
+                    self.npEqualOrNone(self.evaluation, other.evaluation) and
+                    self.npEqualOrNone(self.transition, other.transition) and
+                    self.npEqualOrNone(self.covPrior, other.covPrior) and
+                    self.npEqualOrNone(self.meanPrior, other.meanPrior))
+
 
     # define the evaluation matrix for the component
     @abstractmethod
@@ -70,3 +95,11 @@ class component:
     """ Check the dimensionality of the state and covariance
 
     """
+
+    def equalOrNone(self, a, b):
+        """Check if a and b are equal or both are None"""
+        return (a is None and b is None) or a == b
+
+    def npEqualOrNone(self, a, b):
+        """Check if a and b are equal or both are None for NP arrays"""
+        return (a is None and b is None) or (a == b).all()

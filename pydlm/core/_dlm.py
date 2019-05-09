@@ -411,7 +411,7 @@ class _dlm(object):
         self.builder.model.state = self.builder.statePrior
         self.builder.model.sysVar = self.builder.sysVarPrior
         self.builder.model.noiseVar = self.builder.noiseVar
-        self.builder.model.df = 1
+        self.builder.model.df = self.builder.initialDegreeFreedom
         self.builder.model.initializeObservation()
 
 

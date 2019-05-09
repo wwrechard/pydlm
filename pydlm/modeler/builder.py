@@ -319,21 +319,13 @@ class builder:
         self.initialDegreeFreedom = exported_builder.model.df
 
         # Copy the model states
-        self.statePrior = exported_builder.model.state
-        self.sysVarPrior = exported_builder.model.sysVar
-        self.noiseVar = exported_builder.model.noiseVar
-        self.transition = exported_builder.transition
-        self.evaluation = exported_builder.evaluation
+        self.statePrior = deepcopy(exported_builder.statePrior)
+        self.sysVarPrior = deepcopy(exported_builder.sysVarPrior)
+        self.noiseVar = deepcopy(exported_builder.noiseVar)
+        self.model = deepcopy(exported_builder.model)
+
         # update the evaluation to the current.
         self.updateEvaluation(step=0, data=data)
-
-    
-        self.model = baseModel(transition=self.transition,
-                               evaluation=self.evaluation,
-                               noiseVar=self.noiseVar,
-                               sysVar=self.sysVarPrior,
-                               state=self.statePrior,
-                               df=self.initialDegreeFreedom)
         self.model.initializeObservation()
 
         # compute the renew period

@@ -20,8 +20,9 @@ class testBuilder(unittest.TestCase):
         self.autoReg = autoReg(degree=3,
                                w=1.0)
         self.builder1 = builder()
+        self.builder2 = builder()
 
-    
+
     def testInitialization(self):
         self.assertEqual(len(self.builder1.staticComponents), 0)
         self.assertEqual(len(self.builder1.dynamicComponents), 0)
@@ -91,6 +92,22 @@ class testBuilder(unittest.TestCase):
                        np.matrix([self.features[2]])),
                                        np.matrix(self.autoReg.evaluation)))), 0.0)
 
+
+    def testInitializFromBuilder(self):
+        self.builder1 = self.builder1 + self.trend + self.dynamic
+        self.builder1.dynamicComponents['dynamic'].updateEvaluation(8)
+        self.builder1.initialize(data=self.data)
+
+        self.data1 = self.data[8:-1]
+        self.builder2.initializeFromBuilder(exported_builder=self.builder1, data=self.data1)
+
+        # make sure builder1 and builder2 are identical.
+        self.assertDictEqual(self.builder1.staticComponents,
+                             self.builder2.staticComponents)
+        self.assertDictEqual(self.builder1.dynamicComponents,
+                             self.builder2.dynamicComponents)
+        self.assertDictEqual(self.builder1.automaticComponents,
+                             self.builder2.automaticComponents)
 
 if __name__ == '__main__':
     unittest.main()
