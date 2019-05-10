@@ -95,7 +95,7 @@ class component:
     """ Check the dimensionality of the state and covariance
 
     """
-
+    
     def equalOrNone(self, a, b):
         """Check if a and b are equal or both are None"""
         return (a is None and b is None) or a == b
