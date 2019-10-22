@@ -146,3 +146,11 @@ class autoReg(component):
 
     def updateEvaluation(self, date, data):
         self.createEvaluation(step=date, data=data)
+
+
+    def appendNewData(self, data):
+        """ AutoReg append new data automatically with the main time series. Nothing
+        needs to be done here.
+
+        """
+        return
