@@ -201,7 +201,7 @@ class longSeason(dynamic):
         pass
 
 
-    def updateEvaluation(self, step):
+    def updateEvaluation(self, step, data=None):
         """ update the evaluation matrix to a specific date
         This function is used when fitting the forward filter and
         backward smoother

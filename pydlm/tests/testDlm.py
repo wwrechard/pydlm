@@ -476,5 +476,8 @@ class testDlm(unittest.TestCase):
         self.dlm5.fit()
         self.dlm5.tune(maxit=10)
 
+    def testBuildFromBuilder(self):
+        self.dlm6.fit()
+
 if __name__ == '__main__':
     unittest.main()
