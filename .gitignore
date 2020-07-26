@@ -15,3 +15,5 @@ build/
 *.csv~
 dist/
 pydlm.egg-info/
+.idea
+*/__pycache__/
