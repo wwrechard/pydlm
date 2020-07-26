@@ -10,8 +10,10 @@ It decribes a latent polynomial trending in the time series data.
 
 """
 import numpy as np
-from .component import component
+
 import pydlm.base.tools as tl
+from .component import component
+
 
 # create trend component
 # We create the trend using the component class
@@ -50,13 +52,11 @@ class trend(component):
 
     """
 
-
     def __init__(self,
-                 degree = 0,
-                 discount = 0.99,
-                 name = 'trend',
+                 degree=0,
+                 discount=0.99,
+                 name='trend',
                  w=100):
-
         if degree < 0:
             raise NameError('degree has to be non-negative')
         self.d = degree + 1
@@ -76,14 +76,12 @@ class trend(component):
         self.createCovPrior(cov=w)
         self.createMeanPrior()
 
-
     def createEvaluation(self):
         """ Create the evaluation matrix
 
         """
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
-
 
     def createTransition(self):
         """Create the transition matrix
@@ -100,20 +98,17 @@ class trend(component):
         self.transition = np.matrix(np.zeros((self.d, self.d)))
         self.transition[np.triu_indices(self.d)] = 1
 
-
     def createCovPrior(self, cov=1e7):
         """Create the prior covariance matrix for the latent states.
 
         """
         self.covPrior = np.matrix(np.eye(self.d)) * cov
 
-
     def createMeanPrior(self, mean=0):
         """ Create the prior latent state
 
         """
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
-
 
     def checkDimensions(self):
         """ if user supplies their own covPrior and meanPrior, this can

@@ -18,11 +18,10 @@ class _dlmPredict(_dlm):
         _continuePredict: continue predicting one day after _oneDayAheadPredict
     """
 
-
     # Note the following functions will modify the status of the model, so they
     # shall not be directly call through the main model if this behavior is not
     # desired.
-    
+
     # featureDict contains all the features for prediction.
     # It is a dictionary with key equals to the name of the component and
     # the value as the new feature (a list). The function
@@ -64,7 +63,7 @@ class _dlmPredict(_dlm):
             date=date + 1,
             featureDict=featureDict,
             padded_data=self.padded_data[:(date + 1)])
-        
+
         # initialize the prediction status
         self.builder.model.prediction.step = 0
 
@@ -74,13 +73,12 @@ class _dlmPredict(_dlm):
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
         self.result.predictStatus = [
-            date,                   # start_date
-            date + 1,               # current_date
-            [predictedObs[0, 0]]    # all historical predictions
+            date,  # start_date
+            date + 1,  # current_date
+            [predictedObs[0, 0]]  # all historical predictions
         ]
 
         return (predictedObs, predictedObsVar)
-
 
     def _continuePredict(self, featureDict=None):
         """ Continue predicting one day after _oneDayAheadPredict or
@@ -114,7 +112,6 @@ class _dlmPredict(_dlm):
         self.result.predictStatus[2].append(predictedObs[0, 0])
         return (predictedObs, predictedObsVar)
 
-
     # This function will modify the status of the object, use with caution.
     def _constructEvaluationForPrediction(self,
                                           date,
@@ -142,7 +139,7 @@ class _dlmPredict(_dlm):
         if featureDict is not None:
             for name in featureDict:
                 if name in self.builder.dynamicComponents:
-                    comp = self.builder.dynamicComponents[name]                    
+                    comp = self.builder.dynamicComponents[name]
                     # the date is within range
                     if date < comp.n:
                         comp.features[date] = featureDict[name]
@@ -153,5 +150,5 @@ class _dlmPredict(_dlm):
                     else:
                         raise NameError("Feature is missing between the last predicted " +
                                         "day and the new day")
-                        
+
         self.builder.updateEvaluation(date, padded_data)

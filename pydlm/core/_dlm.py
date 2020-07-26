@@ -10,8 +10,10 @@ It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
 from numpy import var
+
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
+
 
 # this class defines the basic functionalities for dlm, which is not supposed
 # to be used by the user. Most functionality in the main dlm will be
@@ -56,7 +58,6 @@ class _dlm(object):
         _checkAndGetWorkingDates: get the correct filtering dates
     """
 
-
     # define the basic members
     # initialize the result
     def __init__(self, data, **options):
@@ -76,13 +77,11 @@ class _dlm(object):
         self._printInfo = options.get('printInfo', True)
         self.builder._printInfo = self._printInfo
 
-
     # an inner class to store all options
     class _defaultOptions(object):
         """ All plotting and fitting options
 
         """
-
 
         def __init__(self, **kwargs):
             self.noise = kwargs.get('noise', 1.0)
@@ -105,8 +104,6 @@ class _dlm(object):
             self.intervalType = kwargs.get('intervalType', 'ribbon')
             self.useAutoNoise = kwargs.get('useAutoNoise', False)
 
-
-
     # an inner class to store all results
     class _result(object):
         """ Class to store the results
@@ -119,7 +116,6 @@ class _dlm(object):
                    'df',
                    'filteredState', 'predictedState', 'smoothedState',
                    'filteredCov', 'predictedCov', 'smoothedCov']
-
 
         # quantites to record the result
         def __init__(self, n):
@@ -139,18 +135,15 @@ class _dlm(object):
             self.predictStatus = None
             # One day ahead prediction squared error
 
-
         # extend the current record by n blocks
         def _appendResult(self, n):
             for variable in self.records:
                 getattr(self, variable).extend([None] * n)
 
-
         # pop out a specific date
         def _popout(self, date):
             for variable in self.records:
                 getattr(self, variable).pop(date)
-
 
     # initialize the builder
     def _initialize(self):
@@ -165,7 +158,6 @@ class _dlm(object):
         self.result = self._result(self.n)
         self.initialized = True
 
-
     def _initializeFromBuilder(self, exported_builder):
         self.builder.initializeFromBuilder(data=self.data, exported_builder=exported_builder)
         self.Filter = kalmanFilter(discount=self.builder.discount,
@@ -173,7 +165,6 @@ class _dlm(object):
                                    index=self.builder.componentIndex)
         self.result = self._result(self.n)
         self.initialized = True
-
 
     def _autoNoise(self):
         """ Auto initialize the noise parameter if options.useAutoNoise
@@ -184,8 +175,7 @@ class _dlm(object):
             trimmed_data = [x for x in self.data if x is not None]
             self.options.noise = min(var(trimmed_data), 1)
 
-
-   # use the forward filter to filter the data
+    # use the forward filter to filter the data
     # start: the place where the filter started
     # end: the place where the filter ended
     # save: the index for dates where the filtered results should be saved,
@@ -246,12 +236,12 @@ class _dlm(object):
 
             # first check whether we need to update evaluation or not
             if len(self.builder.dynamicComponents) > 0 or \
-               len(self.builder.automaticComponents) > 0:
+                    len(self.builder.automaticComponents) > 0:
                 self.builder.updateEvaluation(step, self.padded_data)
 
             # check if rewnew is needed
             if renew and step - lastRenewPoint > self.builder.renewTerm \
-               and self.builder.renewTerm > 0.0:
+                    and self.builder.renewTerm > 0.0:
                 # we renew the state of the day
                 self._resetModelStatus()
                 for innerStep in range(step - int(self.builder.renewTerm),
@@ -269,7 +259,6 @@ class _dlm(object):
                            result=self.result,
                            step=step,
                            filterType='forwardFilter')
-
 
     # use the backward smooth to smooth the state
     # start: the last date of the backward filtering chain
@@ -332,7 +321,7 @@ class _dlm(object):
                 = self.result.predictedCov[day + 1]
 
             if len(self.builder.dynamicComponents) > 0 or \
-               len(self.builder.automaticComponents) > 0:
+                    len(self.builder.automaticComponents) > 0:
                 self.builder.updateEvaluation(day, self.padded_data)
 
             # then we use the backward filter to filter the result
@@ -346,7 +335,6 @@ class _dlm(object):
                        result=self.result,
                        step=day,
                        filterType='backwardSmoother')
-
 
     # Forecast the result based on filtered chains
     def _predictInSample(self, date, days=1):
@@ -373,7 +361,7 @@ class _dlm(object):
         for i in range(1, days):
             # update the evaluation vector
             if len(self.builder.dynamicComponents) > 0 or \
-               len(self.builder.automaticComponents) > 0:
+                    len(self.builder.automaticComponents) > 0:
                 self.builder.updateEvaluation(date + i, self.padded_data)
 
             self.Filter.predict(self.builder.model)
@@ -382,8 +370,7 @@ class _dlm(object):
 
         return (predictedObs, predictedObsVar)
 
-# =========================== model helper function ==========================
-
+    # =========================== model helper function ==========================
 
     # to set model to a specific date
     def _setModelStatus(self, date=0):
@@ -391,7 +378,7 @@ class _dlm(object):
 
         """
         if date < self.result.filteredSteps[0] or \
-           date > self.result.filteredSteps[1]:
+                date > self.result.filteredSteps[1]:
             raise NameError('The date has yet to be filtered yet. ' +
                             'Check the <filteredSteps> in <result> object.')
 
@@ -399,9 +386,8 @@ class _dlm(object):
                           result=self.result,
                           step=date)
         if len(self.builder.dynamicComponents) > 0 or \
-           len(self.builder.automaticComponents) > 0:
+                len(self.builder.automaticComponents) > 0:
             self.builder.updateEvaluation(date, self.padded_data)
-
 
     # reset model to initial status
     def _resetModelStatus(self):
@@ -413,7 +399,6 @@ class _dlm(object):
         self.builder.model.noiseVar = self.builder.noiseVar
         self.builder.model.df = self.builder.initialDegreeFreedom
         self.builder.model.initializeObservation()
-
 
     # a function used to copy result from the model to the result
     def _copy(self, model, result, step, filterType):
@@ -442,7 +427,6 @@ class _dlm(object):
             result.smoothedCov[step] = model.sysVar
             result.smoothedObsVar[step] = model.obsVar
 
-
     def _reverseCopy(self, model, result, step):
         """ Copy result from _result class to the model
 
@@ -459,7 +443,6 @@ class _dlm(object):
         model.noiseVar = result.noiseVar[step]
         model.df = result.df[step]
 
-
     # check if the data size matches the dynamic features
     def _checkFeatureSize(self):
         """ Check features's n matches the data's n
@@ -471,13 +454,11 @@ class _dlm(object):
                     raise NameError('The data size of dlm and '
                                     + name + ' does not match')
 
-
     def _1DmatrixToArray(self, arrayOf1dMatrix):
         """ Change an array of 1 x 1 matrix to normal array.
 
         """
         return [item.tolist()[0][0] for item in arrayOf1dMatrix]
-
 
     # function to turn off printing system info
     def _printSystemInfo(self, yes):
@@ -491,7 +472,6 @@ class _dlm(object):
             self._printInfo = False
             self.builder._printInfo = False
 
-
     # function to judge whether a component is in the model
     def _checkComponent(self, name):
         """ Check whether a component is contained by the dlm.
@@ -503,12 +483,11 @@ class _dlm(object):
             True or error.
         """
         if name in self.builder.staticComponents or \
-           name in self.builder.dynamicComponents or \
-           name in self.builder.automaticComponents:
+                name in self.builder.dynamicComponents or \
+                name in self.builder.automaticComponents:
             return True
         else:
             raise NameError('No such component.')
-
 
     # function to fetch a component
     def _fetchComponent(self, name):
@@ -530,7 +509,6 @@ class _dlm(object):
             raise NameError('No such component.')
         return comp
 
-
     # check start and end dates that has been filtered on
     def _checkAndGetWorkingDates(self, filterType):
         """ Check the filter status and return the dates that have
@@ -545,7 +523,7 @@ class _dlm(object):
         """
         if filterType == 'forwardFilter' or filterType == 'predict':
             if self.result.filteredSteps != [0, self.n - 1] \
-               and self._printInfo:
+                    and self._printInfo:
                 print('The fitlered dates are from ' +
                       str(self.result.filteredSteps[0]) +
                       ' to ' + str(self.result.filteredSteps[1]))
@@ -554,7 +532,7 @@ class _dlm(object):
 
         elif filterType == 'backwardSmoother':
             if self.result.smoothedSteps != [0, self.n - 1] \
-               and self._printInfo:
+                    and self._printInfo:
                 print('The smoothed dates are from ' +
                       str(self.result.smoothedSteps[0]) +
                       ' to ' + str(self.result.smoothedSteps[1]))
@@ -565,7 +543,6 @@ class _dlm(object):
             raise NameError('Incorrect filter type.')
 
         return (start, end)
-
 
     # check the filter status and automatic turn off some plots
     def _checkPlotOptions(self):
@@ -579,7 +556,6 @@ class _dlm(object):
 
         if self.result.smoothedSteps[1] == -1:
             self.options.plotSmoothedData = False
-
 
     # whether to show the internal message
     def showInternalMessage(self, show=True):

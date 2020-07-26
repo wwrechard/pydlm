@@ -11,6 +11,7 @@ It stores all the necessary components for kalmanFilter and save the results
 """
 # dependencies
 import numpy as np
+
 import pydlm.base.tools as tl
 
 
@@ -34,10 +35,9 @@ class baseModel:
         validation: validate the matrix dimensions are consistent.
     """
 
-
     # define the components of a baseModel
-    def __init__(self, transition = None, evaluation = None, noiseVar = None, \
-                 sysVar = None, innovation = None, state = None, df = None):
+    def __init__(self, transition=None, evaluation=None, noiseVar=None, \
+                 sysVar=None, innovation=None, state=None, df=None):
         self.transition = transition
         self.evaluation = evaluation
         self.noiseVar = noiseVar
@@ -51,7 +51,6 @@ class baseModel:
         # a hidden data field used only for model prediction
         self.prediction = __model__()
 
-
     # initialize the observation mean and variance
     def initializeObservation(self):
         """ Initialize the value of obs and obsVar
@@ -61,7 +60,6 @@ class baseModel:
         self.obs = np.dot(self.evaluation, self.state)
         self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation.T) \
                       + self.noiseVar
-
 
     # checking if the dimension matches with each other
     def validation(self):
@@ -81,12 +79,12 @@ class baseModel:
         tl.checker.checkVectorDimension(self.evaluation, self.transition)
         tl.checker.checkVectorDimension(self.state, self.transition)
 
-        
+
 # define an inner class to store intermediate results
 class __model__:
 
     # to store result for prediction
-    def __init__(self, step = 0, state = None, obs = None, sysVar = None, obsVar = None):
+    def __init__(self, step=0, state=None, obs=None, sysVar=None, obsVar=None):
         self.step = 0
         self.state = state
         self.obs = obs

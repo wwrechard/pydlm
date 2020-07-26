@@ -14,12 +14,13 @@ Examples are holiday indicators, other observed variables and so on.
 The name dynamic means that the features are changing over time.
 
 """
-import numpy as np
 from collections import MutableSequence
 from copy import deepcopy
 
+import numpy as np
+
 import pydlm.base.tools as tl
-from .component import component
+from pydlm.modeler.component import component
 # create trend component
 # We create the trend using the component class
 
@@ -62,13 +63,8 @@ class dynamic(component):
 
     """
 
-
-    def __init__(self,
-                 features = None,
-                 discount = 0.99,
-                 name = 'dynamic',
-                 w=100):
-
+    def __init__(self, features=None, discount=0.99, name='dynamic', w=100):
+        super(dynamic, self).__init__()
         self.n = len(features)
         self.d = len(features[0])
 
@@ -98,7 +94,6 @@ class dynamic(component):
         # record current step in case of lost
         self.step = 0
 
-
     def createEvaluation(self, step):
         """ The evaluation matrix for the dynamic component change over time.
         It equals to the value of the features or the controlled variables at a
@@ -106,7 +101,6 @@ class dynamic(component):
 
         """
         self.evaluation = np.matrix([self.features[step]])
-
 
     def createTransition(self):
         """ Create the transition matrix.
@@ -116,8 +110,7 @@ class dynamic(component):
         """
         self.transition = np.matrix(np.eye(self.d))
 
-
-    def createCovPrior(self, cov = None, scale = 1e6):
+    def createCovPrior(self, cov=None, scale=1e6):
         """ Create the prior covariance matrix for the latent states
 
         """
@@ -126,8 +119,7 @@ class dynamic(component):
         else:
             self.covPrior = cov * scale
 
-
-    def createMeanPrior(self, mean = None, scale = 1):
+    def createMeanPrior(self, mean=None, scale=1):
         """ Create the prior latent state
 
         """
@@ -135,7 +127,6 @@ class dynamic(component):
             self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
         else:
             self.meanPrior = mean * scale
-
 
     def checkDimensions(self):
         """ if user supplies their own covPrior and meanPrior, this can
@@ -160,7 +151,6 @@ class dynamic(component):
                     return True
         return False
 
-
     def updateEvaluation(self, step):
         """ update the evaluation matrix to a specific date
         This function is used when fitting the forward filter and backward smoother
@@ -173,7 +163,6 @@ class dynamic(component):
         else:
             raise NameError('The step is out of range')
 
-
     def appendNewData(self, newData):
         """ For updating feature matrix when new data is added.
 
@@ -185,10 +174,9 @@ class dynamic(component):
         if self.hasMissingData(newData):
             raise NameError("The current version does not support missing data" +
                             "in the features.")
-        
+
         self.features.extend(tl.duplicateList(newData))
         self.n = len(self.features)
-
 
     def popout(self, date):
         """ For deleting the feature data of a specific date.
@@ -199,7 +187,6 @@ class dynamic(component):
         """
         self.features.pop(date)
         self.n -= 1
-
 
     def alter(self, date, feature):
         """ Change the corresponding
@@ -215,4 +202,3 @@ class dynamic(component):
                             "in the features.")
         else:
             self.features[date] = feature
-

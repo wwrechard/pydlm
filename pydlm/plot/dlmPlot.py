@@ -9,7 +9,9 @@ This module provide the plotting functionality for dlm
 
 """
 import matplotlib.pyplot as plt
+
 from pydlm.base.tools import getInterval
+
 
 # =========================== plot for main data ============================
 
@@ -200,6 +202,7 @@ def plotInMultipleFigure(time, data, result, options):
                              color=options.smoothedColor)
         plt.legend(loc='best', shadow=True)
 
+
 # ============================ plot for latents ============================
 
 
@@ -305,6 +308,7 @@ def plotSingleState(time, dimension, result, options):
                          color=options.smoothedColor)
 
     plt.legend(loc='best', shadow=True)
+
 
 # ============================ plot for component =============================
 
@@ -446,8 +450,8 @@ def plotPrediction(time, data, predictedTime,
                      upper=upper, lower=lower,
                      intervalType=options.intervalType,
                      color=options.predictedColor)
-    
-    
+
+
 # =========================== basic functions ============================
 
 

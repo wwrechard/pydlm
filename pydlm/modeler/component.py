@@ -12,6 +12,7 @@ components based on this abstract class.
 """
 from abc import ABCMeta, abstractmethod
 
+
 # We define an abstract class which can further be used
 # to create different types of model components, inclusing
 # trend, seasonality and other structures
@@ -56,46 +57,51 @@ class component:
                     self.npEqualOrNone(self.covPrior, other.covPrior) and
                     self.npEqualOrNone(self.meanPrior, other.meanPrior))
 
-
     # define the evaluation matrix for the component
     @abstractmethod
-    def createEvaluation(self): pass
+    def createEvaluation(self):
+        pass
+
     """ Create the evaluation matrix
 
     """
 
-
     # define the transition matrix for the component
     @abstractmethod
-    def createTransition(self): pass
+    def createTransition(self):
+        pass
+
     """ Create the transition matrix
 
     """
 
-
     # define the prior distribution for the covariance for the component
     @abstractmethod
-    def createCovPrior(self): pass
+    def createCovPrior(self):
+        pass
+
     """ Create the prior covariance matrix for the latent states
 
     """
 
-
     # define the prior distribution for the mean vector for the component
     @abstractmethod
-    def createMeanPrior(self): pass
+    def createMeanPrior(self):
+        pass
+
     """ Create the prior latent state
     
     """
 
-
     # check the matrix dimensions in case user supplied matrices are wrong
     @abstractmethod
-    def checkDimensions(self): pass
+    def checkDimensions(self):
+        pass
+
     """ Check the dimensionality of the state and covariance
 
     """
-    
+
     def equalOrNone(self, a, b):
         """Check if a and b are equal or both are None"""
         return (a is None and b is None) or a == b

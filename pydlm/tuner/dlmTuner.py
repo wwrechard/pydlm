@@ -9,7 +9,7 @@ The modelTuner class provides the tuning functionality for the dlm class.
 It makes use of the gradient descent to optimize the discount factor for
 each component (jointly) based on the one-day ahead prediction error.
 
->>> import modelTuner
+>>> from pydlm.tuner.dlmTuner import modelTuner
 >>> myTuner = modelTuner()
 >>> tunedDLM = myTuner(untunedDLM, maxit=100)
 
@@ -24,7 +24,9 @@ original one, one should opt to use the modelTuner class.
 
 """
 from copy import deepcopy
+
 from numpy import array
+
 
 class modelTuner:
     """ The main class for modelTuner
@@ -45,7 +47,7 @@ class modelTuner:
         self.err = 1e-4
         self.discounts = None
 
-    def tune(self, untunedDLM, maxit=100, step = 1.0):
+    def tune(self, untunedDLM, maxit=100, step=1.0):
         """ Main function for tuning the DLM model.
 
         Args:
@@ -64,7 +66,7 @@ class modelTuner:
             tunedDLM.fitForwardFilter()
         discounts = array(tunedDLM._getDiscounts())
         self.current_mse = tunedDLM._getMSE()
-        
+
         # using gradient descent
         if self.method == 'gradient_descent':
             for i in range(maxit):
