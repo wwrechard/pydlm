@@ -1,7 +1,8 @@
 import unittest
 
-from pydlm.modeler.trends import trend
 from pydlm.dlm import dlm
+from pydlm.modeler.trends import trend
+
 
 class testDlmPlot(unittest.TestCase):
 
@@ -9,6 +10,7 @@ class testDlmPlot(unittest.TestCase):
         dlm1 = dlm(range(100)) + trend(1)
         dlm1.fit()
         dlm1.plot()
+
 
 if __name__ == '__main__':
     unittest.main()

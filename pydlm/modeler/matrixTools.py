@@ -17,7 +17,6 @@ class matrixTools:
             newMatrixB = np.concatenate((np.matrix(np.zeros((Bn, Ap))), B), 1)
             return np.concatenate((newMatrixA, newMatrixB), 0)
 
-
     # A + B = (A; B)
     @staticmethod
     def matrixAddByRow(A, B):
@@ -28,7 +27,6 @@ class matrixTools:
         else:
             return np.concatenate((A, B), 0)
 
-
     # A + B = (A B)
     @staticmethod
     def matrixAddByCol(A, B):
@@ -38,7 +36,6 @@ class matrixTools:
             return np.matrix(A)
         else:
             return np.concatenate((A, B), 1)
-
 
     @staticmethod
     def AddTwoVectors(a, b):

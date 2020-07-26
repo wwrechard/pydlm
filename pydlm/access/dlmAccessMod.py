@@ -1,12 +1,12 @@
 from copy import deepcopy
-from pydlm.base.tools import getInterval
+
 from pydlm.access._dlmGet import _dlmGet
+from pydlm.base.tools import getInterval
 
 
 class dlmAccessModule(_dlmGet):
     """ A dlm module for all the access methods
     """
-
 
     def getAll(self):
         """ get all the _result class which contains all results
@@ -16,7 +16,6 @@ class dlmAccessModule(_dlmGet):
 
         """
         return deepcopy(self.result)
-
 
     def getMean(self, filterType='forwardFilter', name='main'):
         """ get mean for data or component.
@@ -39,7 +38,7 @@ class dlmAccessModule(_dlmGet):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-        end += 1 # To get the result for the last date.
+        end += 1  # To get the result for the last date.
         # get the mean for the fitlered data
         if name == 'main':
             # get out of the matrix form
@@ -60,7 +59,6 @@ class dlmAccessModule(_dlmGet):
         return self._getComponentMean(name=name,
                                       filterType=filterType,
                                       start=start, end=(end - 1))
-
 
     def getVar(self, filterType='forwardFilter', name='main'):
         """ get the variance for data or component.
@@ -105,7 +103,6 @@ class dlmAccessModule(_dlmGet):
         return self._getComponentVar(name=name, filterType=filterType,
                                      start=start, end=(end - 1))
 
-
     def getResidual(self, filterType='forwardFilter'):
         """ get the residuals for data after filtering or smoothing.
 
@@ -123,7 +120,7 @@ class dlmAccessModule(_dlmGet):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-        end += 1 # To get the result for the last date.
+        end += 1  # To get the result for the last date.
         # get the mean for the fitlered data
         # get out of the matrix form
         if filterType == 'forwardFilter':
@@ -140,7 +137,6 @@ class dlmAccessModule(_dlmGet):
                  for i in range(start, end)])
         else:
             raise NameError('Incorrect filter type.')
-
 
     def getInterval(self, p=0.95, filterType='forwardFilter', name='main'):
         """ get the confidence interval for data or component.
@@ -202,7 +198,6 @@ class dlmAccessModule(_dlmGet):
         upper, lower = getInterval(compMean, compVar, p)
         return (upper, lower)
 
-
     def getLatentState(self, filterType='forwardFilter', name='all'):
         """ get the latent states for different components and filters.
 
@@ -230,15 +225,15 @@ class dlmAccessModule(_dlmGet):
         if name == 'all':
             if filterType == 'forwardFilter':
                 return list(map(lambda x: x if x is None
-                                else self._1DmatrixToArray(x),
+                else self._1DmatrixToArray(x),
                                 self.result.filteredState[start:end]))
             elif filterType == 'backwardSmoother':
                 return list(map(lambda x: x if x is None
-                                else self._1DmatrixToArray(x),
+                else self._1DmatrixToArray(x),
                                 self.result.smoothedState[start:end]))
             elif filterType == 'predict':
                 return list(map(lambda x: x if x is None
-                                else self._1DmatrixToArray(x),
+                else self._1DmatrixToArray(x),
                                 self.result.smoothedState[start:end]))
             else:
                 raise NameError('Incorrect filter type.')
@@ -248,7 +243,6 @@ class dlmAccessModule(_dlmGet):
         return list(map(lambda x: x if x is None else self._1DmatrixToArray(x),
                         self._getLatentState(name=name, filterType=filterType,
                                              start=start, end=(end - 1))))
-
 
     def getLatentCov(self, filterType='forwardFilter', name='all'):
         """ get the error covariance for different components and

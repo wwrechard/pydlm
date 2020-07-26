@@ -1,15 +1,16 @@
-import numpy as np
 import unittest
-from pydlm.modeler.builder import builder
-from pydlm.modeler.trends import trend
-from pydlm.modeler.seasonality import seasonality
-from pydlm.modeler.dynamic import dynamic
+
+import numpy as np
+
 from pydlm.modeler.autoReg import autoReg
+from pydlm.modeler.builder import builder
+from pydlm.modeler.dynamic import dynamic
 from pydlm.modeler.matrixTools import matrixTools as mt
+from pydlm.modeler.seasonality import seasonality
+from pydlm.modeler.trends import trend
 
 
 class testBuilder(unittest.TestCase):
-
 
     def setUp(self):
         self.data = np.random.rand(10).tolist()
@@ -22,12 +23,10 @@ class testBuilder(unittest.TestCase):
         self.builder1 = builder()
         self.builder2 = builder()
 
-
     def testInitialization(self):
         self.assertEqual(len(self.builder1.staticComponents), 0)
         self.assertEqual(len(self.builder1.dynamicComponents), 0)
         self.assertEqual(len(self.builder1.automaticComponents), 0)
-
 
     def testAddAndDelete(self):
         self.builder1 = self.builder1 + self.trend
@@ -55,7 +54,6 @@ class testBuilder(unittest.TestCase):
         self.builder1 = self.builder1 + self.autoReg
         self.assertEqual(len(self.builder1.automaticComponents), 1)
 
-
     def testInitialize(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
                         + self.autoReg
@@ -64,10 +62,9 @@ class testBuilder(unittest.TestCase):
         self.assertAlmostEqual(np.sum(
             np.abs(self.builder1.model.evaluation
                    - mt.matrixAddByCol(mt.matrixAddByCol(
-                       self.trend.evaluation,
-                       self.dynamic.evaluation),
-                        self.autoReg.evaluation))), 0.0)
-
+                self.trend.evaluation,
+                self.dynamic.evaluation),
+                self.autoReg.evaluation))), 0.0)
 
     def testInitializeEvaluatoin(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic
@@ -78,7 +75,6 @@ class testBuilder(unittest.TestCase):
                    mt.matrixAddByCol(self.trend.evaluation,
                                      self.dynamic.evaluation))), 0.0)
 
-
     def testUpdate(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic \
                         + self.autoReg
@@ -88,10 +84,9 @@ class testBuilder(unittest.TestCase):
         self.assertAlmostEqual(np.sum(
             np.abs(self.builder1.model.evaluation
                    - mt.matrixAddByCol(mt.matrixAddByCol(
-                       self.trend.evaluation,
-                       np.matrix([self.features[2]])),
-                                       np.matrix(self.autoReg.evaluation)))), 0.0)
-
+                self.trend.evaluation,
+                np.matrix([self.features[2]])),
+                np.matrix(self.autoReg.evaluation)))), 0.0)
 
     def testInitializFromBuilder(self):
         self.builder1 = self.builder1 + self.trend + self.dynamic
@@ -108,6 +103,7 @@ class testBuilder(unittest.TestCase):
                              self.builder2.dynamicComponents)
         self.assertDictEqual(self.builder1.automaticComponents,
                              self.builder2.automaticComponents)
+
 
 if __name__ == '__main__':
     unittest.main()

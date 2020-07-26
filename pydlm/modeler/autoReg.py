@@ -11,12 +11,13 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
-from numpy import matrix
 from warnings import warn
-from .component import component
 
 import numpy as np
+from numpy import matrix
+
 import pydlm.base.tools as tl
+from pydlm.modeler.component import component
 
 
 class autoReg(component):
@@ -62,7 +63,6 @@ class autoReg(component):
 
     """
 
-
     def __init__(self,
                  data=None,  # DEPRECATED
                  degree=2,
@@ -94,7 +94,6 @@ class autoReg(component):
         # record current step in case of lost
         self.step = 0
 
-
     def createEvaluation(self, step, data):
         """ The evaluation matrix for auto regressor.
 
@@ -103,8 +102,7 @@ class autoReg(component):
             raise NameError("There is no sufficient data for creating autoregressor.")
         # We pad numbers if the step is too early
         self.evaluation = matrix([[self.padding] * (self.d - step) +
-                                  list(data[max(0, (step - self.d)) : step])])
-
+                                  list(data[max(0, (step - self.d)): step])])
 
     def createTransition(self):
         """ Create the transition matrix.
@@ -114,8 +112,7 @@ class autoReg(component):
         """
         self.transition = np.matrix(np.eye(self.d))
 
-
-    def createCovPrior(self, cov = None, scale = 1e6):
+    def createCovPrior(self, cov=None, scale=1e6):
         """ Create the prior covariance matrix for the latent states
 
         """
@@ -124,8 +121,7 @@ class autoReg(component):
         else:
             self.covPrior = cov * scale
 
-
-    def createMeanPrior(self, mean = None, scale = 1):
+    def createMeanPrior(self, mean=None, scale=1):
         """ Create the prior latent state
 
         """
@@ -133,7 +129,6 @@ class autoReg(component):
             self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
         else:
             self.meanPrior = mean * scale
-
 
     def checkDimensions(self):
         """ if user supplies their own covPrior and meanPrior, this can
@@ -143,10 +138,8 @@ class autoReg(component):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
         print('The dimesnion looks good!')
 
-
     def updateEvaluation(self, date, data):
         self.createEvaluation(step=date, data=data)
-
 
     def appendNewData(self, data):
         """ AutoReg append new data automatically with the main time series. Nothing

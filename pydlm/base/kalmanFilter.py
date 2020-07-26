@@ -14,7 +14,9 @@ provided)
 """
 # This code take care of the Kalman filter
 import numpy as np
+
 import pydlm.base.tools as tl
+
 
 # Define the class of Kalman filter which offers a forward filter
 # backward smoother and backward sampler for one-step move
@@ -38,7 +40,6 @@ class kalmanFilter:
         updateDiscount: for updating the discount factors
     """
 
-
     def __init__(self, discount=[0.99], \
                  updateInnovation='whole',
                  index=None):
@@ -55,8 +56,7 @@ class kalmanFilter:
         self.updateInnovation = updateInnovation
         self.index = index
 
-
-    def predict(self, model, dealWithMissingEvaluation = False):
+    def predict(self, model, dealWithMissingEvaluation=False):
         """ Predict the next states of the model by one step
 
         Args:
@@ -98,7 +98,7 @@ class kalmanFilter:
             model.prediction.state = np.dot(model.transition, model.prediction.state)
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
             model.prediction.sysVar = np.dot(np.dot(model.transition, \
-                                                    model.prediction.sysVar),\
+                                                    model.prediction.sysVar), \
                                              model.transition.T)
             model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
                                                     model.prediction.sysVar), \
@@ -109,8 +109,7 @@ class kalmanFilter:
         if dealWithMissingEvaluation:
             self._recoverTransitionAndEvaluation(model, loc)
 
-
-    def forwardFilter(self, model, y, dealWithMissingEvaluation = False):
+    def forwardFilter(self, model, y, dealWithMissingEvaluation=False):
         """ The forwardFilter used to run one step filtering given new data
 
         Args:
@@ -144,7 +143,7 @@ class kalmanFilter:
 
             # update new states
             model.df += 1
-            lastNoiseVar = model.noiseVar # for updating model.sysVar
+            lastNoiseVar = model.noiseVar  # for updating model.sysVar
             model.noiseVar = model.noiseVar * \
                              (1.0 - 1.0 / model.df + \
                               err * err / model.df / model.prediction.obsVar)
@@ -180,7 +179,6 @@ class kalmanFilter:
         # recover the evaluation and the transition matrix
         if dealWithMissingEvaluation:
             self._recoverTransitionAndEvaluation(model, loc)
-
 
     # The backward smoother for a given unsmoothed states at time t
     # what model should store:
@@ -234,9 +232,8 @@ class kalmanFilter:
                               model.evaluation.T) + model.noiseVar
 
         # recover the evaluation and the transition matrix
-        #if dealWithMissingEvaluation:
+        # if dealWithMissingEvaluation:
         #    self._recoverTransitionAndEvaluation(model, loc)
-
 
     def backwardSampler(self, model, rawState, rawSysVar):
         """ The backwardSampler for one step backward sampling
@@ -275,8 +272,7 @@ class kalmanFilter:
         model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
                               model.evaluation.T) + model.noiseVar
         model.obs = np.matrix(np.random.multivariate_normal(model.obs.A1, \
-                                                              model.obsVar)).T
-
+                                                            model.obsVar)).T
 
     # for updating the discounting factor
     def updateDiscount(self, newDiscount):
@@ -289,7 +285,6 @@ class kalmanFilter:
         self.__checkDiscount__(newDiscount)
         self.discount = np.matrix(np.diag(1 / np.sqrt(newDiscount)))
 
-
     def __checkDiscount__(self, discount):
         """ Check whether the discount fact is within (0, 1)
 
@@ -299,7 +294,6 @@ class kalmanFilter:
             if discount[i] < 0 or discount[i] > 1:
                 raise tl.matrixErrors('discount factor must be between 0 and 1')
 
-
     # update the innovation
     def __updateInnovation__(self, model):
         """ update the innovation matrix of the model
@@ -307,8 +301,7 @@ class kalmanFilter:
         """
 
         model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
-                                      self.discount) - model.prediction.sysVar
-
+                                  self.discount) - model.prediction.sysVar
 
     # update the innovation
     def __updateInnovation2__(self, model):
@@ -319,13 +312,12 @@ class kalmanFilter:
         """
 
         innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
-                                      self.discount) - model.prediction.sysVar
+                            self.discount) - model.prediction.sysVar
         model.innovation = np.matrix(np.zeros(innovation.shape))
         for name in self.index:
             indx = self.index[name]
             model.innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)] = \
-                    innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)]
-
+                innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)]
 
     # a generalized inverse of matrix A
     def _gInverse(self, A):
@@ -333,7 +325,6 @@ class kalmanFilter:
 
         """
         return np.linalg.pinv(A)
-
 
     def _modifyTransitionAccordingToMissingValue(self, model):
         """ When evaluation contains None value, we modify the corresponding entries
@@ -348,7 +339,6 @@ class kalmanFilter:
                 model.evaluation[0, i] = 0.0
         return loc
 
-
     def _recoverTransitionAndEvaluation(self, model, loc):
         """ We recover the transition and evaluation use the results from
         _modifyTransitionAccordingToMissingValue
@@ -357,4 +347,3 @@ class kalmanFilter:
         for i in loc:
             model.evaluation[0, i] = None
             model.transition[i, i] = 1.0
-

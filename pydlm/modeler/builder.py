@@ -11,12 +11,15 @@ view componets of a given dlm. Builder will finally assemble all the components
  to a final big model.
 
 """
+from copy import deepcopy
+
 # this class provide all the model building operations for constructing
 # customized model
 import numpy as np
+
 from pydlm.base.baseModel import baseModel
-from copy import deepcopy
 from pydlm.modeler.matrixTools import matrixTools as mt
+
 
 # The builder will be the main class for construting dlm
 # it featues two types of evaluation matrix and evaluation matrix
@@ -135,14 +138,14 @@ class builder:
             self.dynamicComponents[component.name] = component
 
         if component.componentType == 'autoReg' \
-           or component.componentType == 'longSeason':
+                or component.componentType == 'longSeason':
             if component.name in self.automaticComponents:
                 raise NameError('Please rename the component to a'
                                 + ' different name.')
             self.automaticComponents[component.name] = component
 
         if component.componentType == 'trend' \
-           or component.componentType == 'seasonality':
+                or component.componentType == 'seasonality':
             if component.name in self.staticComponents:
                 raise NameError('Please rename the component' +
                                 ' to a different name.')
@@ -222,9 +225,8 @@ class builder:
             noise: the initial guess of the variance of the observation noise.
         """
         if len(self.staticComponents) == 0 and \
-           len(self.dynamicComponents) == 0 and \
-           len(self.automaticComponents) == 0:
-
+                len(self.dynamicComponents) == 0 and \
+                len(self.automaticComponents) == 0:
             raise NameError('The model must contain at least' +
                             ' one component')
 
@@ -335,11 +337,11 @@ class builder:
         if self.renewDiscount < 1.0 - 1e-8:
             self.renewTerm = np.log(0.001 * (1 - self.renewDiscount)) \
                              / np.log(self.renewDiscount)
-        
+
         self.initialized = True
         if self._printInfo:
             print('Initialization finished.')
-            
+
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables
     # This function should be called only when dynamicComponents is not empty
@@ -366,10 +368,10 @@ class builder:
             comp = self.dynamicComponents[i]
             comp.updateEvaluation(step)
             self.model.evaluation[0, self.componentIndex[i][0]:
-                                  (self.componentIndex[i][1] + 1)] = comp.evaluation
+                                     (self.componentIndex[i][1] + 1)] = comp.evaluation
 
         for i in self.automaticComponents:
             comp = self.automaticComponents[i]
             comp.updateEvaluation(step, data)
             self.model.evaluation[0, self.componentIndex[i][0]:
-                                  (self.componentIndex[i][1] + 1)] = comp.evaluation
+                                     (self.componentIndex[i][1] + 1)] = comp.evaluation

@@ -14,8 +14,10 @@ or cos relationship between each state. They can be arbitrarily valued.
 
 """
 import numpy as np
-from .component import component
+
 import pydlm.base.tools as tl
+from .component import component
+
 
 # create seasonality component
 # We create the seasonality using the component class
@@ -60,11 +62,10 @@ class seasonality(component):
 
     """
 
-
     def __init__(self,
-                 period = 7,
-                 discount = 0.99,
-                 name = 'seasonality',
+                 period=7,
+                 discount=0.99,
+                 name='seasonality',
                  w=100):
 
         if period <= 1:
@@ -89,14 +90,12 @@ class seasonality(component):
         # create form free seasonality component
         self.freeForm()
 
-
     def createEvaluation(self):
         """ Create the evaluation matrix
 
         """
         self.evaluation = np.matrix(np.zeros((1, self.d)))
         self.evaluation[0, 0] = 1
-
 
     # The transition matrix takes special form as
     # G = [0 1 0]
@@ -119,20 +118,17 @@ class seasonality(component):
         self.transition = np.matrix(np.diag(np.ones(self.d - 1), 1))
         self.transition[self.d - 1, 0] = 1
 
-
-    def createCovPrior(self, cov = 1e7):
+    def createCovPrior(self, cov=1e7):
         """Create the prior covariance matrix for the latent states.
 
         """
         self.covPrior = np.matrix(np.eye(self.d)) * cov
 
-
-    def createMeanPrior(self, mean = 0):
+    def createMeanPrior(self, mean=0):
         """ Create the prior latent state
 
         """
         self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
-
 
     # Form free seasonality component ensures that sum(mean) = 0
     # We use the formular from "Bayesian forecasting and dynamic linear models"
@@ -151,7 +147,6 @@ class seasonality(component):
             A = np.sum(self.covPrior, 1) / u
             self.meanPrior = self.meanPrior - A * np.sum(self.meanPrior, 0)[0, 0]
             self.covPrior = self.covPrior - np.dot(A, A.T) * u
-
 
     def checkDimensions(self):
         """ if user supplies their own covPrior and meanPrior, this can

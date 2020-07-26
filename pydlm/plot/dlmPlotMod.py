@@ -1,8 +1,10 @@
 from pydlm.core._dlm import _dlm
 
+
 class dlmPlotModule(_dlm):
     """ A dlm module containing all plot methods
     """
+
     def __init__(self, data, **options):
         super(dlmPlotModule, self).__init__(data, **options)
 
@@ -13,7 +15,6 @@ class dlmPlotModule(_dlm):
         # help without doing import-check (expensive) every time
         # when plot function is called.
         self.plotLibLoaded = False
-
 
     def turnOn(self, switch):
         """ "turn on" Operation for the dlm plotting options.
@@ -51,7 +52,6 @@ class dlmPlotModule(_dlm):
             self.options.showFittedPoint = True
         else:
             raise NameError('no such options')
-
 
     def turnOff(self, switch):
         """ "turn off" Operation for the dlm plotting options.
@@ -95,7 +95,6 @@ class dlmPlotModule(_dlm):
         else:
             raise NameError('no such options')
 
-
     def setColor(self, switch, color):
         """ "set" Operation for the dlm plotting colors
 
@@ -118,14 +117,12 @@ class dlmPlotModule(_dlm):
         else:
             raise NameError('no such options')
 
-
     def setConfidence(self, p=0.95):
         """ Set the confidence interval for the plot
 
         """
         assert p >= 0 and p <= 1
         self.options.confidence = p
-
 
     def setIntervalType(self, intervalType):
         """ Set the confidence interval type
@@ -135,7 +132,6 @@ class dlmPlotModule(_dlm):
             self.options.intervalType = intervalType
         else:
             raise NameError('No such type for confidence interval.')
-
 
     def resetPlotOptions(self):
         """ Reset the plotting option for the dlm class
@@ -155,7 +151,6 @@ class dlmPlotModule(_dlm):
         self.options.separatePlot = True
         self.options.confidence = 0.95
         self.options.intervalType = 'ribbon'
-
 
     # plot the result according to the options
     def plot(self, name='main'):
@@ -238,7 +233,6 @@ class dlmPlotModule(_dlm):
                                   options=self.options)
         dlmPlot.plotout()
 
-
     def plotCoef(self, name, dimensions=None):
         """ Plot function for the latent states (coefficents of dynamic
         component).
@@ -297,7 +291,6 @@ class dlmPlotModule(_dlm):
 
         dlmPlot.plotout()
 
-
     def plotPredictN(self, N=1, date=None, featureDict=None):
         """
         Function to plot the N-day prediction results.
@@ -349,10 +342,7 @@ class dlmPlotModule(_dlm):
 
         dlmPlot.plotout()
 
-
-
     def loadPlotLibrary(self):
         if not self.plotLibLoaded:
             global dlmPlot
-            import pydlm.plot.dlmPlot as dlmPlot
             self.plotLibLoaded = True
