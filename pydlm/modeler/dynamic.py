@@ -21,8 +21,6 @@ import numpy as np
 
 import pydlm.base.tools as tl
 from pydlm.modeler.component import component
-
-
 # create trend component
 # We create the trend using the component class
 
@@ -65,12 +63,8 @@ class dynamic(component):
 
     """
 
-    def __init__(self,
-                 features=None,
-                 discount=0.99,
-                 name='dynamic',
-                 w=100):
-
+    def __init__(self, features=None, discount=0.99, name='dynamic', w=100):
+        super(dynamic, self).__init__()
         self.n = len(features)
         self.d = len(features[0])
 
