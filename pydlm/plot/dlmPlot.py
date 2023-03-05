@@ -516,7 +516,7 @@ def subplot(size, location):
     Used for plotting multiple figures
 
     """
-    plt.subplot(str(size[0]) + str(size[1]) + str(location))
+    plt.subplot(int(str(size[0]) + str(size[1]) + str(location)))
 
 
 def plotout():
