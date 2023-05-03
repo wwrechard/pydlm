@@ -1,11 +1,16 @@
 language: python
 matrix:
   include:
-  - python: "3.6"
   - python: "3.7"
     dist: xenial
     sudo: true
-  - python: "3.8-dev" # 3.8 development branch
+  - python: "3.8"
+    dist: xenial
+    sudo: true
+  - python: "3.9"
+    dist: xenial
+    sudo: true
+  - python: "3.10"
     dist: xenial
     sudo: true
   - python: "nightly"
