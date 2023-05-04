@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd "$(dirname -- "$0")/.."
+VENV="$(basename $PWD).venv"
+
+echo "==> Preparing dependencies..."
+
+PY_VERSION=3.8.16
+pyenv install --skip--existing "$PY_VERSION"
+
+test -d $VENV || python -m venv $VENV || {
+	echo "==>Failed to find/create a virtualenv"
+	exit 1
+    }
