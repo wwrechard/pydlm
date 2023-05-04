@@ -15,7 +15,7 @@ The name dynamic means that the features are changing over time.
 
 """
 import numpy as np
-from collections import MutableSequence
+from collections.abc import MutableSequence
 from copy import deepcopy
 
 import pydlm.base.tools as tl
