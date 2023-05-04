@@ -24,13 +24,19 @@ jobs:
           # app-dir: ~/project/package-directory/  # If your requirements.txt isn't in the root directory.
           # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
       - run:
-          name: Run tests
+          name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
             pip install matplotlib
             pip install sphinx
             python setup.py install
             pip install coveralls
+      - run:
+          name: Run tests
+          command: |
+            python -m unittest discover
+            python -m unittest pydlm/tests/tuner/test*.py
+            coverage run --source . -m unittest discover
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
