@@ -1,4 +1,5 @@
-[PyDLM](https://pydlm.github.io/)  [![Build Status](https://travis-ci.org/wwrechard/pydlm.svg?branch=master)](https://travis-ci.org/wwrechard/pydlm) [![Coverage Status](https://coveralls.io/repos/github/wwrechard/pydlm/badge.svg?branch=master)](https://coveralls.io/github/wwrechard/pydlm?branch=master)
+[PyDLM](https://pydlm.github.io/)  [![wwrechard](https://circleci.com/gh/wwrechard/pydlm.svg?style=svg)](https://app.circleci.com/pipelines/github/wwrechard/pydlm)
+ [![Coverage Status](https://coveralls.io/repos/github/wwrechard/pydlm/badge.svg?branch=master)](https://coveralls.io/github/wwrechard/pydlm?branch=master)
 =======================================================
 
 
