@@ -5,7 +5,7 @@ VENV="$(basename $PWD).venv"
 
 echo "==> Preparing dependencies..."
 
-PY_VERSION=$(cat .python-version)
+PY_VERSION=$PYENV_VERSION
 pyenv install --skip--existing "$PY_VERSION"
 
 test -d $VENV || python -m venv $VENV || {
