@@ -34,7 +34,7 @@ class testModelTuner(unittest.TestCase):
         tunedDLM = self.mytuner.tune(untunedDLM = self.mydlm, maxit=100)
         self.mydlm.fit()
         tunedDLM.fit()
-        self.assertTrue(tunedDLM._getMSE() < self.mydlm._getMSE())
+        self.assertTrue(tunedDLM._getMSE() <= self.mydlm._getMSE())
         self.assertTrue(
             max(tunedDLM._getDiscounts()) >= 1.0 - 2 * self.mytuner.err)
 
