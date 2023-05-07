@@ -2,7 +2,6 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'pydlm',
-    version = '0.1.1.12',
     author = 'Xiangyu Wang',
     author_email = 'wwrechard@gmail.com',
     description = ('A python library for the Bayesian dynamic linear ' +
