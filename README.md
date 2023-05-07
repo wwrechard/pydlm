@@ -12,12 +12,14 @@ Updates
     * Migrated CI from Travis to CircleCI
     * Setup Github workflow to release based on version tag
 * Github dev updates.
-    * Replaced all the unnecessary `print()` to python logging operations, such as `info`, `warning` and `critical`.
-    * Users can not set logging level to suppress unnecessary information during job run.
-    * Example to only print warning information: ```python
+    * Replaced all the unnecessary `print()` to python logging operations, such as `logging.info`, `logging.warning` and `logging.critical`.
+    * Users can now set the model logging level to suppress unnecessary information during model run.
+    * Example to only print warning information: 
+
+    ```python
         ...
-	my_model.setLoggingLevel('WARNING')
-	my_model.fit()
+	    my_model.setLoggingLevel('WARNING')
+	    my_model.fit()
     ```
 
 Installation
