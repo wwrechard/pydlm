@@ -30,12 +30,12 @@ jobs:
       - image: cimg/python:3.9
     steps:
       - checkout
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:
@@ -49,12 +49,12 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:
@@ -68,12 +68,12 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:

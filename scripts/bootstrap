@@ -16,5 +16,4 @@ test -d $VENV || python -m venv $VENV || {
 source $VENV/bin/activate
 
 eval "$(pyenv init --path)"
-pip install numpy
-pip install matplotlib
+pip install -r requirements.txt
