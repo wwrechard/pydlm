@@ -1,11 +1,17 @@
 from setuptools import setup, find_packages
 
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(
     name = 'pydlm',
     author = 'Xiangyu Wang',
     author_email = 'wwrechard@gmail.com',
     description = ('A python library for the Bayesian dynamic linear ' +
       'model for time series modeling'),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     license = 'BSD',
     keywords = 'dlm bayes bayesian kalman filter smoothing dynamic model',
     url = 'https://github.com/wwrechard/pydlm',
