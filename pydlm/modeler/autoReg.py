@@ -73,7 +73,7 @@ class autoReg(component):
                  padding=0):
 
         if data is not None:
-            logging.warn('The data argument in autoReg is deprecated. Please avoid using it.')
+            logging.warning('The data argument in autoReg is deprecated. Please avoid using it.')
 
         self.componentType = 'autoReg'
         self.d = degree
