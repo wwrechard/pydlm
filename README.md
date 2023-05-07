@@ -7,10 +7,20 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling li
 
 Updates
 -------------------------------------------
-* Added support and CI for Python 3.8, 3.9, 3.10, 3.11
-* Migrated CI from Travis to CircleCI
-* Setup Github workflow to release based on version tag
-* Version 0.1.1.12 released on PyPI.
+* Version 0.1.1.12 has been released on PyPI.
+    * Added support and CI for Python 3.8, 3.9, 3.10, 3.11
+    * Migrated CI from Travis to CircleCI
+    * Setup Github workflow to release based on version tag
+* Github dev updates.
+    * Migrated all the unnecessary `print()` to the default python logging operations, such as `logging.info`, `logging.warning` and `logging.critical`.
+    * Users can now set the model logging level to suppress unnecessary information during model run.
+    * Example to only print warning information: 
+
+    ```python
+        ...
+	    my_model.setLoggingLevel('WARNING')
+	    my_model.fit()
+    ```
 
 Installation
 ------------

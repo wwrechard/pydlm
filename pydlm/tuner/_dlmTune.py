@@ -44,7 +44,7 @@ class _dlmTune(_dlm):
     def _getDiscounts(self):
         
         if not self.initialized:
-            raise NameError('need to fit the model before one can' +
+            raise NameError('need to fit the model before one can'
                             'fetch the discount factors')
 
         discounts = []

@@ -73,7 +73,7 @@ class dynamic(component):
         self.d = len(features[0])
 
         if self.hasMissingData(features):
-            raise NameError("The current version does not support missing data" +
+            raise ValueError("The current version does not support missing data" +
                             "in the features.")
 
         self.features = deepcopy(features)
@@ -143,7 +143,6 @@ class dynamic(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print('The dimesnion looks good!')
 
     # Recursively heck if there is any none data. We currently don't support
     # missing data for features.
@@ -171,7 +170,7 @@ class dynamic(component):
             self.evaluation = np.matrix([self.features[step]])
             self.step = step
         else:
-            raise NameError('The step is out of range')
+            raise ValueError('The step is out of range')
 
 
     def appendNewData(self, newData):
@@ -183,8 +182,8 @@ class dynamic(component):
 
         """
         if self.hasMissingData(newData):
-            raise NameError("The current version does not support missing data" +
-                            "in the features.")
+            raise ValueError("The current version does not support missing data" +
+                             "in the features.")
         
         self.features.extend(tl.duplicateList(newData))
         self.n = len(self.features)
@@ -211,8 +210,8 @@ class dynamic(component):
 
         """
         if self.hasMissingData(feature):
-            raise NameError("The current version does not support missing data" +
-                            "in the features.")
+            raise ValueError("The current version does not support missing data" +
+                             "in the features.")
         else:
             self.features[date] = feature
 

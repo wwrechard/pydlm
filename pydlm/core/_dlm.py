@@ -9,9 +9,11 @@ This piece of code include all the hidden methods and members of the class dlm.
 It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 
 """
-from numpy import var
 from pydlm.base.kalmanFilter import kalmanFilter
 from pydlm.modeler.builder import builder
+
+from numpy import var
+import logging
 
 # this class defines the basic functionalities for dlm, which is not supposed
 # to be used by the user. Most functionality in the main dlm will be
@@ -65,16 +67,15 @@ class _dlm(object):
         # padded_data is used by auto regressor. It is the raw data with missing value
         # replaced by forward filter results. (Missing value include the out of scope
         # predictions.
+        self.options = self._defaultOptions(**options)
+        self._logger = self.options.logger
+        self.builder = builder(self._logger)
         self.padded_data = self.data
         self.n = len(data)
         self.result = None
-        self.builder = builder()
         self.Filter = None
         self.initialized = False
-        self.options = self._defaultOptions(**options)
         self.time = None
-        self._printInfo = options.get('printInfo', True)
-        self.builder._printInfo = self._printInfo
 
 
     # an inner class to store all options
@@ -82,11 +83,10 @@ class _dlm(object):
         """ All plotting and fitting options
 
         """
-
-
         def __init__(self, **kwargs):
             self.noise = kwargs.get('noise', 1.0)
-            self.stable = kwargs.get('stable', True)
+            # Stable mode is basically doing rolling window refitting. Use with caution.
+            self.stable = kwargs.get('stable', False)
             self.innovationType = kwargs.get('component', 'component')
 
             self.plotOriginalData = kwargs.get('plotOriginalData', True)
@@ -104,6 +104,16 @@ class _dlm(object):
             self.confidence = kwargs.get('confidence', 0.95)
             self.intervalType = kwargs.get('intervalType', 'ribbon')
             self.useAutoNoise = kwargs.get('useAutoNoise', False)
+            self.logger = kwargs.get('logger', self._getDefaultLogger())
+
+        def _getDefaultLogger(self):
+            """ Get default logger """
+        
+            logging.basicConfig()
+            logger = logging.getLogger('pydlm')
+            logger.setLevel(logging.INFO)
+            return logger
+
 
 
 
@@ -234,9 +244,9 @@ class _dlm(object):
         # otherwise we use the result on the previous day as the prior
         else:
             if start > self.result.filteredSteps[1] + 1:
-                raise NameError('The data before start date has' +
-                                ' yet to be filtered! Otherwise set' +
-                                ' ForgetPrevious to be True. Check the' +
+                raise ValueError('The data before start date has'
+                                ' yet to be filtered! Otherwise set'
+                                ' ForgetPrevious to be True. Check the'
                                 ' <filteredSteps> in <result> object.')
             self._setModelStatus(date=start - 1)
 
@@ -298,8 +308,8 @@ class _dlm(object):
 
         # the forwardFilter has to be run before the smoother
         if self.result.filteredSteps[1] < start:
-            raise NameError('The last day has to be filtered before smoothing! \
-            check the <filteredSteps> in <result> object.')
+            raise valueError('The last day has to be filtered before smoothing!'
+                             'check the <filteredSteps> in <result> object.')
 
         # and we record the most recent day which does not need to be smooth
         if start == self.n - 1 or ignoreFuture is True:
@@ -363,7 +373,7 @@ class _dlm(object):
         """
 
         if date + days > self.n - 1:
-            raise NameError('The range is out of sample.')
+            raise ValueError('The range is out of sample.')
 
         predictedObs = [None] * days
         predictedObsVar = [None] * days
@@ -392,8 +402,8 @@ class _dlm(object):
         """
         if date < self.result.filteredSteps[0] or \
            date > self.result.filteredSteps[1]:
-            raise NameError('The date has yet to be filtered yet. ' +
-                            'Check the <filteredSteps> in <result> object.')
+            raise ValueError('The date has yet to be filtered yet. ' 
+                             'Check the <filteredSteps> in <result> object.')
 
         self._reverseCopy(model=self.builder.model,
                           result=self.result,
@@ -468,8 +478,7 @@ class _dlm(object):
         if len(self.builder.dynamicComponents) > 0:
             for name in self.builder.dynamicComponents:
                 if self.builder.dynamicComponents[name].n != self.n:
-                    raise NameError('The data size of dlm and '
-                                    + name + ' does not match')
+                    raise ValueError(f"The data size of dlm and { name } does not match")
 
 
     def _1DmatrixToArray(self, arrayOf1dMatrix):
@@ -477,19 +486,6 @@ class _dlm(object):
 
         """
         return [item.tolist()[0][0] for item in arrayOf1dMatrix]
-
-
-    # function to turn off printing system info
-    def _printSystemInfo(self, yes):
-        """ Whether the systematic infor should be printed.
-
-        """
-        if yes:
-            self._printInfo = True
-            self.builder._printInfo = True
-        else:
-            self._printInfo = False
-            self.builder._printInfo = False
 
 
     # function to judge whether a component is in the model
@@ -507,7 +503,7 @@ class _dlm(object):
            name in self.builder.automaticComponents:
             return True
         else:
-            raise NameError('No such component.')
+            raise ValueError('No such component.')
 
 
     # function to fetch a component
@@ -527,7 +523,7 @@ class _dlm(object):
         elif name in self.builder.automaticComponents:
             comp = self.builder.automaticComponents[name]
         else:
-            raise NameError('No such component.')
+            raise ValueError('No such component.')
         return comp
 
 
@@ -544,25 +540,23 @@ class _dlm(object):
             a tuple of (start_date, end_date)
         """
         if filterType == 'forwardFilter' or filterType == 'predict':
-            if self.result.filteredSteps != [0, self.n - 1] \
-               and self._printInfo:
-                print('The fitlered dates are from ' +
+            if self.result.filteredSteps != [0, self.n - 1]:
+                self._logger.info('The fitlered dates are from ' +
                       str(self.result.filteredSteps[0]) +
                       ' to ' + str(self.result.filteredSteps[1]))
             start = self.result.filteredSteps[0]
             end = self.result.filteredSteps[1]
 
         elif filterType == 'backwardSmoother':
-            if self.result.smoothedSteps != [0, self.n - 1] \
-               and self._printInfo:
-                print('The smoothed dates are from ' +
+            if self.result.smoothedSteps != [0, self.n - 1]:
+                self._logger.info('The smoothed dates are from ' +
                       str(self.result.smoothedSteps[0]) +
                       ' to ' + str(self.result.smoothedSteps[1]))
             start = self.result.smoothedSteps[0]
             end = self.result.smoothedSteps[1]
 
         else:
-            raise NameError('Incorrect filter type.')
+            raise ValueError('Incorrect filter type.')
 
         return (start, end)
 
@@ -581,6 +575,22 @@ class _dlm(object):
             self.options.plotSmoothedData = False
 
 
-    # whether to show the internal message
-    def showInternalMessage(self, show=True):
-        self._printInfo = show
+    def setLoggingLevel(self, level='INFO'):
+        """ The level of logs that should be printed.
+
+        """
+        if level == 'DEBUG':
+            self._logger.setLevel(logging.DEBUG)
+        elif level == 'INFO':
+            self._logger.setLevel(logging.INFO)
+        elif level == 'WARNING':
+            self._logger.setLevel(logging.WARNING)
+        elif level == 'CRITICAL':
+            self._logger.setLevel(logging.CRITICAL)
+        else:
+            raise ValueError(f"Log at {level} is not supported.")
+
+    def getLoggingLevel(self):
+        """ Get the level of logger."""
+
+        return logging.getLevelName(self._logger.getEffectiveLevel())

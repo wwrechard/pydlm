@@ -11,12 +11,13 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
-from numpy import matrix
-from warnings import warn
-from .component import component
-
-import numpy as np
 import pydlm.base.tools as tl
+
+from .component import component
+from numpy import matrix
+
+import logging
+import numpy as np
 
 
 class autoReg(component):
@@ -72,7 +73,7 @@ class autoReg(component):
                  padding=0):
 
         if data is not None:
-            warn('The data argument in autoReg is deprecated. Please avoid using it.')
+            logging.warning('The data argument in autoReg is deprecated. Please avoid using it.')
 
         self.componentType = 'autoReg'
         self.d = degree
@@ -141,7 +142,6 @@ class autoReg(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print('The dimesnion looks good!')
 
 
     def updateEvaluation(self, date, data):

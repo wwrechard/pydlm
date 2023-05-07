@@ -21,8 +21,9 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
-from numpy import matrix
 from .dynamic import dynamic
+from numpy import matrix
+import logging
 
 
 class longSeason(dynamic):
@@ -128,7 +129,7 @@ class longSeason(dynamic):
 
         """
         if self.d >= self.n:
-            raise NameError('The degree cannot be longer than the data series')
+            raise ValueError('The degree cannot be longer than the data series')
 
 
     # override
@@ -171,11 +172,11 @@ class longSeason(dynamic):
         # the periodicity of the period that date
         # is presented, you should use ignore
         # instead
-        print('Popout the date will change the whole' +
-              ' seasonality patten on all the' +
-              'future days. If you want to keep the' +
-              ' seasonality patten on the future' +
-              'days unchanged. Please use ignore instead')
+        logging.warning('Popout the date will change the whole' +
+                        ' seasonality patten on all the' +
+                        'future days. If you want to keep the' +
+                        ' seasonality patten on the future' +
+                        'days unchanged. Please use ignore instead')
 
         self.features.pop()
         self.n -= 1

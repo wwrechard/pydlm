@@ -1,6 +1,8 @@
 from pydlm.tuner._dlmTune import _dlmTune
 from pydlm.tuner.dlmTuner import modelTuner
 
+import logging
+
 class dlmTuneModule(_dlmTune):
     """ A dlm model containing all tuning methods
     """
@@ -29,13 +31,13 @@ class dlmTuneModule(_dlmTune):
         """
         simpleTuner = modelTuner()
 
-        if self._printInfo:
+        if self._logger.isEnabledFor(logging.INFO):
             self.fitForwardFilter()
-            print("The current mse is " + str(self.getMSE()) + '.')
+            self._logger.info(f"The current mse is { str(self.getMSE()) }.")
         
         simpleTuner.tune(untunedDLM=self, maxit=maxit)
         self._setDiscounts(simpleTuner.getDiscounts(), change_component=True)
         
-        if self._printInfo:
+        if self._logger.isEnabledFor(logging.INFO):
             self.fitForwardFilter()
-            print("The new mse is " + str(self.getMSE()) + '.')
+            self._logger.info(f"The new mse is { str(self.getMSE()) }.")

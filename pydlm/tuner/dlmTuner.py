@@ -25,6 +25,7 @@ original one, one should opt to use the modelTuner class.
 """
 from copy import deepcopy
 from numpy import array
+import logging
 
 class modelTuner:
     """ The main class for modelTuner
@@ -58,7 +59,6 @@ class modelTuner:
         """
         # make a deep copy of the original dlm
         tunedDLM = deepcopy(untunedDLM)
-        tunedDLM.showInternalMessage(False)
 
         if not tunedDLM.initialized:
             tunedDLM.fitForwardFilter()
@@ -67,6 +67,11 @@ class modelTuner:
         
         # using gradient descent
         if self.method == 'gradient_descent':
+
+            # Disable all info and warning for faster processing.
+            log_level = tunedDLM.getLoggingLevel()
+            tunedDLM.setLoggingLevel('CRITICAL')
+
             for i in range(maxit):
                 gradient = self.find_gradient(discounts, tunedDLM)
                 discounts -= gradient * step
@@ -75,16 +80,19 @@ class modelTuner:
                 tunedDLM.fitForwardFilter()
                 self.current_mse = tunedDLM._getMSE()
 
+            # Recover logger level
+            tunedDLM.setLoggingLevel(log_level)
+
             if i < maxit - 1:
-                print('Converge successfully!')
+                tunedDLM._logger.info('Converge successfully!')
             else:
-                print('The algorithm stops without converging.')
+                tunedDLM._logger.warning('The algorithm stops without converging.')
                 if min(discounts) <= 0.7 + self.err or max(discounts) >= 1 - 2 * self.err:
-                    print('Possible reason: some discount is too close to 1 or 0.7' +
-                          ' (0.7 is smallest discount that is permissible.')
+                    tunedDLM._logger.info('Possible reason: some discount is too close to 1 or 0.7'
+                                          ' (0.7 is smallest discount that is permissible.')
                 else:
-                    print('It might require more step to converge.' +
-                          ' Use tune(..., maixt = <a larger number>) instead.')
+                    tunedDLM._logger.info('It might require more step to converge.'
+                                          ' Use tune(..., maixt = <a larger number>) instead.')
 
         self.discounts = discounts
         tunedDLM._setDiscounts(discounts, change_component=True)
