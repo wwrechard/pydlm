@@ -1,8 +1,9 @@
-import numpy as np
-import unittest
-
 from pydlm.modeler.trends import trend
 from pydlm.core._dlm import _dlm
+
+import logging
+import numpy as np
+import unittest
 
 
 class test_dlm(unittest.TestCase):
@@ -80,6 +81,22 @@ class test_dlm(unittest.TestCase):
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[0][0, 0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[19][0, 0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[9][0, 0], 1.0)
+
+
+    def testLogger(self):
+        assert self.dlm1._logger == logging.getLogger('pydlm')
+        assert self.dlm2._logger == logging.getLogger('pydlm')
+        assert self.dlm1._logger.getEffectiveLevel() == logging.INFO
+        assert self.dlm2._logger.getEffectiveLevel() == logging.INFO
+
+    def testSetAndGetLoggingLevel(self):
+        self.dlm1.setLoggingLevel('CRITICAL')
+        assert self.dlm1._logger.getEffectiveLevel() == logging.CRITICAL
+        assert self.dlm1.getLoggingLevel() == 'CRITICAL'
+
+        self.dlm1.setLoggingLevel('INFO')
+        assert self.dlm1._logger.getEffectiveLevel() == logging.INFO
+        assert self.dlm1.getLoggingLevel() == 'INFO'
 
 
 if __name__ == '__main__':

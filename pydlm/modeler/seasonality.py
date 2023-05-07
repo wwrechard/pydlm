@@ -68,7 +68,7 @@ class seasonality(component):
                  w=100):
 
         if period <= 1:
-            raise NameError('Period has to be greater than 1.')
+            raise ValueError('Period has to be greater than 1.')
         self.d = period
         self.componentType = 'seasonality'
         self.name = name
@@ -159,4 +159,3 @@ class seasonality(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print('The dimension looks good!')

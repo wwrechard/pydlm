@@ -13,10 +13,13 @@ view componets of a given dlm. Builder will finally assemble all the components
 """
 # this class provide all the model building operations for constructing
 # customized model
-import numpy as np
+
 from pydlm.base.baseModel import baseModel
-from copy import deepcopy
 from pydlm.modeler.matrixTools import matrixTools as mt
+
+from copy import deepcopy
+import logging
+import numpy as np
 
 # The builder will be the main class for construting dlm
 # it featues two types of evaluation matrix and evaluation matrix
@@ -70,7 +73,7 @@ class builder:
     """
 
     # create members
-    def __init__(self):
+    def __init__(self, logger=None):
 
         # the basic model structure for running kalman filter
         self.model = None
@@ -113,8 +116,12 @@ class builder:
         self.renewTerm = -1.0
         self.renewDiscount = None  # used for adjusting renewTerm
 
-        # flag for determining whether the system info should be printed.
-        self._printInfo = True
+        # Allow customized logger to control the level of information printed
+        # during job execution. The default log level is 'INFO'.
+        if logger is None:
+            self._logger = logging.getLogger()
+        else:
+            self._logger = logger
 
     # The function that allows the user to add components
     def add(self, component):
@@ -229,8 +236,7 @@ class builder:
                             ' one component')
 
         # construct transition, evaluation, prior state, prior covariance
-        if self._printInfo:
-            print('Initializing models...')
+        self._logger.info('Initializing models...')
         transition = None
         evaluation = None
         state = None
@@ -305,8 +311,7 @@ class builder:
                              / np.log(self.renewDiscount)
 
         self.initialized = True
-        if self._printInfo:
-            print('Initialization finished.')
+        self._logger.info('Initialization finished.')
 
     # Initialize from another builder exported from other dlm class
     def initializeFromBuilder(self, data, exported_builder):
@@ -337,8 +342,7 @@ class builder:
                              / np.log(self.renewDiscount)
         
         self.initialized = True
-        if self._printInfo:
-            print('Initialization finished.')
+        self._logger.info('Initialization finished.')
             
     # This function allows the model to update the dynamic evaluation vector,
     # so that the model can handle control variables

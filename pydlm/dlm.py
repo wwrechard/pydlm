@@ -185,8 +185,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         if not self.initialized:
             self._initialize()
 
-        if self._printInfo:
-            print('Starting forward filtering...')
+        self._logger.info('Starting forward filtering...')
         if not useRollingWindow:
             # we start from the last step of previous filtering
             if self.result.filteredType == 'non-rolling':
@@ -229,8 +228,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         self.turnOn('filtered plot')
         self.turnOn('predict plot')
 
-        if self._printInfo:
-            print('Forward filtering completed.')
+        self._logger.info('Forward filtering completed.')
 
 
     def fitBackwardSmoother(self, backLength=None):
@@ -244,19 +242,18 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         # see if the model has been initialized
         if not self.initialized:
-            raise NameError('Backward Smoother has to be run after' +
+            raise ValueError('Backward Smoother has to be run after' +
                             ' forward filter')
 
         if self.result.filteredSteps[1] != self.n - 1:
-            raise NameError('Forward Fiter needs to run on full data before' +
+            raise ValueError('Forward Fiter needs to run on full data before' +
                             'using backward Smoother')
 
         # default value for backLength
         if backLength is None:
             backLength = self.n
 
-        if self._printInfo:
-            print('Starting backward smoothing...')
+        self._logger.info('Starting backward smoothing...')
         # if the smoothed dates has already been done, we do nothing
         if self.result.smoothedSteps[1] == self.n - 1 and \
            self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
@@ -275,8 +272,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
         self.turnOn('smoothed plot')
 
-        if self._printInfo:
-            print('Backward smoothing completed.')
+        self._logger.info('Backward smoothing completed.')
 
 
     def fit(self):
@@ -322,8 +318,8 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
             # give a warning to remind to append dynamic components
             if len(self.builder.dynamicComponents) > 0:
-                print('Remember to append the new features for the' +
-                      ' dynamic components as well')
+                self._logger.warning('Dynamic components need to manually append new data '
+                                     'when main data has been appended.')
 
         # if we are adding new data to the features of dynamic components
         elif component in self.builder.dynamicComponents:
@@ -331,7 +327,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             comp.appendNewData(data)
 
         else:
-            raise NameError('Such dynamic component does not exist.')
+            raise ValueError('Such dynamic component does not exist.')
 
 
     # pop the data of a specific date out
@@ -474,7 +470,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         elif use is False:
             self.options.stable = False
         else:
-            raise NameError('Incorrect option input')
+            raise ValueError('Incorrect option input')
 
 
     def evolveMode(self, evoType='dependent'):
