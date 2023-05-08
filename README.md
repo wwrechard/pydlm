@@ -21,6 +21,7 @@ Updates
 	    my_model.setLoggingLevel('WARNING')
 	    my_model.fit()
     ```
+    * Updated the package version manage through `pip-compile` and `requirements.txt`.
 
 Installation
 ------------
