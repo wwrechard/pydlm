@@ -32,7 +32,9 @@ You can also get the latest from [github](https://github.com/wwrechard/PyDLM)
 
       $ git clone git@github.com:wwrechard/pydlm.git pydlm
       $ cd pydlm
-      $ sudo python setup.py install
+      $ pip install pip-tools
+      $ pip install -r requirements.txt
+      $ pip install -e . --no-deps
 
 `pydlm` depends on the following modules,
 
