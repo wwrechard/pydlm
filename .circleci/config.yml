@@ -11,16 +11,12 @@ jobs:
       - image: cimg/python:3.8
     steps:
       - checkout
-      #- python/install-packages:
-      #     pkg-manager: pip
-          # app-dir: ~/project/package-directory/  # If your requirements.txt isn't in the root directory.
-          # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:
@@ -34,12 +30,12 @@ jobs:
       - image: cimg/python:3.9
     steps:
       - checkout
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:
@@ -53,12 +49,12 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:
@@ -72,12 +68,12 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+      - python/install-packages:
+           pkg-manager: pip
       - run:
           name: Install packages
           # This assumes pytest is installed via the install-package step above
           command: |
-            pip install matplotlib
-            pip install sphinx
             python setup.py install
             pip install coveralls
       - run:
