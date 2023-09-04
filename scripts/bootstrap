@@ -1,7 +1,12 @@
 #!/bin/bash
 
-cd "$(dirname -- "$0")/.."
 VENV="$(basename $PWD).venv"
+
+if [ "$VENV" != "pydlm.venv" ]; then
+  echo "Error creating the virtual env..."
+  echo "Please run bootstrap script in the root directory."
+  return 1
+fi
 
 echo "==> Preparing dependencies..."
 

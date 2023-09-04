@@ -19,3 +19,5 @@ pydlm.egg-info/
 pydlm.venv/
 *.venv/
 clear/
+build/
+install/
