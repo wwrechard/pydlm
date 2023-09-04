@@ -20,3 +20,4 @@ pydlm.venv/
 *.venv/
 clear/
 build/
+install/
