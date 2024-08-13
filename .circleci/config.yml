@@ -25,7 +25,7 @@ jobs:
           command: |
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
-            coverage run --source . --omit pydlm/plot/*,tests/* -m unittest discover
+            coverage run --source . -m unittest discover
       - coveralls/upload
   build-and-test-3-9:
     docker:
@@ -45,7 +45,7 @@ jobs:
           command: |
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
-            coverage run --source . --omit pydlm/plot/*,tests/* -m unittest discover
+            coverage run --source . -m unittest discover
       - coveralls/upload
   build-and-test-3-10:
     docker:
@@ -65,7 +65,7 @@ jobs:
           command: |
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
-            coverage run --source . --omit pydlm/plot/*,tests/* -m unittest discover
+            coverage run --source . -m unittest discover
       - coveralls/upload
   build-and-test-3-11:
     docker:
@@ -85,7 +85,7 @@ jobs:
           command: |
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
-            coverage run --source . --omit pydlm/plot/*,tests/* -m unittest discover
+            coverage run --source . -m unittest discover
       - coveralls/upload
 
 # Invoke jobs via workflows.
