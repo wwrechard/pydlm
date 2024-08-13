@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  coveralls: coveralls/coveralls@2.0.0
   python: circleci/python@1.5.0
 
 # Define a job to be invoked later in a workflow.
@@ -25,6 +26,7 @@ jobs:
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
+      - coveralls/upload
   build-and-test-3-9:
     docker:
       - image: cimg/python:3.9
@@ -44,6 +46,7 @@ jobs:
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
+      - coveralls/upload
   build-and-test-3-10:
     docker:
       - image: cimg/python:3.10
@@ -63,6 +66,7 @@ jobs:
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
+      - coveralls/upload
   build-and-test-3-11:
     docker:
       - image: cimg/python:3.11
@@ -82,8 +86,9 @@ jobs:
             python -m unittest discover
             python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
+      - coveralls/upload
 
-# Invoke jobs via workflows
+# Invoke jobs via workflows.
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   sample:
