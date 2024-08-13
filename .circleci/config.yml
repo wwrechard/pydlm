@@ -88,7 +88,7 @@ jobs:
             coverage run --source . -m unittest discover
       - coveralls/upload
 
-# Invoke jobs via workflows
+# Invoke jobs via workflows.
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   sample:
