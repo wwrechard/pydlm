@@ -4,7 +4,9 @@ from pydlm.access._dlmGet import _dlmGet
 
 
 class dlmAccessModule(_dlmGet):
-    """ A dlm module for all the access methods
+    """ A dlm module for all the access methods. This is an API layer for the
+    `dlm` class. All methods defined in this class are public and can be called
+    directly from `dlm` object.
     """
 
 
