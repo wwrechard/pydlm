@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "Build html files using sphinx"
+sphinx-build -M html doc/source doc/output
+
+echo "Move the build to pydlm.github.io"
+cp -r -f doc/output/html/* ../pydlm.github.io/
+rm -r doc/output
+
+echo "Switch repo, commit and push"
+cd ../pydlm.github.io
+git add .
+git commit -m 'update documentation'
+git push
+
+echo "Complete. Switch back"
+cd ../pydlm

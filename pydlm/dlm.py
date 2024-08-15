@@ -58,7 +58,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         >>> # filter the result
         >>> myDlm.fitForwardFilter()
         >>> # extract the filtered result
-        >>> myDlm.getFilteredObs()
+        >>> myDlm.getMean()
 
     Example 2 (fit a linear regression):
         >>> from pydlm import dynamic

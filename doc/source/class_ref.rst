@@ -8,6 +8,7 @@ Class Reference
 
 .. autoclass:: pydlm.dlm
     :members:
+    :inherited-members:
 
 :class:`trend`
 --------------
@@ -26,7 +27,6 @@ Class Reference
 
 .. autoclass:: pydlm.dynamic
     :members:
-
 
 :class:`autoReg`
 ----------------

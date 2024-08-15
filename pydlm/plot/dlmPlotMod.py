@@ -1,7 +1,9 @@
 from pydlm.core._dlm import _dlm
 
 class dlmPlotModule(_dlm):
-    """ A dlm module containing all plot methods
+    """ A dlm module containing all plot methods. This is an API layer for the
+    `dlm` class. All methods defined in this class are public and can be called
+    directly from `dlm` object.
     """
     def __init__(self, data, **options):
         super(dlmPlotModule, self).__init__(data, **options)
