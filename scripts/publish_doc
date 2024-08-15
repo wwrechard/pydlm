@@ -4,7 +4,7 @@ echo "Build html files using sphinx"
 sphinx-build -M html doc/source doc/output
 
 echo "Move the build to pydlm.github.io"
-mv -r -f doc/output/html/* ../pydlm.github.io/
+cp -r -f doc/output/html/* ../pydlm.github.io/
 rm -r doc/output
 
 echo "Switch repo, commit and push"
