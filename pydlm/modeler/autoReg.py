@@ -64,15 +64,11 @@ class autoReg(component):
 
 
     def __init__(self,
-                 data=None,  # DEPRECATED
                  degree=2,
                  discount=0.99,
                  name='ar2',
                  w=100,
                  padding=0):
-
-        if data is not None:
-            logging.warning('The data argument in autoReg is deprecated. Please avoid using it.')
 
         self.componentType = 'autoReg'
         self.d = degree

@@ -6,8 +6,8 @@ class testLongSeason(unittest.TestCase):
 
 
     def setUp(self):
-        self.longSeason = longSeason(data=range(12), period=4, stay=4, w=1.0)
-        self.longSeason2 = longSeason(data=range(12), period=2, stay=3, w=1.0)
+        self.longSeason = longSeason(period=4, stay=4, w=1.0)
+        self.longSeason2 = longSeason(period=2, stay=3, w=1.0)
 
 
     def testLongSeasonProperties(self):

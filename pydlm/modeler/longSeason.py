@@ -63,7 +63,6 @@ class longSeason(autoReg):
 
 
     def __init__(self,
-                 data=None,  # DEPRECATED
                  period=4,
                  stay=7,
                  discount=0.99,
@@ -72,11 +71,8 @@ class longSeason(autoReg):
 
         self.period = period
         self.stay = stay
-        if data is not None:
-            logging.warning('The data argument in longSeason is deprecated. Please avoid using it.')
 
-        super().__init__(data=data,
-                         degree=period,
+        super().__init__(degree=period,
                          discount=discount,
                          name=name,
                          w=w)
