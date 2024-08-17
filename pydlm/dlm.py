@@ -393,14 +393,11 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         if not self.initialized:
             self._initialize()
 
-        # to alter the data for the observed chain
+        # To alter the data for the observed time series.
+        # No need to alter `autoReg` or `longSeason` when only the main data
+        # is altered.
         if component == 'main':
             self.data[date] = data
-
-            # we also automatically alter all the automatic components
-            for component in self.builder.automaticComponents:
-                comp = self.builder.automaticComponents[component]
-                comp.alter(date, data)
 
         # to alter the feature of a component
         elif component in self.builder.dynamicComponents:
