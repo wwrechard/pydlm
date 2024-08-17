@@ -393,8 +393,9 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         if not self.initialized:
             self._initialize()
 
-        # to alter the data for the observed chain. No need to alter `autoReg`
-        # or `longSeason` when only the main data is altered.
+        # To alter the data for the observed time series.
+        # No need to alter `autoReg` or `longSeason` when only the main data
+        # is altered.
         if component == 'main':
             self.data[date] = data
 
