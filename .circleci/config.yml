@@ -24,7 +24,6 @@ jobs:
           name: Run tests
           command: |
             python -m unittest discover
-            python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
       - coveralls/upload
   build-and-test-3-9:
@@ -44,7 +43,6 @@ jobs:
           name: Run tests
           command: |
             python -m unittest discover
-            python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
       - coveralls/upload
   build-and-test-3-10:
@@ -64,7 +62,6 @@ jobs:
           name: Run tests
           command: |
             python -m unittest discover
-            python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
       - coveralls/upload
   build-and-test-3-11:
@@ -84,7 +81,6 @@ jobs:
           name: Run tests
           command: |
             python -m unittest discover
-            python -m unittest tests/tuner/test*.py
             coverage run --source . -m unittest discover
       - coveralls/upload
 
