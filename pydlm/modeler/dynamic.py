@@ -33,7 +33,9 @@ class dynamic(component):
     Examples are holiday indicators, other observed variables and so on.
 
     Args:
-        features: the feature matrix of the dynamic component
+        features: the feature matrix of the dynamic component. It needs to be a
+                  2-d array. Each array represents the feature value at a given
+                  step.
         discount: the discount factor
         name: the name of the dynamic component
         w: the value to set the prior covariance. Default to a diagonal
