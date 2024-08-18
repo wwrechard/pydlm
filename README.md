@@ -1,5 +1,5 @@
-[PyDLM](https://pydlm.github.io/)  [![wwrechard](https://circleci.com/gh/wwrechard/pydlm.svg?style=svg)](https://app.circleci.com/pipelines/github/wwrechard/pydlm)
- [![Coverage Status](https://coveralls.io/repos/github/wwrechard/pydlm/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/wwrechard/pydlm?branch=master)
+[PyDLM](https://pydlm.github.io/)  [![wwrechard](https://circleci.com/gh/wwrechard/pydlm.svg?style=svg&cache-control=no-cache)](https://app.circleci.com/pipelines/github/wwrechard/pydlm)
+ [![Coverage Status](https://coveralls.io/repos/github/wwrechard/pydlm/badge.svg?branch=master&cache-control=no-cache)](https://coveralls.io/github/wwrechard/pydlm?branch=master)
 =======================================================
 
 
