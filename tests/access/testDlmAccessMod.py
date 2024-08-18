@@ -164,3 +164,7 @@ class testDlmAccessMod(unittest.TestCase):
         smoothedTrend = self.dlm5.getLatentCov(filterType='backwardSmoother')
         np.testing.assert_array_equal(smoothedTrend,
                                       self.dlm5.result.smoothedCov)
+
+
+if __name__ == '__main__':
+    unittest.main()
