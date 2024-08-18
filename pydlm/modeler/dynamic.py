@@ -33,7 +33,9 @@ class dynamic(component):
     Examples are holiday indicators, other observed variables and so on.
 
     Args:
-        features: the feature matrix of the dynamic component
+        features: the feature matrix of the dynamic component. It needs to be a
+                  2-d array. Each array represents the feature value at a given
+                  step.
         discount: the discount factor
         name: the name of the dynamic component
         w: the value to set the prior covariance. Default to a diagonal
@@ -95,9 +97,6 @@ class dynamic(component):
         self.createCovPrior(scale=w)
         self.createMeanPrior()
 
-        # record current step in case of lost
-        self.step = 0
-
 
     def createEvaluation(self, step):
         """ The evaluation matrix for the dynamic component change over time.
@@ -114,7 +113,7 @@ class dynamic(component):
         For the dynamic component, the transition matrix is just the identity matrix
 
         """
-        self.transition = np.matrix(np.eye(self.d))
+        self.transition = np.eye(self.d)
 
 
     def createCovPrior(self, cov = None, scale = 1e6):
@@ -122,7 +121,7 @@ class dynamic(component):
 
         """
         if cov is None:
-            self.covPrior = np.matrix(np.eye(self.d)) * scale
+            self.covPrior = np.eye(self.d) * scale
         else:
             self.covPrior = cov * scale
 
@@ -132,7 +131,7 @@ class dynamic(component):
 
         """
         if mean is None:
-            self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
+            self.meanPrior = np.zeros((self.d, 1)) * scale
         else:
             self.meanPrior = mean * scale
 

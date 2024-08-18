@@ -4,7 +4,9 @@ from pydlm.access._dlmGet import _dlmGet
 
 
 class dlmAccessModule(_dlmGet):
-    """ A dlm module for all the access methods
+    """ A dlm module for all the access methods. This is an API layer for the
+    `dlm` class. All methods defined in this class are public and can be called
+    directly from `dlm` object.
     """
 
 
@@ -239,7 +241,7 @@ class dlmAccessModule(_dlmGet):
             elif filterType == 'predict':
                 return list(map(lambda x: x if x is None
                                 else self._1DmatrixToArray(x),
-                                self.result.smoothedState[start:end]))
+                                self.result.predictedState[start:end]))
             else:
                 raise NameError('Incorrect filter type.')
 
@@ -281,7 +283,7 @@ class dlmAccessModule(_dlmGet):
             elif filterType == 'backwardSmoother':
                 return self.result.smoothedCov[start:end]
             elif filterType == 'predict':
-                return self.result.smoothedCov[start:end]
+                return self.result.predictedCov[start:end]
             else:
                 raise NameError('Incorrect filter type.')
 

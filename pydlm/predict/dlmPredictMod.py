@@ -3,7 +3,9 @@ from numpy import matrix
 from pydlm.predict._dlmPredict import _dlmPredict
 
 class dlmPredictModule(_dlmPredict):
-    """ A dlm module containing all prediction methods.
+    """ A dlm module containing all prediction methods. This is an API layer
+    for the `dlm` class. All methods defined in this class are public and can
+    be called directly from `dlm` object.
     """
 
 

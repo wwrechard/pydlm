@@ -14,7 +14,6 @@ similar to @dynamic.
 import pydlm.base.tools as tl
 
 from .component import component
-from numpy import matrix
 
 import logging
 import numpy as np
@@ -65,15 +64,11 @@ class autoReg(component):
 
 
     def __init__(self,
-                 data=None,  # DEPRECATED
                  degree=2,
                  discount=0.99,
                  name='ar2',
                  w=100,
                  padding=0):
-
-        if data is not None:
-            logging.warning('The data argument in autoReg is deprecated. Please avoid using it.')
 
         self.componentType = 'autoReg'
         self.d = degree
@@ -92,9 +87,6 @@ class autoReg(component):
         self.createCovPrior(scale=w)
         self.createMeanPrior()
 
-        # record current step in case of lost
-        self.step = 0
-
 
     def createEvaluation(self, step, data):
         """ The evaluation matrix for auto regressor.
@@ -103,8 +95,8 @@ class autoReg(component):
         if step > len(data):
             raise NameError("There is no sufficient data for creating autoregressor.")
         # We pad numbers if the step is too early
-        self.evaluation = matrix([[self.padding] * (self.d - step) +
-                                  list(data[max(0, (step - self.d)) : step])])
+        self.evaluation = np.matrix([[self.padding] * (self.d - step) +
+                                    list(data[max(0, (step - self.d)) : step])])
 
 
     def createTransition(self):
@@ -113,7 +105,7 @@ class autoReg(component):
         For the auto regressor component, the transition matrix is just the identity matrix
 
         """
-        self.transition = np.matrix(np.eye(self.d))
+        self.transition = np.eye(self.d)
 
 
     def createCovPrior(self, cov = None, scale = 1e6):
@@ -121,7 +113,7 @@ class autoReg(component):
 
         """
         if cov is None:
-            self.covPrior = np.matrix(np.eye(self.d)) * scale
+            self.covPrior = np.eye(self.d) * scale
         else:
             self.covPrior = cov * scale
 
@@ -131,7 +123,7 @@ class autoReg(component):
 
         """
         if mean is None:
-            self.meanPrior = np.matrix(np.zeros((self.d, 1))) * scale
+            self.meanPrior = np.zeros((self.d, 1)) * scale
         else:
             self.meanPrior = mean * scale
 
@@ -144,8 +136,8 @@ class autoReg(component):
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
 
 
-    def updateEvaluation(self, date, data):
-        self.createEvaluation(step=date, data=data)
+    def updateEvaluation(self, step, data):
+        self.createEvaluation(step=step, data=data)
 
 
     def appendNewData(self, data):

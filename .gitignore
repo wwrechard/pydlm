@@ -21,3 +21,5 @@ pydlm.venv/
 clear/
 build/
 install/
+*.DS_Store
+*#
