@@ -125,6 +125,13 @@ class testDlmAccessMod(unittest.TestCase):
             list(map(self.dlm5._1DmatrixToArray,
                      self.dlm5.result.filteredState)))
 
+        # for predict filter
+        predictedTrend = self.dlm5.getLatentState(filterType='predict')
+        np.testing.assert_array_equal(
+            predictedTrend,
+            list(map(self.dlm5._1DmatrixToArray,
+                     self.dlm5.result.predictedState)))
+        
         # for backward smoother
         self.dlm5._backwardSmoother(start=99)
         self.dlm5.result.smoothedSteps = [0, 99]
@@ -144,6 +151,11 @@ class testDlmAccessMod(unittest.TestCase):
         filteredTrend = self.dlm5.getLatentCov(filterType='forwardFilter')
         np.testing.assert_array_equal(filteredTrend,
                                       self.dlm5.result.filteredCov)
+
+        # for predict filter
+        predictedTrend = self.dlm5.getLatentCov(filterType='predict')
+        np.testing.assert_array_equal(predictedTrend,
+                                      self.dlm5.result.predictedCov)
 
         # for backward smoother
         self.dlm5._backwardSmoother(start=99)
