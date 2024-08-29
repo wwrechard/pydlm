@@ -79,7 +79,7 @@ class dynamic(component):
                             "in the features.")
 
         self.features = deepcopy(features)
-        if isinstance(features, np.matrix):
+        if isinstance(features, np.matrix) or isinstance(features, np.ndarray):
             self.features = self.features.tolist()
         self.componentType = 'dynamic'
         self.name = name
@@ -104,7 +104,7 @@ class dynamic(component):
         given date
 
         """
-        self.evaluation = np.matrix([self.features[step]])
+        self.evaluation = np.array([self.features[step]])
 
 
     def createTransition(self):

@@ -27,7 +27,7 @@ class testLongSeason(unittest.TestCase):
                         [0, 0, 0, 1]]
         for i in range(13):
             self.longSeason.updateEvaluation(step=i)
-            self.assertEqual(self.longSeason.evaluation.A1.tolist(),
+            self.assertEqual(self.longSeason.evaluation.flatten().tolist(),
                              trueFeatures[i])
 
     def testUpdateEvaluation2(self):
@@ -38,7 +38,7 @@ class testLongSeason(unittest.TestCase):
                         ]
         for i in range(12):
             self.longSeason2.updateEvaluation(step=i)
-            self.assertEqual(self.longSeason2.evaluation.A1.tolist(),
+            self.assertEqual(self.longSeason2.evaluation.flatten().tolist(),
                              trueFeatures[i])
 
 

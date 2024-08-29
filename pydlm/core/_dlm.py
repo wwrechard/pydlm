@@ -485,7 +485,8 @@ class _dlm(object):
         """ Change an array of 1 x 1 matrix to normal array.
 
         """
-        return [item.tolist()[0][0] for item in arrayOf1dMatrix]
+        to_array = lambda x : None if x is None else x.tolist()[0][0]
+        return [to_array(item) for item in arrayOf1dMatrix]
 
 
     # function to judge whether a component is in the model

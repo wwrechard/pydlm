@@ -95,7 +95,7 @@ class autoReg(component):
         if step > len(data):
             raise NameError("There is no sufficient data for creating autoregressor.")
         # We pad numbers if the step is too early
-        self.evaluation = np.matrix([[self.padding] * (self.d - step) +
+        self.evaluation = np.array([[self.padding] * (self.d - step) +
                                     list(data[max(0, (step - self.d)) : step])])
 
 

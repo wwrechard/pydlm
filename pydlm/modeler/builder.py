@@ -293,10 +293,10 @@ class builder:
 
         self.statePrior = state
         self.sysVarPrior = sysVar
-        self.noiseVar = np.matrix(noise)
+        self.noiseVar = np.array([[noise]])
         self.model = baseModel(transition=transition,
                                evaluation=evaluation,
-                               noiseVar=np.matrix(noise),
+                               noiseVar=np.array([[noise]]),
                                sysVar=sysVar,
                                state=state,
                                df=self.initialDegreeFreedom)

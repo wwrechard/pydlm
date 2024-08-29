@@ -120,27 +120,27 @@ class testDlmAccessMod(unittest.TestCase):
         self.dlm5.result.filteredSteps = [0, 99]
 
         filteredTrend = self.dlm5.getLatentState(filterType='forwardFilter')
-        np.testing.assert_array_equal(
-            filteredTrend,
-            list(map(self.dlm5._1DmatrixToArray,
-                     self.dlm5.result.filteredState)))
+        for i in range(100):
+            np.testing.assert_array_equal(
+                filteredTrend[i],
+                self.dlm5.result.filteredState[i].flatten().tolist())
 
         # for predict filter
         predictedTrend = self.dlm5.getLatentState(filterType='predict')
-        np.testing.assert_array_equal(
-            predictedTrend,
-            list(map(self.dlm5._1DmatrixToArray,
-                     self.dlm5.result.predictedState)))
+        for i in range(100):
+            np.testing.assert_array_equal(
+                predictedTrend[i],
+                self.dlm5.result.predictedState[i].flatten().tolist())
         
         # for backward smoother
         self.dlm5._backwardSmoother(start=99)
         self.dlm5.result.smoothedSteps = [0, 99]
 
         smoothedTrend = self.dlm5.getLatentState(filterType='backwardSmoother')
-        np.testing.assert_array_equal(
-            smoothedTrend,
-            list(map(self.dlm5._1DmatrixToArray,
-                     self.dlm5.result.smoothedState)))
+        for i in range(100):
+            np.testing.assert_array_equal(
+                smoothedTrend[i],
+                self.dlm5.result.smoothedState[i].flatten().tolist())
 
 
     def testGetLatentCov(self):

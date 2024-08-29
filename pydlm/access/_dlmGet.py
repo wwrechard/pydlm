@@ -39,7 +39,7 @@ class _dlmGet(_dlm):
         """
         end += 1
         indx = self.builder.componentIndex[name]
-        patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0]
+        patten = lambda x: x if x is None else x[indx[0]:(indx[1] + 1), 0:1]
 
         if filterType == 'forwardFilter':
             return list(map(patten, self.result.filteredState[start:end]))
