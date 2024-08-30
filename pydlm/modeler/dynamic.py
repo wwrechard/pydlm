@@ -166,7 +166,7 @@ class dynamic(component):
 
         """
         if step < self.n:
-            self.evaluation = np.matrix([self.features[step]])
+            self.evaluation = np.array([self.features[step]])
             self.step = step
         else:
             raise ValueError('The step is out of range')
