@@ -7,8 +7,8 @@ class testDynamic(unittest.TestCase):
 
 
     def setUp(self):
-        self.features = np.matrix(np.random.rand(10, 2)).tolist()
-        self.features2 = np.matrix(np.random.rand(10, 1)).tolist()
+        self.features = np.random.rand(10, 2).tolist()
+        self.features2 = np.random.rand(10, 1).tolist()
         self.newDynamic = dynamic(features=self.features, w=1.0)
         self.newDynamic2 = dynamic(features=self.features2, w=1.0)
 
@@ -33,12 +33,12 @@ class testDynamic(unittest.TestCase):
         for i in range(10):
             self.newDynamic.updateEvaluation(i)
             np.testing.assert_array_equal(
-                self.newDynamic.evaluation, np.matrix([self.features[i]]))
+                self.newDynamic.evaluation, np.array([self.features[i]]))
 
         for i in range(10):
             self.newDynamic2.updateEvaluation(i)
             np.testing.assert_array_equal(
-                self.newDynamic2.evaluation, np.matrix([self.features2[i]]))
+                self.newDynamic2.evaluation, np.array([self.features2[i]]))
 
 
     def testAppendNewData(self):
