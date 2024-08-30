@@ -51,7 +51,7 @@ class kalmanFilter:
         """
 
         self.__checkDiscount__(discount)
-        self.discount = np.matrix(np.diag(1 / np.sqrt(np.array(discount))))
+        self.discount = np.diag(1 / np.sqrt(np.array(discount)))
         self.updateInnovation = updateInnovation
         self.index = index
 
@@ -74,6 +74,7 @@ class kalmanFilter:
 
         # if the step number == 0, we use result from the model state
         if model.prediction.step == 0:
+
             model.prediction.state = np.dot(model.transition, model.state)
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
             model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar),
@@ -88,8 +89,8 @@ class kalmanFilter:
             # add the innovation to the system variance
             model.prediction.sysVar += model.innovation
 
-            model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
-                                                    model.prediction.sysVar), \
+            model.prediction.obsVar = np.dot(np.dot(model.evaluation,
+                                                    model.prediction.sysVar),
                                              model.evaluation.T) + model.noiseVar
             model.prediction.step = 1
 
@@ -97,11 +98,11 @@ class kalmanFilter:
         else:
             model.prediction.state = np.dot(model.transition, model.prediction.state)
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
-            model.prediction.sysVar = np.dot(np.dot(model.transition, \
-                                                    model.prediction.sysVar),\
+            model.prediction.sysVar = np.dot(np.dot(model.transition,
+                                                    model.prediction.sysVar),
                                              model.transition.T)
-            model.prediction.obsVar = np.dot(np.dot(model.evaluation, \
-                                                    model.prediction.sysVar), \
+            model.prediction.obsVar = np.dot(np.dot(model.evaluation,
+                                                    model.prediction.sysVar),
                                              model.evaluation.T) + model.noiseVar
             model.prediction.step += 1
 
@@ -139,25 +140,26 @@ class kalmanFilter:
 
             # the prediction error and the correction matrix
             err = y - model.prediction.obs
-            correction = np.dot(model.prediction.sysVar, model.evaluation.T) \
-                         / model.prediction.obsVar
+            correction = (np.dot(model.prediction.sysVar, model.evaluation.T)
+                          / model.prediction.obsVar)
 
             # update new states
             model.df += 1
             lastNoiseVar = model.noiseVar # for updating model.sysVar
-            model.noiseVar = model.noiseVar * \
-                             (1.0 - 1.0 / model.df + \
-                              err * err / model.df / model.prediction.obsVar)
+            model.noiseVar = (model.noiseVar *
+                              (1.0 - 1.0 / model.df +
+                               err * err / model.df / model.prediction.obsVar))
 
             model.state = model.prediction.state + correction * err
 
-            model.sysVar = model.noiseVar[0, 0] / lastNoiseVar[0, 0] * \
-                           (model.prediction.sysVar - np.dot(correction, correction.T) * \
-                            model.prediction.obsVar[0, 0])
+            model.sysVar = (model.noiseVar[0, 0] / lastNoiseVar[0, 0] *
+                            (model.prediction.sysVar - np.dot(correction, correction.T) *
+                             model.prediction.obsVar[0, 0]))
 
             model.obs = np.dot(model.evaluation, model.state)
-            model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
+            model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar),
                                   model.evaluation.T) + model.noiseVar
+
             # update the innovation using discount
             # model.innovation = model.sysVar * (1 / self.discount - 1)
 
@@ -226,11 +228,11 @@ class kalmanFilter:
 
         backward = np.dot(np.dot(rawSysVar, model.transition.T), predSysVarInv)
         model.state = rawState + np.dot(backward, (model.state - model.prediction.state))
-        model.sysVar = rawSysVar + \
-                       np.dot(np.dot(backward, \
-                                     (model.sysVar - model.prediction.sysVar)), backward.T)
+        model.sysVar = (rawSysVar + 
+                        np.dot(np.dot(backward,
+                                      (model.sysVar - model.prediction.sysVar)), backward.T))
         model.obs = np.dot(model.evaluation, model.state)
-        model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
+        model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar),
                               model.evaluation.T) + model.noiseVar
 
         # recover the evaluation and the transition matrix
@@ -266,16 +268,16 @@ class kalmanFilter:
 
         backward = np.dot(np.dot(rawSysVar, model.transition.T), predSysVarInv)
         model.state = rawState + np.dot(backward, (model.state - model.prediction.state))
-        model.sysVar = rawSysVar + \
-                       np.dot(np.dot(backward, \
-                                     (model.sysVar - model.prediction.sysVar)), backward.T)
-        model.state = np.matrix(np.random.multivariate_normal(model.state.A1, \
-                                                              model.sysVar)).T
+        model.sysVar = (rawSysVar + 
+                        np.dot(np.dot(backward,
+                                      (model.sysVar - model.prediction.sysVar)), backward.T))
+        model.state = np.random.multivariate_normal(model.state.A1,
+                                                    model.sysVar).T
         model.obs = np.dot(model.evaluation, model.state)
-        model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar), \
+        model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar),
                               model.evaluation.T) + model.noiseVar
-        model.obs = np.matrix(np.random.multivariate_normal(model.obs.A1, \
-                                                              model.obsVar)).T
+        model.obs = np.random.multivariate_normal(model.obs.A1,
+                                                  model.obsVar).T
 
 
     # for updating the discounting factor
@@ -287,7 +289,7 @@ class kalmanFilter:
         """
 
         self.__checkDiscount__(newDiscount)
-        self.discount = np.matrix(np.diag(1 / np.sqrt(newDiscount)))
+        self.discount = np.diag(1 / np.sqrt(newDiscount))
 
 
     def __checkDiscount__(self, discount):
@@ -306,8 +308,8 @@ class kalmanFilter:
 
         """
 
-        model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
-                                      self.discount) - model.prediction.sysVar
+        model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar),
+                                  self.discount) - model.prediction.sysVar
 
 
     # update the innovation
@@ -318,13 +320,13 @@ class kalmanFilter:
 
         """
 
-        innovation = np.dot(np.dot(self.discount, model.prediction.sysVar), \
-                                      self.discount) - model.prediction.sysVar
-        model.innovation = np.matrix(np.zeros(innovation.shape))
+        innovation = np.dot(np.dot(self.discount, model.prediction.sysVar),
+                            self.discount) - model.prediction.sysVar
+        model.innovation = np.zeros(innovation.shape)
         for name in self.index:
             indx = self.index[name]
-            model.innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)] = \
-                    innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)]
+            model.innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)] = (
+                innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)])
 
 
     # a generalized inverse of matrix A

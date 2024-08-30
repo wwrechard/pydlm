@@ -16,7 +16,7 @@ class testAutoReg(unittest.TestCase):
                         [0, 1, 2, 3], [1, 2, 3, 0], [2, 3, 0, 1], [3, 0, 1, 2]]
         for i in range(12):
             self.ar4.updateEvaluation(i, self.data)
-            self.assertEqual(self.ar4.evaluation.A1.tolist(), trueFeatures[i])
+            self.assertEqual(self.ar4.evaluation.flatten().tolist(), trueFeatures[i])
 
 
 if __name__ == '__main__':

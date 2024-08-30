@@ -60,12 +60,12 @@ class testKalmanFilter(unittest.TestCase):
         dlm.initialize()
 
         self.kf11.forwardFilter(dlm.model, 1)
-        self.assertAlmostEqual(dlm.model.state[0][0, 0], 0.33333333333)
-        self.assertAlmostEqual(dlm.model.state[1][0, 0], -0.33333333333)
+        self.assertAlmostEqual(dlm.model.state[0][0], 0.33333333333)
+        self.assertAlmostEqual(dlm.model.state[1][0], -0.33333333333)
 
         self.kf11.forwardFilter(dlm.model, -1)
-        self.assertAlmostEqual(dlm.model.state[0][0, 0], -0.5)
-        self.assertAlmostEqual(dlm.model.state[1][0, 0], 0.5)
+        self.assertAlmostEqual(dlm.model.state[0][0], -0.5)
+        self.assertAlmostEqual(dlm.model.state[1][0], 0.5)
 
 
     def testBackwardSmoother(self):
@@ -78,8 +78,8 @@ class testKalmanFilter(unittest.TestCase):
         self.kf1.forwardFilter(dlm.model, 1)
         self.kf1.forwardFilter(dlm.model, 0)
         self.kf1.backwardSmoother(dlm.model, \
-                                  np.matrix([[0.5]]), \
-                                  np.matrix([[0.375]]))
+                                  np.array([[0.5]]), \
+                                  np.array([[0.375]]))
         self.assertAlmostEqual(dlm.model.obs[0, 0], 1.0/3)
         self.assertAlmostEqual(dlm.model.sysVar[0, 0], 0.18518519)
 
@@ -130,7 +130,7 @@ class testKalmanFilter(unittest.TestCase):
         dlm.add(self.trend0)
         dlm.initialize()
 
-        dlm.model.evaluation = np.matrix([[None]])
+        dlm.model.evaluation = np.array([[None]])
         self.kf1.forwardFilter(dlm.model, 1.0, dealWithMissingEvaluation = True)
         self.assertAlmostEqual(dlm.model.obs, 0.0)
         self.assertAlmostEqual(dlm.model.transition, 1.0)

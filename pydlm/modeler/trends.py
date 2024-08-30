@@ -81,7 +81,7 @@ class trend(component):
         """ Create the evaluation matrix
 
         """
-        self.evaluation = np.matrix(np.zeros((1, self.d)))
+        self.evaluation = np.zeros((1, self.d))
         self.evaluation[0, 0] = 1
 
 
@@ -97,7 +97,7 @@ class trend(component):
         [0 0 0 1]]
 
         """
-        self.transition = np.matrix(np.zeros((self.d, self.d)))
+        self.transition = np.zeros((self.d, self.d))
         self.transition[np.triu_indices(self.d)] = 1
 
 
@@ -105,14 +105,14 @@ class trend(component):
         """Create the prior covariance matrix for the latent states.
 
         """
-        self.covPrior = np.matrix(np.eye(self.d)) * cov
+        self.covPrior = np.eye(self.d) * cov
 
 
     def createMeanPrior(self, mean=0):
         """ Create the prior latent state
 
         """
-        self.meanPrior = np.matrix(np.ones((self.d, 1))) * mean
+        self.meanPrior = np.ones((self.d, 1)) * mean
 
 
     def checkDimensions(self):

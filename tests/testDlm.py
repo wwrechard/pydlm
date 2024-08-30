@@ -260,7 +260,7 @@ class testDlm(unittest.TestCase):
 
     def testPredictNWithDynamicMatrixInput(self):
         self.dlm4.fitForwardFilter()
-        featureDict = {'dynamic': np.matrix([[2.0], [3.0]])}
+        featureDict = {'dynamic': np.array([[2.0], [3.0]])}
         (obs, var) = self.dlm4.predictN(N=2, date=9,
                                         featureDict=featureDict)
         self.assertAlmostEqual(self.dlm4._predictModel.result.predictStatus,

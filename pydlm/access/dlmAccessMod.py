@@ -229,27 +229,21 @@ class dlmAccessModule(_dlmGet):
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
         end += 1
         # to return the full latent states
+        to_array = lambda x: None if x is None else x.flatten().tolist()
         if name == 'all':
             if filterType == 'forwardFilter':
-                return list(map(lambda x: x if x is None
-                                else self._1DmatrixToArray(x),
-                                self.result.filteredState[start:end]))
+                return list(map(to_array, self.result.filteredState[start:end]))
             elif filterType == 'backwardSmoother':
-                return list(map(lambda x: x if x is None
-                                else self._1DmatrixToArray(x),
-                                self.result.smoothedState[start:end]))
+                return list(map(to_array, self.result.smoothedState[start:end]))
             elif filterType == 'predict':
-                return list(map(lambda x: x if x is None
-                                else self._1DmatrixToArray(x),
-                                self.result.predictedState[start:end]))
+                return list(map(to_array, self.result.predictedState[start:end]))
             else:
                 raise NameError('Incorrect filter type.')
 
         # to return the latent state for a given component
         self._checkComponent(name)
-        return list(map(lambda x: x if x is None else self._1DmatrixToArray(x),
-                        self._getLatentState(name=name, filterType=filterType,
-                                             start=start, end=(end - 1))))
+        return list(map(to_array, self._getLatentState(name=name, filterType=filterType,
+                                                       start=start, end=(end - 1))))
 
 
     def getLatentCov(self, filterType='forwardFilter', name='all'):

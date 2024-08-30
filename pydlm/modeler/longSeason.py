@@ -81,7 +81,7 @@ class longSeason(autoReg):
         self.componentType = 'longSeason'
 
         # Initialize the evaluation vector
-        self.evaluation = np.matrix([0] * self.period)
+        self.evaluation = np.array([[0] * self.period])
 
 
     def updateEvaluation(self, step, data=None):

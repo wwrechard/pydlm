@@ -24,7 +24,7 @@ Example:
 >>> myDlm.fitForwardFilter()
 
 >>> # extract the filtered result
->>> myDlm.getFilteredObs()
+>>> myDlm.getMean()
 
 """
 # This is the major class for fitting time series data using the

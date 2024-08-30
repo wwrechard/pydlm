@@ -89,8 +89,8 @@ class testBuilder(unittest.TestCase):
             np.abs(self.builder1.model.evaluation
                    - mt.matrixAddByCol(mt.matrixAddByCol(
                        self.trend.evaluation,
-                       np.matrix([self.features[2]])),
-                                       np.matrix(self.autoReg.evaluation)))), 0.0)
+                       np.array([self.features[2]])),
+                                       self.autoReg.evaluation))), 0.0)
 
 
     def testInitializFromBuilder(self):
