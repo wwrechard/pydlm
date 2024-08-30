@@ -121,4 +121,3 @@ class trend(component):
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
-        print('The dimesnion looks good!')
