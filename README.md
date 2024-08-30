@@ -8,6 +8,7 @@ Welcome to [pydlm](https://pydlm.github.io/), a flexible time series modeling li
 Updates
 -------------------------------------------
 * Updates in the current Github version:
+    * Deprecated the usage of `np.matrix` to supress the deprecation warning.
     * Fixed coveralls so all PR merges will report coverage change.
     * Updated the documentations in [pydlm.github.io](https://pydlm.github.io/) using `sphinx`. Exposed more complete APIs in the class reference.
     * Simplified the implementation of `longSeason` component and turns `longSeason` and `autoReg` to be stateless.
