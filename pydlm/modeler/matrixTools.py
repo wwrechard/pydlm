@@ -43,8 +43,8 @@ class matrixTools:
     @staticmethod
     def AddTwoVectors(a, b):
         if a is None:
-            return np.array(b)
+            return b
         elif b is None:
-            return np.array(a)
+            return a
         else:
             return np.concatenate((a, b))
