@@ -13,6 +13,8 @@ components based on this abstract class.
 
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
+
 # We define an abstract class which can further be used
 # to create different types of model components, inclusing
 # trend, seasonality and other structures
@@ -50,14 +52,14 @@ class component:
             return NotImplemented
         else:
             return (
-                self.equalOrNone(self.d, other.d)
-                and self.equalOrNone(self.name, other.name)
-                and self.equalOrNone(self.componentType, other.componentType)
-                and self.npEqualOrNone(self.discount, other.discount)
-                and self.npEqualOrNone(self.evaluation, other.evaluation)
-                and self.npEqualOrNone(self.transition, other.transition)
-                and self.npEqualOrNone(self.covPrior, other.covPrior)
-                and self.npEqualOrNone(self.meanPrior, other.meanPrior)
+                np.array_equal(self.d, other.d)
+                and np.array_equal(self.name, other.name)
+                and np.array_equal(self.componentType, other.componentType)
+                and np.array_equal(self.discount, other.discount)
+                and np.array_equal(self.evaluation, other.evaluation)
+                and np.array_equal(self.transition, other.transition)
+                and np.array_equal(self.covPrior, other.covPrior)
+                and np.array_equal(self.meanPrior, other.meanPrior)
             )
 
     # define the evaluation matrix for the component
@@ -104,11 +106,3 @@ class component:
     """ Check the dimensionality of the state and covariance
 
     """
-
-    def equalOrNone(self, a, b):
-        """Check if a and b are equal or both are None"""
-        return (a is None and b is None) or a == b
-
-    def npEqualOrNone(self, a, b):
-        """Check if a and b are equal or both are None for NP arrays"""
-        return (a is None and b is None) or (a == b).all()
