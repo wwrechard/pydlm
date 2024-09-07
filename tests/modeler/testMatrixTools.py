@@ -3,8 +3,8 @@ import unittest
 
 from pydlm.modeler.matrixTools import matrixTools as mt
 
-class testMatrixTools(unittest.TestCase):
 
+class testMatrixTools(unittest.TestCase):
     def testMatrixAddByRow(self):
         A = np.array([[1], [2]])
         B = np.array([[3]])
@@ -41,6 +41,7 @@ class testMatrixTools(unittest.TestCase):
 
         np.testing.assert_array_equal(mt.addTwoVectors(a, None), a)
         np.testing.assert_array_equal(mt.addTwoVectors(None, b), b)
-        
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     unittest.main()

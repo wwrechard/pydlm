@@ -4,14 +4,13 @@ from pydlm.access._dlmGet import _dlmGet
 
 
 class dlmAccessModule(_dlmGet):
-    """ A dlm module for all the access methods. This is an API layer for the
+    """A dlm module for all the access methods. This is an API layer for the
     `dlm` class. All methods defined in this class are public and can be called
     directly from `dlm` object.
     """
 
-
     def getAll(self):
-        """ get all the _result class which contains all results
+        """get all the _result class which contains all results
 
         Returns:
             The @result object containing all computed results.
@@ -19,9 +18,8 @@ class dlmAccessModule(_dlmGet):
         """
         return deepcopy(self.result)
 
-
-    def getMean(self, filterType='forwardFilter', name='main'):
-        """ get mean for data or component.
+    def getMean(self, filterType="forwardFilter", name="main"):
+        """get mean for data or component.
 
         If the working dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
@@ -41,31 +39,27 @@ class dlmAccessModule(_dlmGet):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-        end += 1 # To get the result for the last date.
+        end += 1  # To get the result for the last date.
         # get the mean for the fitlered data
-        if name == 'main':
+        if name == "main":
             # get out of the matrix form
-            if filterType == 'forwardFilter':
-                return self._1DmatrixToArray(
-                    self.result.filteredObs[start:end])
-            elif filterType == 'backwardSmoother':
-                return self._1DmatrixToArray(
-                    self.result.smoothedObs[start:end])
-            elif filterType == 'predict':
-                return self._1DmatrixToArray(
-                    self.result.predictedObs[start:end])
+            if filterType == "forwardFilter":
+                return self._1DmatrixToArray(self.result.filteredObs[start:end])
+            elif filterType == "backwardSmoother":
+                return self._1DmatrixToArray(self.result.smoothedObs[start:end])
+            elif filterType == "predict":
+                return self._1DmatrixToArray(self.result.predictedObs[start:end])
             else:
-                raise NameError('Incorrect filter type.')
+                raise NameError("Incorrect filter type.")
 
         # get the mean for the component
         self._checkComponent(name)
-        return self._getComponentMean(name=name,
-                                      filterType=filterType,
-                                      start=start, end=(end - 1))
+        return self._getComponentMean(
+            name=name, filterType=filterType, start=start, end=(end - 1)
+        )
 
-
-    def getVar(self, filterType='forwardFilter', name='main'):
-        """ get the variance for data or component.
+    def getVar(self, filterType="forwardFilter", name="main"):
+        """get the variance for data or component.
 
         If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating
@@ -88,28 +82,25 @@ class dlmAccessModule(_dlmGet):
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
         end += 1
         # get the variance for the time series data
-        if name == 'main':
+        if name == "main":
             # get out of the matrix form
-            if filterType == 'forwardFilter':
-                return self._1DmatrixToArray(
-                    self.result.filteredObsVar[start:end])
-            elif filterType == 'backwardSmoother':
-                return self._1DmatrixToArray(
-                    self.result.smoothedObsVar[start:end])
-            elif filterType == 'predict':
-                return self._1DmatrixToArray(
-                    self.result.predictedObsVar[start:end])
+            if filterType == "forwardFilter":
+                return self._1DmatrixToArray(self.result.filteredObsVar[start:end])
+            elif filterType == "backwardSmoother":
+                return self._1DmatrixToArray(self.result.smoothedObsVar[start:end])
+            elif filterType == "predict":
+                return self._1DmatrixToArray(self.result.predictedObsVar[start:end])
             else:
-                raise NameError('Incorrect filter type.')
+                raise NameError("Incorrect filter type.")
 
         # get the variance for the component
         self._checkComponent(name)
-        return self._getComponentVar(name=name, filterType=filterType,
-                                     start=start, end=(end - 1))
+        return self._getComponentVar(
+            name=name, filterType=filterType, start=start, end=(end - 1)
+        )
 
-
-    def getResidual(self, filterType='forwardFilter'):
-        """ get the residuals for data after filtering or smoothing.
+    def getResidual(self, filterType="forwardFilter"):
+        """get the residuals for data after filtering or smoothing.
 
         If the working dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
@@ -125,27 +116,26 @@ class dlmAccessModule(_dlmGet):
         """
         # get the working date
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
-        end += 1 # To get the result for the last date.
+        end += 1  # To get the result for the last date.
         # get the mean for the fitlered data
         # get out of the matrix form
-        if filterType == 'forwardFilter':
+        if filterType == "forwardFilter":
             return self._1DmatrixToArray(
-                [self.data[i] - self.result.filteredObs[i]
-                 for i in range(start, end)])
-        elif filterType == 'backwardSmoother':
+                [self.data[i] - self.result.filteredObs[i] for i in range(start, end)]
+            )
+        elif filterType == "backwardSmoother":
             return self._1DmatrixToArray(
-                [self.data[i] - self.result.smoothedObs[i]
-                 for i in range(start, end)])
-        elif filterType == 'predict':
+                [self.data[i] - self.result.smoothedObs[i] for i in range(start, end)]
+            )
+        elif filterType == "predict":
             return self._1DmatrixToArray(
-                [self.data[i] - self.result.predictedObs[i]
-                 for i in range(start, end)])
+                [self.data[i] - self.result.predictedObs[i] for i in range(start, end)]
+            )
         else:
-            raise NameError('Incorrect filter type.')
+            raise NameError("Incorrect filter type.")
 
-
-    def getInterval(self, p=0.95, filterType='forwardFilter', name='main'):
-        """ get the confidence interval for data or component.
+    def getInterval(self, p=0.95, filterType="forwardFilter", name="main"):
+        """get the confidence interval for data or component.
 
         If the filtered dates are not
         (0, self.n - 1), then a warning will prompt stating the actual
@@ -170,43 +160,36 @@ class dlmAccessModule(_dlmGet):
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
         end += 1
         # get the mean and the variance for the time series data
-        if name == 'main':
+        if name == "main":
             # get out of the matrix form
-            if filterType == 'forwardFilter':
-                compMean = self._1DmatrixToArray(
-                    self.result.filteredObs[start:end])
-                compVar = self._1DmatrixToArray(
-                    self.result.filteredObsVar[start:end])
-            elif filterType == 'backwardSmoother':
-                compMean = self._1DmatrixToArray(
-                    self.result.smoothedObs[start:end])
-                compVar = self._1DmatrixToArray(
-                    self.result.smoothedObsVar[start:end])
-            elif filterType == 'predict':
-                compMean = self._1DmatrixToArray(
-                    self.result.predictedObs[start:end])
-                compVar = self._1DmatrixToArray(
-                    self.result.predictedObsVar[start:end])
+            if filterType == "forwardFilter":
+                compMean = self._1DmatrixToArray(self.result.filteredObs[start:end])
+                compVar = self._1DmatrixToArray(self.result.filteredObsVar[start:end])
+            elif filterType == "backwardSmoother":
+                compMean = self._1DmatrixToArray(self.result.smoothedObs[start:end])
+                compVar = self._1DmatrixToArray(self.result.smoothedObsVar[start:end])
+            elif filterType == "predict":
+                compMean = self._1DmatrixToArray(self.result.predictedObs[start:end])
+                compVar = self._1DmatrixToArray(self.result.predictedObsVar[start:end])
             else:
-                raise NameError('Incorrect filter type.')
+                raise NameError("Incorrect filter type.")
 
         # get the mean and variance for the component
         else:
             self._checkComponent(name)
-            compMean = self._getComponentMean(name=name,
-                                              filterType=filterType,
-                                              start=start, end=(end - 1))
-            compVar = self._getComponentVar(name=name,
-                                            filterType=filterType,
-                                            start=start, end=(end - 1))
+            compMean = self._getComponentMean(
+                name=name, filterType=filterType, start=start, end=(end - 1)
+            )
+            compVar = self._getComponentVar(
+                name=name, filterType=filterType, start=start, end=(end - 1)
+            )
 
         # get the upper and lower bound
         upper, lower = getInterval(compMean, compVar, p)
         return (upper, lower)
 
-
-    def getLatentState(self, filterType='forwardFilter', name='all'):
-        """ get the latent states for different components and filters.
+    def getLatentState(self, filterType="forwardFilter", name="all"):
+        """get the latent states for different components and filters.
 
         If the filtered dates are not (0, self.n - 1),
         then a warning will prompt stating the actual filtered dates.
@@ -230,24 +213,29 @@ class dlmAccessModule(_dlmGet):
         end += 1
         # to return the full latent states
         to_array = lambda x: None if x is None else x.flatten().tolist()
-        if name == 'all':
-            if filterType == 'forwardFilter':
+        if name == "all":
+            if filterType == "forwardFilter":
                 return list(map(to_array, self.result.filteredState[start:end]))
-            elif filterType == 'backwardSmoother':
+            elif filterType == "backwardSmoother":
                 return list(map(to_array, self.result.smoothedState[start:end]))
-            elif filterType == 'predict':
+            elif filterType == "predict":
                 return list(map(to_array, self.result.predictedState[start:end]))
             else:
-                raise NameError('Incorrect filter type.')
+                raise NameError("Incorrect filter type.")
 
         # to return the latent state for a given component
         self._checkComponent(name)
-        return list(map(to_array, self._getLatentState(name=name, filterType=filterType,
-                                                       start=start, end=(end - 1))))
+        return list(
+            map(
+                to_array,
+                self._getLatentState(
+                    name=name, filterType=filterType, start=start, end=(end - 1)
+                ),
+            )
+        )
 
-
-    def getLatentCov(self, filterType='forwardFilter', name='all'):
-        """ get the error covariance for different components and
+    def getLatentCov(self, filterType="forwardFilter", name="all"):
+        """get the error covariance for different components and
         filters.
 
         If the filtered dates are not (0, self.n - 1),
@@ -271,17 +259,18 @@ class dlmAccessModule(_dlmGet):
         start, end = self._checkAndGetWorkingDates(filterType=filterType)
         end += 1
         # to return the full latent covariance
-        if name == 'all':
-            if filterType == 'forwardFilter':
+        if name == "all":
+            if filterType == "forwardFilter":
                 return self.result.filteredCov[start:end]
-            elif filterType == 'backwardSmoother':
+            elif filterType == "backwardSmoother":
                 return self.result.smoothedCov[start:end]
-            elif filterType == 'predict':
+            elif filterType == "predict":
                 return self.result.predictedCov[start:end]
             else:
-                raise NameError('Incorrect filter type.')
+                raise NameError("Incorrect filter type.")
 
         # to return the latent covariance for a given component
         self._checkComponent(name)
-        return self._getLatentCov(name=name, filterType=filterType,
-                                  start=start, end=(end - 1))
+        return self._getLatentCov(
+            name=name, filterType=filterType, start=start, end=(end - 1)
+        )

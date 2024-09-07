@@ -9,6 +9,7 @@ This piece of code provide one building block for the dynamic linear model.
 It decribes a latent polynomial trending in the time series data.
 
 """
+
 import numpy as np
 from .component import component
 import pydlm.base.tools as tl
@@ -18,7 +19,7 @@ import pydlm.base.tools as tl
 
 
 class trend(component):
-    """ The trend component that features the polynomial trending,
+    """The trend component that features the polynomial trending,
     providing one building block for the dynamic linear model.
     It decribes a latent polynomial trending in the time series data.
 
@@ -50,18 +51,12 @@ class trend(component):
 
     """
 
-
-    def __init__(self,
-                 degree = 0,
-                 discount = 0.99,
-                 name = 'trend',
-                 w=100):
-
+    def __init__(self, degree=0, discount=0.99, name="trend", w=100):
         if degree < 0:
-            raise NameError('degree has to be non-negative')
+            raise NameError("degree has to be non-negative")
         self.d = degree + 1
         self.name = name
-        self.componentType = 'trend'
+        self.componentType = "trend"
         self.discount = np.ones(self.d) * discount
 
         # Initialize all basic quantities
@@ -76,14 +71,10 @@ class trend(component):
         self.createCovPrior(cov=w)
         self.createMeanPrior()
 
-
     def createEvaluation(self):
-        """ Create the evaluation matrix
-
-        """
+        """Create the evaluation matrix"""
         self.evaluation = np.zeros((1, self.d))
         self.evaluation[0, 0] = 1
-
 
     def createTransition(self):
         """Create the transition matrix
@@ -100,23 +91,16 @@ class trend(component):
         self.transition = np.zeros((self.d, self.d))
         self.transition[np.triu_indices(self.d)] = 1
 
-
     def createCovPrior(self, cov=1e7):
-        """Create the prior covariance matrix for the latent states.
-
-        """
+        """Create the prior covariance matrix for the latent states."""
         self.covPrior = np.eye(self.d) * cov
 
-
     def createMeanPrior(self, mean=0):
-        """ Create the prior latent state
-
-        """
+        """Create the prior latent state"""
         self.meanPrior = np.ones((self.d, 1)) * mean
 
-
     def checkDimensions(self):
-        """ if user supplies their own covPrior and meanPrior, this can
+        """if user supplies their own covPrior and meanPrior, this can
         be used to check if the dimension matches
 
         """

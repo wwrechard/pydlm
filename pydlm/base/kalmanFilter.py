@@ -12,6 +12,7 @@ itself, instead of accepting it from the user. (Although such option is still
 provided)
 
 """
+
 # This code take care of the Kalman filter
 import numpy as np
 import pydlm.base.tools as tl
@@ -21,7 +22,7 @@ import pydlm.base.tools as tl
 
 
 class kalmanFilter:
-    """ The kalmanFilter class the provide the basic functionalities
+    """The kalmanFilter class the provide the basic functionalities
 
     Attributes:
         discount: the discounting factor determining how much information to carry on
@@ -38,11 +39,8 @@ class kalmanFilter:
         updateDiscount: for updating the discount factors
     """
 
-
-    def __init__(self, discount=[0.99], \
-                 updateInnovation='whole',
-                 index=None):
-        """ Initializing the kalmanFilter class
+    def __init__(self, discount=[0.99], updateInnovation="whole", index=None):
+        """Initializing the kalmanFilter class
 
         Args:
             discount: the discounting factor, could be a vector
@@ -55,9 +53,8 @@ class kalmanFilter:
         self.updateInnovation = updateInnovation
         self.index = index
 
-
-    def predict(self, model, dealWithMissingEvaluation = False):
-        """ Predict the next states of the model by one step
+    def predict(self, model, dealWithMissingEvaluation=False):
+        """Predict the next states of the model by one step
 
         Args:
             model: the @baseModel class provided all necessary information
@@ -74,45 +71,52 @@ class kalmanFilter:
 
         # if the step number == 0, we use result from the model state
         if model.prediction.step == 0:
-
             model.prediction.state = np.dot(model.transition, model.state)
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
-            model.prediction.sysVar = np.dot(np.dot(model.transition, model.sysVar),
-                                             model.transition.T)
+            model.prediction.sysVar = np.dot(
+                np.dot(model.transition, model.sysVar), model.transition.T
+            )
 
             # update the innovation
-            if self.updateInnovation == 'whole':
+            if self.updateInnovation == "whole":
                 self.__updateInnovation__(model)
-            elif self.updateInnovation == 'component':
+            elif self.updateInnovation == "component":
                 self.__updateInnovation2__(model)
 
             # add the innovation to the system variance
             model.prediction.sysVar += model.innovation
 
-            model.prediction.obsVar = np.dot(np.dot(model.evaluation,
-                                                    model.prediction.sysVar),
-                                             model.evaluation.T) + model.noiseVar
+            model.prediction.obsVar = (
+                np.dot(
+                    np.dot(model.evaluation, model.prediction.sysVar),
+                    model.evaluation.T,
+                )
+                + model.noiseVar
+            )
             model.prediction.step = 1
 
         # otherwise, we use previous result to predict next time stamp
         else:
             model.prediction.state = np.dot(model.transition, model.prediction.state)
             model.prediction.obs = np.dot(model.evaluation, model.prediction.state)
-            model.prediction.sysVar = np.dot(np.dot(model.transition,
-                                                    model.prediction.sysVar),
-                                             model.transition.T)
-            model.prediction.obsVar = np.dot(np.dot(model.evaluation,
-                                                    model.prediction.sysVar),
-                                             model.evaluation.T) + model.noiseVar
+            model.prediction.sysVar = np.dot(
+                np.dot(model.transition, model.prediction.sysVar), model.transition.T
+            )
+            model.prediction.obsVar = (
+                np.dot(
+                    np.dot(model.evaluation, model.prediction.sysVar),
+                    model.evaluation.T,
+                )
+                + model.noiseVar
+            )
             model.prediction.step += 1
 
         # recover the evaluation and the transition matrix
         if dealWithMissingEvaluation:
             self._recoverTransitionAndEvaluation(model, loc)
 
-
-    def forwardFilter(self, model, y, dealWithMissingEvaluation = False):
-        """ The forwardFilter used to run one step filtering given new data
+    def forwardFilter(self, model, y, dealWithMissingEvaluation=False):
+        """The forwardFilter used to run one step filtering given new data
 
         Args:
             model: the @baseModel provided the basic information
@@ -131,7 +135,6 @@ class kalmanFilter:
 
         # when y is not a missing data
         if y is not None:
-
             # first obtain the predicted status
             # we make the prediction step equal to 0 to ensure the prediction
             # is based on the model state and innovation is updated correctlly
@@ -140,25 +143,34 @@ class kalmanFilter:
 
             # the prediction error and the correction matrix
             err = y - model.prediction.obs
-            correction = (np.dot(model.prediction.sysVar, model.evaluation.T)
-                          / model.prediction.obsVar)
+            correction = (
+                np.dot(model.prediction.sysVar, model.evaluation.T)
+                / model.prediction.obsVar
+            )
 
             # update new states
             model.df += 1
-            lastNoiseVar = model.noiseVar # for updating model.sysVar
-            model.noiseVar = (model.noiseVar *
-                              (1.0 - 1.0 / model.df +
-                               err * err / model.df / model.prediction.obsVar))
+            lastNoiseVar = model.noiseVar  # for updating model.sysVar
+            model.noiseVar = model.noiseVar * (
+                1.0 - 1.0 / model.df + err * err / model.df / model.prediction.obsVar
+            )
 
             model.state = model.prediction.state + correction * err
 
-            model.sysVar = (model.noiseVar[0, 0] / lastNoiseVar[0, 0] *
-                            (model.prediction.sysVar - np.dot(correction, correction.T) *
-                             model.prediction.obsVar[0, 0]))
+            model.sysVar = (
+                model.noiseVar[0, 0]
+                / lastNoiseVar[0, 0]
+                * (
+                    model.prediction.sysVar
+                    - np.dot(correction, correction.T) * model.prediction.obsVar[0, 0]
+                )
+            )
 
             model.obs = np.dot(model.evaluation, model.state)
-            model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar),
-                                  model.evaluation.T) + model.noiseVar
+            model.obsVar = (
+                np.dot(np.dot(model.evaluation, model.sysVar), model.evaluation.T)
+                + model.noiseVar
+            )
 
             # update the innovation using discount
             # model.innovation = model.sysVar * (1 / self.discount - 1)
@@ -183,7 +195,6 @@ class kalmanFilter:
         if dealWithMissingEvaluation:
             self._recoverTransitionAndEvaluation(model, loc)
 
-
     # The backward smoother for a given unsmoothed states at time t
     # what model should store:
     #      model.state: the last smoothed states (t + 1)
@@ -195,8 +206,7 @@ class kalmanFilter:
     #      rawState: the unsmoothed state at time t
     #      rawSysVar: the unsmoothed system variance at time t
     def backwardSmoother(self, model, rawState, rawSysVar):
-
-        """ The backwardSmoother for one step backward smoothing
+        """The backwardSmoother for one step backward smoothing
 
         Args:
             model: the @baseModel used for backward smoothing, the model shall store
@@ -227,21 +237,24 @@ class kalmanFilter:
         ################################################
 
         backward = np.dot(np.dot(rawSysVar, model.transition.T), predSysVarInv)
-        model.state = rawState + np.dot(backward, (model.state - model.prediction.state))
-        model.sysVar = (rawSysVar + 
-                        np.dot(np.dot(backward,
-                                      (model.sysVar - model.prediction.sysVar)), backward.T))
+        model.state = rawState + np.dot(
+            backward, (model.state - model.prediction.state)
+        )
+        model.sysVar = rawSysVar + np.dot(
+            np.dot(backward, (model.sysVar - model.prediction.sysVar)), backward.T
+        )
         model.obs = np.dot(model.evaluation, model.state)
-        model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar),
-                              model.evaluation.T) + model.noiseVar
+        model.obsVar = (
+            np.dot(np.dot(model.evaluation, model.sysVar), model.evaluation.T)
+            + model.noiseVar
+        )
 
         # recover the evaluation and the transition matrix
-        #if dealWithMissingEvaluation:
+        # if dealWithMissingEvaluation:
         #    self._recoverTransitionAndEvaluation(model, loc)
 
-
     def backwardSampler(self, model, rawState, rawSysVar):
-        """ The backwardSampler for one step backward sampling
+        """The backwardSampler for one step backward sampling
 
         Args:
             model: the @baseModel used for backward sampling, the model shall store
@@ -267,22 +280,23 @@ class kalmanFilter:
         ################################################
 
         backward = np.dot(np.dot(rawSysVar, model.transition.T), predSysVarInv)
-        model.state = rawState + np.dot(backward, (model.state - model.prediction.state))
-        model.sysVar = (rawSysVar + 
-                        np.dot(np.dot(backward,
-                                      (model.sysVar - model.prediction.sysVar)), backward.T))
-        model.state = np.random.multivariate_normal(model.state.A1,
-                                                    model.sysVar).T
+        model.state = rawState + np.dot(
+            backward, (model.state - model.prediction.state)
+        )
+        model.sysVar = rawSysVar + np.dot(
+            np.dot(backward, (model.sysVar - model.prediction.sysVar)), backward.T
+        )
+        model.state = np.random.multivariate_normal(model.state.A1, model.sysVar).T
         model.obs = np.dot(model.evaluation, model.state)
-        model.obsVar = np.dot(np.dot(model.evaluation, model.sysVar),
-                              model.evaluation.T) + model.noiseVar
-        model.obs = np.random.multivariate_normal(model.obs.A1,
-                                                  model.obsVar).T
-
+        model.obsVar = (
+            np.dot(np.dot(model.evaluation, model.sysVar), model.evaluation.T)
+            + model.noiseVar
+        )
+        model.obs = np.random.multivariate_normal(model.obs.A1, model.obsVar).T
 
     # for updating the discounting factor
     def updateDiscount(self, newDiscount):
-        """ For updating the discounting factor
+        """For updating the discounting factor
 
         Args:
             newDiscount: the new discount factor
@@ -291,54 +305,48 @@ class kalmanFilter:
         self.__checkDiscount__(newDiscount)
         self.discount = np.diag(1 / np.sqrt(newDiscount))
 
-
     def __checkDiscount__(self, discount):
-        """ Check whether the discount fact is within (0, 1)
-
-        """
+        """Check whether the discount fact is within (0, 1)"""
 
         for i in range(len(discount)):
             if discount[i] < 0 or discount[i] > 1:
-                raise tl.matrixErrors('discount factor must be between 0 and 1')
-
+                raise tl.matrixErrors("discount factor must be between 0 and 1")
 
     # update the innovation
     def __updateInnovation__(self, model):
-        """ update the innovation matrix of the model
+        """update the innovation matrix of the model"""
 
-        """
-
-        model.innovation = np.dot(np.dot(self.discount, model.prediction.sysVar),
-                                  self.discount) - model.prediction.sysVar
-
+        model.innovation = (
+            np.dot(np.dot(self.discount, model.prediction.sysVar), self.discount)
+            - model.prediction.sysVar
+        )
 
     # update the innovation
     def __updateInnovation2__(self, model):
-        """ update the innovation matrix of the model, but only for component
+        """update the innovation matrix of the model, but only for component
         indepdently. (i.e., only add innovation to block diagonals, not on off
         block diagonals)
 
         """
 
-        innovation = np.dot(np.dot(self.discount, model.prediction.sysVar),
-                            self.discount) - model.prediction.sysVar
+        innovation = (
+            np.dot(np.dot(self.discount, model.prediction.sysVar), self.discount)
+            - model.prediction.sysVar
+        )
         model.innovation = np.zeros(innovation.shape)
         for name in self.index:
             indx = self.index[name]
-            model.innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)] = (
-                innovation[indx[0]: (indx[1] + 1), indx[0]: (indx[1] + 1)])
-
+            model.innovation[indx[0] : (indx[1] + 1), indx[0] : (indx[1] + 1)] = (
+                innovation[indx[0] : (indx[1] + 1), indx[0] : (indx[1] + 1)]
+            )
 
     # a generalized inverse of matrix A
     def _gInverse(self, A):
-        """ A generalized inverse of matrix A
-
-        """
+        """A generalized inverse of matrix A"""
         return np.linalg.pinv(A)
 
-
     def _modifyTransitionAccordingToMissingValue(self, model):
-        """ When evaluation contains None value, we modify the corresponding entries
+        """When evaluation contains None value, we modify the corresponding entries
         in the transition to deal with the missing value
 
         """
@@ -350,13 +358,11 @@ class kalmanFilter:
                 model.evaluation[0, i] = 0.0
         return loc
 
-
     def _recoverTransitionAndEvaluation(self, model, loc):
-        """ We recover the transition and evaluation use the results from
+        """We recover the transition and evaluation use the results from
         _modifyTransitionAccordingToMissingValue
 
         """
         for i in loc:
             model.evaluation[0, i] = None
             model.transition[i, i] = 1.0
-

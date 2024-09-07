@@ -9,6 +9,7 @@ This piece of code provides the basic model structure for dynamic linear model.
 It stores all the necessary components for kalmanFilter and save the results
 
 """
+
 # dependencies
 import numpy as np
 import pydlm.base.tools as tl
@@ -16,7 +17,7 @@ import pydlm.base.tools as tl
 
 # define the basic structure for a dlm model
 class baseModel:
-    """ The baseModel class that provides the basic model structure for dlm. 
+    """The baseModel class that provides the basic model structure for dlm.
 
     Attributes:
         transition: the transition matrix G
@@ -34,10 +35,17 @@ class baseModel:
         validation: validate the matrix dimensions are consistent.
     """
 
-
     # define the components of a baseModel
-    def __init__(self, transition = None, evaluation = None, noiseVar = None, \
-                 sysVar = None, innovation = None, state = None, df = None):
+    def __init__(
+        self,
+        transition=None,
+        evaluation=None,
+        noiseVar=None,
+        sysVar=None,
+        innovation=None,
+        state=None,
+        df=None,
+    ):
         self.transition = transition
         self.evaluation = evaluation
         self.noiseVar = noiseVar
@@ -51,23 +59,19 @@ class baseModel:
         # a hidden data field used only for model prediction
         self.prediction = __model__()
 
-
     # initialize the observation mean and variance
     def initializeObservation(self):
-        """ Initialize the value of obs and obsVar
-
-        """
+        """Initialize the value of obs and obsVar"""
         self.validation()
         self.obs = np.dot(self.evaluation, self.state)
-        self.obsVar = np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation.T) \
-                      + self.noiseVar
-
+        self.obsVar = (
+            np.dot(np.dot(self.evaluation, self.sysVar), self.evaluation.T)
+            + self.noiseVar
+        )
 
     # checking if the dimension matches with each other
     def validation(self):
-        """ Validate the model components are consistent
-
-        """
+        """Validate the model components are consistent"""
         # check symmetric
         tl.checker.checkSymmetry(self.transition)
         tl.checker.checkSymmetry(self.sysVar)
@@ -81,12 +85,11 @@ class baseModel:
         tl.checker.checkVectorDimension(self.evaluation, self.transition)
         tl.checker.checkVectorDimension(self.state, self.transition)
 
-        
+
 # define an inner class to store intermediate results
 class __model__:
-
     # to store result for prediction
-    def __init__(self, step = 0, state = None, obs = None, sysVar = None, obsVar = None):
+    def __init__(self, step=0, state=None, obs=None, sysVar=None, obsVar=None):
         self.step = 0
         self.state = state
         self.obs = obs

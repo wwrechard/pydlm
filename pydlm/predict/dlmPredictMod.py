@@ -2,23 +2,23 @@ from copy import deepcopy
 from numpy import matrix
 from pydlm.predict._dlmPredict import _dlmPredict
 
+
 class dlmPredictModule(_dlmPredict):
-    """ A dlm module containing all prediction methods. This is an API layer
+    """A dlm module containing all prediction methods. This is an API layer
     for the `dlm` class. All methods defined in this class are public and can
     be called directly from `dlm` object.
     """
 
-
     # One day ahead prediction function
     def predict(self, date=None, featureDict=None):
-        """ One day ahead predict based on the current data.
+        """One day ahead predict based on the current data.
 
         The predict result is based on all the data before date and predict the
-        observation at date + days. 
+        observation at date + days.
 
-        The prediction could be on the last day and into the future or in 
+        The prediction could be on the last day and into the future or in
         the middle of the time series and ignore the rest. For predicting into
-        the future, the new features must be supplied to featureDict. For 
+        the future, the new features must be supplied to featureDict. For
         prediction in the middle, the user can still supply the features which
         will be used priorily. The old features will be used if featureDict is
         None.
@@ -43,19 +43,20 @@ class dlmPredictModule(_dlmPredict):
 
         # check if the data on the date has been filtered
         if date > self.result.filteredSteps[1]:
-            raise NameError('Prediction can only be made right' +
-                            ' after the filtered date')
+            raise NameError(
+                "Prediction can only be made right" + " after the filtered date"
+            )
 
         # Clear the existing predictModel before the deepcopy to avoid recurrent
         # recurrent copy which could explode the memory and complexity.
         self._predictModel = None
         self._predictModel = deepcopy(self)
-        return self._predictModel._oneDayAheadPredict(date=date,
-                                                      featureDict=featureDict)
-
+        return self._predictModel._oneDayAheadPredict(
+            date=date, featureDict=featureDict
+        )
 
     def continuePredict(self, featureDict=None):
-        """ Continue prediction after the one-day ahead predict.
+        """Continue prediction after the one-day ahead predict.
 
         If users want to have a multiple day prediction, they can opt to use
         continuePredict after predict with new features contained in
@@ -79,17 +80,16 @@ class dlmPredictModule(_dlmPredict):
             A tupe. (predicted observation, variance)
         """
         if self._predictModel is None:
-            raise NameError('continuePredict has to come after predict.')
+            raise NameError("continuePredict has to come after predict.")
 
         return self._predictModel._continuePredict(featureDict=featureDict)
 
-
     # N day ahead prediction
     def predictN(self, N=1, date=None, featureDict=None):
-        """ N day ahead prediction based on the current data.
+        """N day ahead prediction based on the current data.
 
         This function is a convenient wrapper of predict() and
-        continuePredict(). If the prediction is into the future, i.e, > n, 
+        continuePredict(). If the prediction is into the future, i.e, > n,
         the featureDict has to contain all feature vectors for multiple days
         for each dynamic component. For example, assume myDLM has a component
         named 'spy' which posseses two dimensions,
@@ -114,7 +114,7 @@ class dlmPredictModule(_dlmPredict):
 
         """
         if N < 1:
-            raise NameError('N has to be greater or equal to 1')
+            raise NameError("N has to be greater or equal to 1")
         # Take care if features are numpy matrix
         if featureDict is not None:
             for name in featureDict:
@@ -124,8 +124,9 @@ class dlmPredictModule(_dlmPredict):
         predictedVar = []
 
         # call predict for the first day
-        getSingleDayFeature = lambda f, i: ({k: v[i] for k, v in f.items()}
-                                            if f is not None else None)
+        getSingleDayFeature = lambda f, i: (
+            {k: v[i] for k, v in f.items()} if f is not None else None
+        )
         # Construct the single day featureDict
         featureDictOneDay = getSingleDayFeature(featureDict, 0)
         (obs, var) = self.predict(date=date, featureDict=featureDictOneDay)
@@ -138,5 +139,7 @@ class dlmPredictModule(_dlmPredict):
             (obs, var) = self.continuePredict(featureDict=featureDictOneDay)
             predictedObs.append(obs)
             predictedVar.append(var)
-        return (self._1DmatrixToArray(predictedObs),
-                self._1DmatrixToArray(predictedVar))
+        return (
+            self._1DmatrixToArray(predictedObs),
+            self._1DmatrixToArray(predictedVar),
+        )

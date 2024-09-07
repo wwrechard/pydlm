@@ -7,8 +7,6 @@ import unittest
 
 
 class test_dlm(unittest.TestCase):
-
-
     def setUp(self):
         self.data = [0] * 9 + [1] + [0] * 10
         self.dlm1 = _dlm(self.data)
@@ -17,87 +15,85 @@ class test_dlm(unittest.TestCase):
         self.dlm2.builder + trend(degree=0, discount=1e-12, w=1.0)
         self.dlm1._initialize()
         self.dlm2._initialize()
-        self.dlm1.options.innovationType='whole'
-        self.dlm2.options.innovationType='whole'
-
+        self.dlm1.options.innovationType = "whole"
+        self.dlm2.options.innovationType = "whole"
 
     def testForwardFilter(self):
         self.dlm1._forwardFilter(start=0, end=19, renew=False)
         self.assertAlmostEqual(np.sum(self.dlm1.result.filteredObs[0:9]), 0)
-        self.assertAlmostEqual(self.dlm1.result.filteredObs[9][0, 0], 1.0/11)
-        self.assertAlmostEqual(self.dlm1.result.filteredObs[19][0, 0], 1.0/21)
+        self.assertAlmostEqual(self.dlm1.result.filteredObs[9][0, 0], 1.0 / 11)
+        self.assertAlmostEqual(self.dlm1.result.filteredObs[19][0, 0], 1.0 / 21)
 
         self.dlm2._forwardFilter(start=0, end=19)
         self.assertAlmostEqual(np.sum(self.dlm2.result.filteredObs[0:9]), 0.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[9][0, 0], 1.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[19][0, 0], 0.0)
 
-
     def testResetModelStatus(self):
-        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
+        self.dlm1._forwardFilter(start=0, end=19, renew=False)
         self.dlm1.result.filteredSteps = (0, 19)
-        self.assertAlmostEqual(self.dlm1.builder.model.obs, \
-                               self.dlm1.result.filteredObs[19])
+        self.assertAlmostEqual(
+            self.dlm1.builder.model.obs, self.dlm1.result.filteredObs[19]
+        )
 
         self.dlm1._resetModelStatus()
-        self.assertAlmostEqual(np.sum(self.dlm1.builder.model.state \
-                                      - self.dlm1.builder.statePrior), 0.0)
-
+        self.assertAlmostEqual(
+            np.sum(self.dlm1.builder.model.state - self.dlm1.builder.statePrior), 0.0
+        )
 
     def testSetModelStatus(self):
-        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
+        self.dlm1._forwardFilter(start=0, end=19, renew=False)
         self.dlm1.result.filteredSteps = (0, 19)
-        self.assertAlmostEqual(self.dlm1.builder.model.obs, \
-                               self.dlm1.result.filteredObs[19])
-        self.dlm1._setModelStatus(date = 12)
-        self.assertAlmostEqual(self.dlm1.builder.model.obs, \
-                               self.dlm1.result.filteredObs[12])
-
+        self.assertAlmostEqual(
+            self.dlm1.builder.model.obs, self.dlm1.result.filteredObs[19]
+        )
+        self.dlm1._setModelStatus(date=12)
+        self.assertAlmostEqual(
+            self.dlm1.builder.model.obs, self.dlm1.result.filteredObs[12]
+        )
 
     def testForwaredFilterConsectiveness(self):
-        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
+        self.dlm1._forwardFilter(start=0, end=19, renew=False)
         filtered1 = self.dlm1.result.filteredObs
 
         self.dlm1._initialize()
 
-        self.dlm1._forwardFilter(start = 0, end = 13)
+        self.dlm1._forwardFilter(start=0, end=13)
         self.dlm1.result.filteredSteps = (0, 13)
-        self.dlm1._forwardFilter(start = 13, end = 19)
+        self.dlm1._forwardFilter(start=13, end=19)
         filtered2 = self.dlm1.result.filteredObs
 
         self.assertAlmostEqual(np.sum(np.array(filtered1) - np.array(filtered2)), 0.0)
 
-
     def testBackwardSmoother(self):
-        self.dlm1._forwardFilter(start = 0, end = 19, renew = False)
+        self.dlm1._forwardFilter(start=0, end=19, renew=False)
         self.dlm1.result.filteredSteps = (0, 19)
-        self.dlm1._backwardSmoother(start = 19)
-        self.assertAlmostEqual(self.dlm1.result.smoothedObs[0][0, 0], 1.0/21)
-        self.assertAlmostEqual(self.dlm1.result.smoothedObs[19][0, 0], 1.0/21)
+        self.dlm1._backwardSmoother(start=19)
+        self.assertAlmostEqual(self.dlm1.result.smoothedObs[0][0, 0], 1.0 / 21)
+        self.assertAlmostEqual(self.dlm1.result.smoothedObs[19][0, 0], 1.0 / 21)
 
-        self.dlm2._forwardFilter(start = 0, end = 19)
+        self.dlm2._forwardFilter(start=0, end=19)
         self.dlm2.result.filteredSteps = (0, 19)
-        self.dlm2._backwardSmoother(start = 19)
+        self.dlm2._backwardSmoother(start=19)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[0][0, 0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[19][0, 0], 0.0)
         self.assertAlmostEqual(self.dlm2.result.smoothedObs[9][0, 0], 1.0)
 
-
     def testLogger(self):
-        assert self.dlm1._logger == logging.getLogger('pydlm')
-        assert self.dlm2._logger == logging.getLogger('pydlm')
+        assert self.dlm1._logger == logging.getLogger("pydlm")
+        assert self.dlm2._logger == logging.getLogger("pydlm")
         assert self.dlm1._logger.getEffectiveLevel() == logging.INFO
         assert self.dlm2._logger.getEffectiveLevel() == logging.INFO
 
     def testSetAndGetLoggingLevel(self):
-        self.dlm1.setLoggingLevel('CRITICAL')
+        self.dlm1.setLoggingLevel("CRITICAL")
         assert self.dlm1._logger.getEffectiveLevel() == logging.CRITICAL
-        assert self.dlm1.getLoggingLevel() == 'CRITICAL'
+        assert self.dlm1.getLoggingLevel() == "CRITICAL"
 
-        self.dlm1.setLoggingLevel('INFO')
+        self.dlm1.setLoggingLevel("INFO")
         assert self.dlm1._logger.getEffectiveLevel() == logging.INFO
-        assert self.dlm1.getLoggingLevel() == 'INFO'
+        assert self.dlm1.getLoggingLevel() == "INFO"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
