@@ -11,6 +11,7 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
+
 import pydlm.base.tools as tl
 
 from .component import component
@@ -20,7 +21,7 @@ import numpy as np
 
 
 class autoReg(component):
-    """ The autoReg class allows user to add an autoregressive component to the dlm.
+    """The autoReg class allows user to add an autoregressive component to the dlm.
     This code implements the autoregressive component as a child class of
     component. Different from the dynamic component, the features in the
     autoReg is generated from the data, and updated according to the data.
@@ -62,15 +63,8 @@ class autoReg(component):
 
     """
 
-
-    def __init__(self,
-                 degree=2,
-                 discount=0.99,
-                 name='ar2',
-                 w=100,
-                 padding=0):
-
-        self.componentType = 'autoReg'
+    def __init__(self, degree=2, discount=0.99, name="ar2", w=100, padding=0):
+        self.componentType = "autoReg"
         self.d = degree
         self.name = name
         self.discount = np.ones(self.d) * discount
@@ -87,61 +81,52 @@ class autoReg(component):
         self.createCovPrior(scale=w)
         self.createMeanPrior()
 
-
     def createEvaluation(self, step, data):
-        """ The evaluation matrix for auto regressor.
-
-        """
+        """The evaluation matrix for auto regressor."""
         if step > len(data):
             raise NameError("There is no sufficient data for creating autoregressor.")
         # We pad numbers if the step is too early
-        self.evaluation = np.array([[self.padding] * (self.d - step) +
-                                    list(data[max(0, (step - self.d)) : step])])
-
+        self.evaluation = np.array(
+            [
+                [self.padding] * (self.d - step)
+                + list(data[max(0, (step - self.d)) : step])
+            ]
+        )
 
     def createTransition(self):
-        """ Create the transition matrix.
+        """Create the transition matrix.
 
         For the auto regressor component, the transition matrix is just the identity matrix
 
         """
         self.transition = np.eye(self.d)
 
-
-    def createCovPrior(self, cov = None, scale = 1e6):
-        """ Create the prior covariance matrix for the latent states
-
-        """
+    def createCovPrior(self, cov=None, scale=1e6):
+        """Create the prior covariance matrix for the latent states"""
         if cov is None:
             self.covPrior = np.eye(self.d) * scale
         else:
             self.covPrior = cov * scale
 
-
-    def createMeanPrior(self, mean = None, scale = 1):
-        """ Create the prior latent state
-
-        """
+    def createMeanPrior(self, mean=None, scale=1):
+        """Create the prior latent state"""
         if mean is None:
             self.meanPrior = np.zeros((self.d, 1)) * scale
         else:
             self.meanPrior = mean * scale
 
-
     def checkDimensions(self):
-        """ if user supplies their own covPrior and meanPrior, this can
+        """if user supplies their own covPrior and meanPrior, this can
         be used to check if the dimension matches
 
         """
         tl.checker.checkVectorDimension(self.meanPrior, self.covPrior)
 
-
     def updateEvaluation(self, step, data):
         self.createEvaluation(step=step, data=data)
 
-
     def appendNewData(self, data):
-        """ AutoReg append new data automatically with the main time series. Nothing
+        """AutoReg append new data automatically with the main time series. Nothing
         needs to be done here.
 
         """

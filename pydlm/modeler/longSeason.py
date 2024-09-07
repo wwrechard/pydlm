@@ -21,13 +21,14 @@ from the data, and updated according to the data. All other features are
 similar to @dynamic.
 
 """
+
 from .autoReg import autoReg
 import logging
 import numpy as np
 
 
 class longSeason(autoReg):
-    """ The longSeason class alows user to add a long seasonality component
+    """The longSeason class alows user to add a long seasonality component
     to the dlm. The difference between the long seasonality is that
     1) The seasonality component use each date as a unit and change in a given
     periodicity. For example, 1, 2, 3, 4, 1, 2, 3, 4.
@@ -61,31 +62,20 @@ class longSeason(autoReg):
 
     """
 
-
-    def __init__(self,
-                 period=4,
-                 stay=7,
-                 discount=0.99,
-                 name='longSeason',
-                 w=100):
-
+    def __init__(self, period=4, stay=7, discount=0.99, name="longSeason", w=100):
         self.period = period
         self.stay = stay
 
-        super().__init__(degree=period,
-                         discount=discount,
-                         name=name,
-                         w=w)
+        super().__init__(degree=period, discount=discount, name=name, w=w)
 
         # modify the type to be longSeason
-        self.componentType = 'longSeason'
+        self.componentType = "longSeason"
 
         # Initialize the evaluation vector
         self.evaluation = np.array([[0] * self.period])
 
-
     def updateEvaluation(self, step, data=None):
-        """ update the evaluation matrix to a specific date
+        """update the evaluation matrix to a specific date
         This function is used when fitting the forward filter and
         backward smoother
         in need of updating the correct evaluation matrix

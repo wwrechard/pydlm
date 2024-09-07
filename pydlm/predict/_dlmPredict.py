@@ -11,18 +11,17 @@ from pydlm.core._dlm import _dlm
 
 
 class _dlmPredict(_dlm):
-    """ The main class containing all prediction methods.
+    """The main class containing all prediction methods.
 
     Methods:
         _oneDayAheadPredict: predict one day a head.
         _continuePredict: continue predicting one day after _oneDayAheadPredict
     """
 
-
     # Note the following functions will modify the status of the model, so they
     # shall not be directly call through the main model if this behavior is not
     # desired.
-    
+
     # featureDict contains all the features for prediction.
     # It is a dictionary with key equals to the name of the component and
     # the value as the new feature (a list). The function
@@ -33,10 +32,10 @@ class _dlmPredict(_dlm):
     # (start_date, next_pred_date, [all_predicted_values]), which will be
     # used by _continuePredict.
     def _oneDayAheadPredict(self, date, featureDict=None):
-        """ One day ahead prediction based on the date and the featureDict.
-        The prediction could be on the last day and into the future or in 
+        """One day ahead prediction based on the date and the featureDict.
+        The prediction could be on the last day and into the future or in
         the middle of the time series and ignore the rest. For predicting into
-        the future, the new features must be supplied to featureDict. For 
+        the future, the new features must be supplied to featureDict. For
         prediction in the middle, the user can still supply the features which
         will be used priorily. The old features will be used if featureDict is
         None.
@@ -56,15 +55,16 @@ class _dlmPredict(_dlm):
             A tuple of (predicted_mean, predicted_variance)
         """
         if date > self.n - 1:
-            raise NameError('The date is beyond the data range.')
+            raise NameError("The date is beyond the data range.")
 
         # get the correct status of the model
         self._setModelStatus(date=date)
         self._constructEvaluationForPrediction(
             date=date + 1,
             featureDict=featureDict,
-            padded_data=self.padded_data[:(date + 1)])
-        
+            padded_data=self.padded_data[: (date + 1)],
+        )
+
         # initialize the prediction status
         self.builder.model.prediction.step = 0
 
@@ -74,16 +74,15 @@ class _dlmPredict(_dlm):
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
         self.result.predictStatus = [
-            date,                   # start_date
-            date + 1,               # current_date
-            [predictedObs[0, 0]]    # all historical predictions
+            date,  # start_date
+            date + 1,  # current_date
+            [predictedObs[0, 0]],  # all historical predictions
         ]
 
         return (predictedObs, predictedObsVar)
 
-
     def _continuePredict(self, featureDict=None):
-        """ Continue predicting one day after _oneDayAheadPredict or
+        """Continue predicting one day after _oneDayAheadPredict or
         after _continuePredict. After using
         _oneDayAheadPredict, the user can continue predicting by using
         _continuePredict. The featureDict act the same as in
@@ -97,16 +96,18 @@ class _dlmPredict(_dlm):
             A tuple of (predicted_mean, predicted_variance)
         """
         if self.result.predictStatus is None:
-            raise NameError('_continoousPredict can only be used after ' +
-                            '_oneDayAheadPredict')
+            raise NameError(
+                "_continoousPredict can only be used after " + "_oneDayAheadPredict"
+            )
         startDate = self.result.predictStatus[0]
         currentDate = self.result.predictStatus[1]
 
         self._constructEvaluationForPrediction(
             date=currentDate + 1,
             featureDict=featureDict,
-            padded_data=self.padded_data[:(startDate + 1)] +
-                        self.result.predictStatus[2])
+            padded_data=self.padded_data[: (startDate + 1)]
+            + self.result.predictStatus[2],
+        )
         self.Filter.predict(self.builder.model)
         predictedObs = self.builder.model.prediction.obs
         predictedObsVar = self.builder.model.prediction.obsVar
@@ -114,13 +115,11 @@ class _dlmPredict(_dlm):
         self.result.predictStatus[2].append(predictedObs[0, 0])
         return (predictedObs, predictedObsVar)
 
-
     # This function will modify the status of the object, use with caution.
-    def _constructEvaluationForPrediction(self,
-                                          date,
-                                          featureDict=None,
-                                          padded_data=None):
-        """ Construct the evaluation matrix based on date and featureDict.
+    def _constructEvaluationForPrediction(
+        self, date, featureDict=None, padded_data=None
+    ):
+        """Construct the evaluation matrix based on date and featureDict.
 
         Used for prediction. Features provided in the featureDict will be used
         preferrably. If the feature is not found in featureDict, the algorithm
@@ -142,7 +141,7 @@ class _dlmPredict(_dlm):
         if featureDict is not None:
             for name in featureDict:
                 if name in self.builder.dynamicComponents:
-                    comp = self.builder.dynamicComponents[name]                    
+                    comp = self.builder.dynamicComponents[name]
                     # the date is within range
                     if date < comp.n:
                         comp.features[date] = featureDict[name]
@@ -151,7 +150,9 @@ class _dlmPredict(_dlm):
                         comp.features.append(featureDict[name])
                         comp.n += 1
                     else:
-                        raise NameError("Feature is missing between the last predicted " +
-                                        "day and the new day")
-                        
+                        raise NameError(
+                            "Feature is missing between the last predicted "
+                            + "day and the new day"
+                        )
+
         self.builder.updateEvaluation(date, padded_data)

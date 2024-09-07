@@ -40,7 +40,7 @@ from pydlm.plot.dlmPlotMod import dlmPlotModule
 
 
 class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
-    """ The main class of the dynamic linear model.
+    """The main class of the dynamic linear model.
 
 
     This is the main class of the Bayeisan dynamic linear model.
@@ -76,7 +76,6 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
     """
 
-
     # define the basic members
     # initialize the result
     def __init__(self, data, **options):
@@ -88,23 +87,21 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         # being changed and behaving abnormally.
         self._predictModel = None
 
-
     def exportModel(self):
-        """ Export the dlm builder. Currently the method only support dlm without
+        """Export the dlm builder. Currently the method only support dlm without
         dynamic components.
 
         """
         if length(self.builder.dynamicComponents) > 0:
-            raise ValueError('Cannot export dlm builder with dynamic components.')
+            raise ValueError("Cannot export dlm builder with dynamic components.")
 
         if not self.initialized:
-            raise ValueError('Cannot export dlm before the model was initilized.')
+            raise ValueError("Cannot export dlm before the model was initilized.")
 
         return deepcopy(self.builder)
 
-
     def buildFromModel(self, model):
-        """ Construct the dlm with exported model from other DLM with status.
+        """Construct the dlm with exported model from other DLM with status.
 
         Args:
             model: The exported model from other dlm. Must be the return from
@@ -113,12 +110,11 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         """
         self._initializeFromBuilder(exported_builder=model)
 
-# ===================== modeling components =====================
-
+    # ===================== modeling components =====================
 
     # add component
     def add(self, component):
-        """ Add new modeling component to the dlm.
+        """Add new modeling component to the dlm.
 
         Currently support: trend, seasonality, autoregression
         and dynamic component.
@@ -134,24 +130,19 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         """
         self.__add__(component)
 
-
     def __add__(self, component):
         self.builder.__add__(component)
         self.initialized = False
         return self
 
-
     # list all components
     def ls(self):
-        """ List out all existing components
-
-        """
+        """List out all existing components"""
         self.builder.ls()
-
 
     # delete one component
     def delete(self, name):
-        """ Delete model component by its name
+        """Delete model component by its name
 
         Args:
             name: the name of the component.
@@ -160,11 +151,10 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         self.builder.delete(name)
         self.initialized = False
 
-# ========================== model training component =======================
-
+    # ========================== model training component =======================
 
     def fitForwardFilter(self, useRollingWindow=False, windowLength=3):
-        """ Fit forward filter on the available data.
+        """Fit forward filter on the available data.
 
         User can choose use rolling windowFront
         or not. If user choose not to use the rolling window,
@@ -185,10 +175,10 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         if not self.initialized:
             self._initialize()
 
-        self._logger.info('Starting forward filtering...')
+        self._logger.info("Starting forward filtering...")
         if not useRollingWindow:
             # we start from the last step of previous filtering
-            if self.result.filteredType == 'non-rolling':
+            if self.result.filteredType == "non-rolling":
                 start = self.result.filteredSteps[1] + 1
             else:
                 start = 0
@@ -197,12 +187,10 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
                 self.result.smoothedSteps = [0, -1]
 
             # determine whether renew should be used
-            self._forwardFilter(start=start,
-                                end=self.n - 1,
-                                renew=self.options.stable)
-            self.result.filteredType = 'non-rolling'
+            self._forwardFilter(start=start, end=self.n - 1, renew=self.options.stable)
+            self.result.filteredType = "non-rolling"
         else:
-            if self.result.filteredType == 'rolling':
+            if self.result.filteredType == "rolling":
                 windowFront = self.result.filteredSteps[1] + 1
             else:
                 windowFront = 0
@@ -210,29 +198,32 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
                 # backward smoother as well.
                 self.result.smoothedSteps = [0, -1]
 
-            self.result.filteredType = 'rolling'
+            self.result.filteredType = "rolling"
             # if end is still within (0, windowLength - 1), we should run the
             # usual ff from
             if windowFront < windowLength:
-                self._forwardFilter(start=self.result.filteredSteps[1] + 1,
-                                    end=min(windowLength - 1, self.n - 1))
+                self._forwardFilter(
+                    start=self.result.filteredSteps[1] + 1,
+                    end=min(windowLength - 1, self.n - 1),
+                )
 
             # for the remaining date, we use a rolling window
             for today in range(max(windowFront, windowLength), self.n):
-                self._forwardFilter(start=today - windowLength + 1,
-                                    end=today,
-                                    save=today,
-                                    ForgetPrevious=True)
+                self._forwardFilter(
+                    start=today - windowLength + 1,
+                    end=today,
+                    save=today,
+                    ForgetPrevious=True,
+                )
 
         self.result.filteredSteps = [0, self.n - 1]
-        self.turnOn('filtered plot')
-        self.turnOn('predict plot')
+        self.turnOn("filtered plot")
+        self.turnOn("predict plot")
 
-        self._logger.info('Forward filtering completed.')
-
+        self._logger.info("Forward filtering completed.")
 
     def fitBackwardSmoother(self, backLength=None):
-        """ Fit backward smoothing on the data. Starting from the last observed date.
+        """Fit backward smoothing on the data. Starting from the last observed date.
 
         Args:
             backLength: integer, indicating how many days the backward smoother
@@ -242,27 +233,33 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         # see if the model has been initialized
         if not self.initialized:
-            raise ValueError('Backward Smoother has to be run after' +
-                            ' forward filter')
+            raise ValueError(
+                "Backward Smoother has to be run after" + " forward filter"
+            )
 
         if self.result.filteredSteps[1] != self.n - 1:
-            raise ValueError('Forward Fiter needs to run on full data before' +
-                            'using backward Smoother')
+            raise ValueError(
+                "Forward Fiter needs to run on full data before"
+                + "using backward Smoother"
+            )
 
         # default value for backLength
         if backLength is None:
             backLength = self.n
 
-        self._logger.info('Starting backward smoothing...')
+        self._logger.info("Starting backward smoothing...")
         # if the smoothed dates has already been done, we do nothing
-        if self.result.smoothedSteps[1] == self.n - 1 and \
-           self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1:
+        if (
+            self.result.smoothedSteps[1] == self.n - 1
+            and self.result.smoothedSteps[0] <= self.n - 1 - backLength + 1
+        ):
             return None
 
         # if the smoothed dates start from n - 1, we just need to continue
         elif self.result.smoothedSteps[1] == self.n - 1:
-            self._backwardSmoother(start=self.result.smoothedSteps[0] - 1,
-                                   days=backLength)
+            self._backwardSmoother(
+                start=self.result.smoothedSteps[0] - 1, days=backLength
+            )
 
         # if the smoothed dates are even earlier,
         # we need to start from the beginning
@@ -270,25 +267,20 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             self._backwardSmoother(start=self.n - 1, days=backLength)
 
         self.result.smoothedSteps = [self.n - backLength, self.n - 1]
-        self.turnOn('smoothed plot')
+        self.turnOn("smoothed plot")
 
-        self._logger.info('Backward smoothing completed.')
-
+        self._logger.info("Backward smoothing completed.")
 
     def fit(self):
-        """ An easy caller for fitting both the forward filter and backward smoother.
-
-        """
+        """An easy caller for fitting both the forward filter and backward smoother."""
         self.fitForwardFilter()
         self.fitBackwardSmoother()
 
-
-# ======================= data appending, popping and altering ===============
-
+    # ======================= data appending, popping and altering ===============
 
     # Append new data or features to the dlm
-    def append(self, data, component='main'):
-        """ Append the new data to the main data or the components (new feature data)
+    def append(self, data, component="main"):
+        """Append the new data to the main data or the components (new feature data)
 
         Args:
             data: the new data
@@ -301,9 +293,9 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         # initialize the model to ease the modification
         if not self.initialized:
             self._initialize()
-            
+
         # if we are adding new data to the time series
-        if component == 'main':
+        if component == "main":
             # add the data to the self.data
             self.data.extend(list(data))
 
@@ -318,8 +310,10 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
             # give a warning to remind to append dynamic components
             if len(self.builder.dynamicComponents) > 0:
-                self._logger.warning('Dynamic components need to manually append new data '
-                                     'when main data has been appended.')
+                self._logger.warning(
+                    "Dynamic components need to manually append new data "
+                    "when main data has been appended."
+                )
 
         # if we are adding new data to the features of dynamic components
         elif component in self.builder.dynamicComponents:
@@ -327,20 +321,18 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             comp.appendNewData(data)
 
         else:
-            raise ValueError('Such dynamic component does not exist.')
-
+            raise ValueError("Such dynamic component does not exist.")
 
     # pop the data of a specific date out
     def popout(self, date):
-        """ Pop out the data for a given date
+        """Pop out the data for a given date
 
         Args:
             date: the index indicates which date to be popped out.
 
         """
         if date < 0 or date > self.n - 1:
-            raise NameError('The date should be between 0 and ' +
-                            str(self.n - 1))
+            raise NameError("The date should be between 0 and " + str(self.n - 1))
 
         # initialize the model to ease the modification
         if not self.initialized:
@@ -369,10 +361,9 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
 
-
     # alter the data of a specific days
-    def alter(self, date, data, component='main'):
-        """ To alter the data for a specific date and a specific component.
+    def alter(self, date, data, component="main"):
+        """To alter the data for a specific date and a specific component.
 
         Args:
             date: the date of the altering data
@@ -386,8 +377,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
 
         """
         if date < 0 or date > self.n - 1:
-            raise NameError('The date should be between 0 and ' +
-                            str(self.n - 1))
+            raise NameError("The date should be between 0 and " + str(self.n - 1))
 
         # initialize the model to ease the modification
         if not self.initialized:
@@ -396,7 +386,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         # To alter the data for the observed time series.
         # No need to alter `autoReg` or `longSeason` when only the main data
         # is altered.
-        if component == 'main':
+        if component == "main":
             self.data[date] = data
 
         # to alter the feature of a component
@@ -405,7 +395,7 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             comp.alter(date, data)
 
         else:
-            raise NameError('Such dynamic component does not exist.')
+            raise NameError("Such dynamic component does not exist.")
 
         # update the filtered and the smoothed steps
         self.result.filteredSteps[1] = date - 1
@@ -418,45 +408,39 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         elif self.result.smoothedSteps[0] > self.result.smoothedSteps[1]:
             self.result.smoothedSteps = [0, -1]
 
-
     # ignore the data of a given date
     def ignore(self, date):
-        """ Ignore the data for a specific day. treat it as missing data
+        """Ignore the data for a specific day. treat it as missing data
 
         Args:
             date: the date to ignore.
 
         """
         if date < 0 or date > self.n - 1:
-            raise NameError('The date should be between 0 and ' +
-                            str(self.n - 1))
+            raise NameError("The date should be between 0 and " + str(self.n - 1))
 
-        self.alter(date=date, data=None, component='main')
+        self.alter(date=date, data=None, component="main")
 
-# ================================ control options =========================
-
+    # ================================ control options =========================
 
     def showOptions(self):
-        """ Print out all the option values
-
-        """
+        """Print out all the option values"""
         allItems = vars(self.options)
         for item in allItems:
-            print(item + ': ' + str(allItems[item]))
-
+            print(item + ": " + str(allItems[item]))
 
     def stableMode(self, use=True):
-        """ Turn on the stable mode, i.e., using the renewal strategy.
+        """Turn on the stable mode, i.e., using the renewal strategy.
 
-            Indicate whether the renew strategy should be used to add numerical
-            stability. When the filter goes over certain steps,
-            the information contribution of the previous data has decayed
-            to minimum. In the stable mode, We then ignore those days and
-            refit the time series starting from current - renewTerm, where
-            renewTerm is computed according to the discount. Thus,
-            the effective sample size of the dlm is twice
-            renewTerm. When discount = 1, there will be no renewTerm,
-            since all the information will be passed along.
+        Indicate whether the renew strategy should be used to add numerical
+        stability. When the filter goes over certain steps,
+        the information contribution of the previous data has decayed
+        to minimum. In the stable mode, We then ignore those days and
+        refit the time series starting from current - renewTerm, where
+        renewTerm is computed according to the discount. Thus,
+        the effective sample size of the dlm is twice
+        renewTerm. When discount = 1, there will be no renewTerm,
+        since all the information will be passed along.
         """
         # if option changes, reset everything
         if self.options.stable != use:
@@ -467,11 +451,10 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
         elif use is False:
             self.options.stable = False
         else:
-            raise ValueError('Incorrect option input')
+            raise ValueError("Incorrect option input")
 
-
-    def evolveMode(self, evoType='dependent'):
-        """ Control whether different component evolve indpendently. If true,
+    def evolveMode(self, evoType="dependent"):
+        """Control whether different component evolve indpendently. If true,
         then the innovation will only be added on each component but not the
         correlation between the components, so that for component with discount
         equals to 1, the smoothed results will always be constant.
@@ -486,25 +469,23 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             a dlm object (for chaining purpose)
         """
         # if option changes, reset everything
-        if (self.options.innovationType == 'whole' and
-            evoType == 'independent') or \
-           (self.options.innovationType == 'component' and
-            evoType == 'dependent'):
+        if (self.options.innovationType == "whole" and evoType == "independent") or (
+            self.options.innovationType == "component" and evoType == "dependent"
+        ):
             self.initialized = False
 
-        if evoType == 'independent':
-            self.options.innovationType = 'component'
-        elif evoType == 'dependent':
-            self.options.innovationType = 'whole'
+        if evoType == "independent":
+            self.options.innovationType = "component"
+        elif evoType == "dependent":
+            self.options.innovationType = "whole"
         else:
-            raise NameError('Incorrect option input')
+            raise NameError("Incorrect option input")
 
         # for chaining
         return self
 
-
     def noisePrior(self, prior=0):
-        """ To set the prior for the observational noise. Calling with empty
+        """To set the prior for the observational noise. Calling with empty
         argument will enable the auto noise intializer (currently, the min of 1
         and the variance of time series).
 
@@ -515,11 +496,11 @@ class dlm(dlmPlotModule, dlmPredictModule, dlmAccessModule, dlmTuneModule):
             A dlm object (for chaining purpose)
         """
         if prior > 0:
-            self.options.noise=prior
+            self.options.noise = prior
             self.initialized = False
         else:
             self.options.useAutoNoise = True
-            self.initialized = False            
+            self.initialized = False
 
         # for chaining
         return self

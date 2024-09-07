@@ -19,35 +19,36 @@ An alternative way to call this class is via the tuner method within dlm class.
 >>> mydlm.tune(maxit=100)
 
 This will permenantly change the discouting factor in mydlm. So if the user
-prefer to build a new dlm with the new discount factor without changing the 
+prefer to build a new dlm with the new discount factor without changing the
 original one, one should opt to use the modelTuner class.
 
 """
+
 from copy import deepcopy
 from numpy import array
 import logging
 
+
 class modelTuner:
-    """ The main class for modelTuner
+    """The main class for modelTuner
 
     Attributes:
         method: the optimization method. Currently only 'gradient_descent'
                 is supported.
         loss:   the optimization loss function. Currently only 'mse' (one-day
                 ahead prediction) is supported.
-    
+
     """
 
-    def __init__(self, method='gradient_descent', loss='mse'):
-
+    def __init__(self, method="gradient_descent", loss="mse"):
         self.method = method
         self.loss = loss
         self.current_mse = None
         self.err = 1e-4
         self.discounts = None
 
-    def tune(self, untunedDLM, maxit=100, step = 1.0):
-        """ Main function for tuning the DLM model.
+    def tune(self, untunedDLM, maxit=100, step=1.0):
+        """Main function for tuning the DLM model.
 
         Args:
             untunedDLM: The DLM object that needs tuning
@@ -64,13 +65,12 @@ class modelTuner:
             tunedDLM.fitForwardFilter()
         discounts = array(tunedDLM._getDiscounts())
         self.current_mse = tunedDLM._getMSE()
-        
-        # using gradient descent
-        if self.method == 'gradient_descent':
 
+        # using gradient descent
+        if self.method == "gradient_descent":
             # Disable all info and warning for faster processing.
             log_level = tunedDLM.getLoggingLevel()
-            tunedDLM.setLoggingLevel('CRITICAL')
+            tunedDLM.setLoggingLevel("CRITICAL")
 
             for i in range(maxit):
                 gradient = self.find_gradient(discounts, tunedDLM)
@@ -84,24 +84,31 @@ class modelTuner:
             tunedDLM.setLoggingLevel(log_level)
 
             if i < maxit - 1:
-                tunedDLM._logger.info('Converge successfully!')
+                tunedDLM._logger.info("Converge successfully!")
             else:
-                tunedDLM._logger.warning('The algorithm stops without converging.')
-                if min(discounts) <= 0.7 + self.err or max(discounts) >= 1 - 2 * self.err:
-                    tunedDLM._logger.info('Possible reason: some discount is too close to 1 or 0.7'
-                                          ' (0.7 is smallest discount that is permissible.')
+                tunedDLM._logger.warning("The algorithm stops without converging.")
+                if (
+                    min(discounts) <= 0.7 + self.err
+                    or max(discounts) >= 1 - 2 * self.err
+                ):
+                    tunedDLM._logger.info(
+                        "Possible reason: some discount is too close to 1 or 0.7"
+                        " (0.7 is smallest discount that is permissible."
+                    )
                 else:
-                    tunedDLM._logger.info('It might require more step to converge.'
-                                          ' Use tune(..., maixt = <a larger number>) instead.')
+                    tunedDLM._logger.info(
+                        "It might require more step to converge."
+                        " Use tune(..., maixt = <a larger number>) instead."
+                    )
 
         self.discounts = discounts
         tunedDLM._setDiscounts(discounts, change_component=True)
         return tunedDLM
 
     def getDiscounts(self):
-        """ Get the tuned discounting factors. One for each component (even the
-            component being multi-dimensional, only one discounting factor will
-            be assigned to one component). Initialized to None.
+        """Get the tuned discounting factors. One for each component (even the
+        component being multi-dimensional, only one discounting factor will
+        be assigned to one component). Initialized to None.
 
         """
         return self.discounts

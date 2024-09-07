@@ -1,10 +1,12 @@
 from pydlm.core._dlm import _dlm
 
+
 class dlmPlotModule(_dlm):
-    """ A dlm module containing all plot methods. This is an API layer for the
+    """A dlm module containing all plot methods. This is an API layer for the
     `dlm` class. All methods defined in this class are public and can be called
     directly from `dlm` object.
     """
+
     def __init__(self, data, **options):
         super(dlmPlotModule, self).__init__(data, **options)
 
@@ -15,7 +17,6 @@ class dlmPlotModule(_dlm):
         # help without doing import-check (expensive) every time
         # when plot function is called.
         self.plotLibLoaded = False
-
 
     def turnOn(self, switch):
         """ "turn on" Operation for the dlm plotting options.
@@ -31,29 +32,30 @@ class dlmPlotModule(_dlm):
                     figures\n
                     'fitted dots', 'fitted' to plot fitted results with dots
         """
-        if switch in set(['filtered plot', 'filter',
-                          'filtered results', 'filtering']):
+        if switch in set(["filtered plot", "filter", "filtered results", "filtering"]):
             self.options.plotFilteredData = True
-        elif switch in set(['smoothed plot', 'smooth',
-                            'smoothed results', 'smoothing']):
+        elif switch in set(
+            ["smoothed plot", "smooth", "smoothed results", "smoothing"]
+        ):
             self.options.plotSmoothedData = True
-        elif switch in set(['predict plot', 'predict',
-                            'predicted results', 'prediction']):
+        elif switch in set(
+            ["predict plot", "predict", "predicted results", "prediction"]
+        ):
             self.options.plotPredictedData = True
-        elif switch in set(['confidence interval', 'confidence',
-                            'interval', 'CI', 'ci']):
+        elif switch in set(
+            ["confidence interval", "confidence", "interval", "CI", "ci"]
+        ):
             self.options.showConfidenceInterval = True
-        elif switch in set(['data points', 'data point', 'points', 'data']):
+        elif switch in set(["data points", "data point", "points", "data"]):
             self.options.showDataPoint = True
-        elif switch in set(['multiple', 'multiple plots',
-                            'separate plots', 'separate']):
+        elif switch in set(
+            ["multiple", "multiple plots", "separate plots", "separate"]
+        ):
             self.options.separatePlot = True
-        elif switch in set(['fitted dots', 'fitted results',
-                            'fitted data', 'fitted']):
+        elif switch in set(["fitted dots", "fitted results", "fitted data", "fitted"]):
             self.options.showFittedPoint = True
         else:
-            raise NameError('no such options')
-
+            raise NameError("no such options")
 
     def turnOff(self, switch):
         """ "turn off" Operation for the dlm plotting options.
@@ -74,29 +76,30 @@ class dlmPlotModule(_dlm):
                     results with dots
 
         """
-        if switch in set(['filtered plot', 'filter', 'filtered results',
-                          'filtering']):
+        if switch in set(["filtered plot", "filter", "filtered results", "filtering"]):
             self.options.plotFilteredData = False
-        elif switch in set(['smoothed plot', 'smooth', 'smoothed results',
-                            'smoothing']):
+        elif switch in set(
+            ["smoothed plot", "smooth", "smoothed results", "smoothing"]
+        ):
             self.options.plotSmoothedData = False
-        elif switch in set(['predict plot', 'predict', 'predicted results',
-                            'prediction']):
+        elif switch in set(
+            ["predict plot", "predict", "predicted results", "prediction"]
+        ):
             self.options.plotPredictedData = False
-        elif switch in set(['confidence interval', 'confidence', 'interval',
-                            'CI', 'ci']):
+        elif switch in set(
+            ["confidence interval", "confidence", "interval", "CI", "ci"]
+        ):
             self.options.showConfidenceInterval = False
-        elif switch in set(['data points', 'data point', 'points', 'data']):
+        elif switch in set(["data points", "data point", "points", "data"]):
             self.options.showDataPoint = False
-        elif switch in set(['multiple', 'multiple plots', 'separate plots',
-                            'separate']):
+        elif switch in set(
+            ["multiple", "multiple plots", "separate plots", "separate"]
+        ):
             self.options.separatePlot = False
-        elif switch in set(['fitted dots', 'fitted results', 'fitted data',
-                            'fitted']):
+        elif switch in set(["fitted dots", "fitted results", "fitted data", "fitted"]):
             self.options.showFittedPoint = False
         else:
-            raise NameError('no such options')
-
+            raise NameError("no such options")
 
     def setColor(self, switch, color):
         """ "set" Operation for the dlm plotting colors
@@ -106,43 +109,35 @@ class dlmPlotModule(_dlm):
                     filtered/smoothed/predicted results,
             color: the color for the corresponding keyword.
         """
-        if switch in set(['filtered plot', 'filter', 'filtered results',
-                          'filtering']):
+        if switch in set(["filtered plot", "filter", "filtered results", "filtering"]):
             self.options.filteredColor = color
-        elif switch in set(['smoothed plot', 'smooth', 'smoothed results',
-                            'smoothing']):
+        elif switch in set(
+            ["smoothed plot", "smooth", "smoothed results", "smoothing"]
+        ):
             self.options.smoothedColor = color
-        elif switch in set(['predict plot', 'predict', 'predicted results',
-                            'prediction']):
+        elif switch in set(
+            ["predict plot", "predict", "predicted results", "prediction"]
+        ):
             self.options.predictedColor = color
-        elif switch in set(['data points', 'data point', 'points', 'data']):
+        elif switch in set(["data points", "data point", "points", "data"]):
             self.options.dataColor = color
         else:
-            raise NameError('no such options')
-
+            raise NameError("no such options")
 
     def setConfidence(self, p=0.95):
-        """ Set the confidence interval for the plot
-
-        """
+        """Set the confidence interval for the plot"""
         assert p >= 0 and p <= 1
         self.options.confidence = p
 
-
     def setIntervalType(self, intervalType):
-        """ Set the confidence interval type
-
-        """
-        if intervalType == 'ribbon' or intervalType == 'line':
+        """Set the confidence interval type"""
+        if intervalType == "ribbon" or intervalType == "line":
             self.options.intervalType = intervalType
         else:
-            raise NameError('No such type for confidence interval.')
-
+            raise NameError("No such type for confidence interval.")
 
     def resetPlotOptions(self):
-        """ Reset the plotting option for the dlm class
-
-        """
+        """Reset the plotting option for the dlm class"""
         self.options.plotOriginalData = True
         self.options.plotFilteredData = True
         self.options.plotSmoothedData = True
@@ -150,18 +145,17 @@ class dlmPlotModule(_dlm):
         self.options.showDataPoint = False
         self.options.showFittedPoint = False
         self.options.showConfidenceInterval = True
-        self.options.dataColor = 'black'
-        self.options.filteredColor = 'blue'
-        self.options.predictedColor = 'green'
-        self.options.smoothedColor = 'red'
+        self.options.dataColor = "black"
+        self.options.filteredColor = "blue"
+        self.options.predictedColor = "green"
+        self.options.smoothedColor = "red"
         self.options.separatePlot = True
         self.options.confidence = 0.95
-        self.options.intervalType = 'ribbon'
-
+        self.options.intervalType = "ribbon"
 
     # plot the result according to the options
-    def plot(self, name='main'):
-        """ The main plot function. The dlmPlot and the matplotlib will only be loaded
+    def plot(self, name="main"):
+        """The main plot function. The dlmPlot and the matplotlib will only be loaded
         when necessary.
 
         Args:
@@ -187,62 +181,60 @@ class dlmPlotModule(_dlm):
 
         # change option setting if some results are not available
         if not self.initialized:
-            raise NameError('The model must be constructed and' +
-                            ' fitted before ploting.')
+            raise NameError(
+                "The model must be constructed and" + " fitted before ploting."
+            )
 
         # check the filter status and automatically turn off bad plots
         self._checkPlotOptions()
 
         # plot the main time series after filtering
-        if name == 'main':
+        if name == "main":
             # if we just need one plot
             if self.options.separatePlot is not True:
-                dlmPlot.plotInOneFigure(time=time,
-                                        data=self.data,
-                                        result=self.result,
-                                        options=self.options)
+                dlmPlot.plotInOneFigure(
+                    time=time, data=self.data, result=self.result, options=self.options
+                )
             # otherwise, we plot in multiple figures
             else:
-                dlmPlot.plotInMultipleFigure(time=time,
-                                             data=self.data,
-                                             result=self.result,
-                                             options=self.options)
+                dlmPlot.plotInMultipleFigure(
+                    time=time, data=self.data, result=self.result, options=self.options
+                )
 
         # plot the component after filtering
         elif self._checkComponent(name):
             # create the data for ploting
             data = {}
             if self.options.plotFilteredData:
-                data['filteredMean'] = self.getMean(
-                    filterType='forwardFilter', name=name)
-                data['filteredVar'] = self.getVar(
-                    filterType='forwardFilter', name=name)
+                data["filteredMean"] = self.getMean(
+                    filterType="forwardFilter", name=name
+                )
+                data["filteredVar"] = self.getVar(filterType="forwardFilter", name=name)
 
             if self.options.plotSmoothedData:
-                data['smoothedMean'] = self.getMean(
-                    filterType='backwardSmoother', name=name)
-                data['smoothedVar'] = self.getVar(
-                    filterType='backwardSmoother', name=name)
+                data["smoothedMean"] = self.getMean(
+                    filterType="backwardSmoother", name=name
+                )
+                data["smoothedVar"] = self.getVar(
+                    filterType="backwardSmoother", name=name
+                )
 
             if self.options.plotPredictedData:
-                data['predictedMean'] = self.getMean(
-                    filterType='predict', name=name)
-                data['predictedVar'] = self.getVar(
-                    filterType='predict', name=name)
+                data["predictedMean"] = self.getMean(filterType="predict", name=name)
+                data["predictedVar"] = self.getVar(filterType="predict", name=name)
 
             if len(data) == 0:
-                raise NameError('Nothing is going to be drawn, due to ' +
-                                'user choices.')
-            data['name'] = name
-            dlmPlot.plotComponent(time=time,
-                                  data=data,
-                                  result=self.result,
-                                  options=self.options)
+                raise NameError(
+                    "Nothing is going to be drawn, due to " + "user choices."
+                )
+            data["name"] = name
+            dlmPlot.plotComponent(
+                time=time, data=data, result=self.result, options=self.options
+            )
         dlmPlot.plotout()
 
-
     def plotCoef(self, name, dimensions=None):
-        """ Plot function for the latent states (coefficents of dynamic
+        """Plot function for the latent states (coefficents of dynamic
         component).
 
         Args:
@@ -267,15 +259,15 @@ class dlmPlotModule(_dlm):
 
         # change option setting if some results are not available
         if not self.initialized:
-            raise NameError('The model must be constructed and' +
-                            ' fitted before ploting.')
+            raise NameError(
+                "The model must be constructed and" + " fitted before ploting."
+            )
 
         # check the filter status and automatically turn off bad plots
         self._checkPlotOptions()
 
         # plot the latent states for a given component
         if self._checkComponent(name):
-
             # find its coordinates in the latent state
             indx = self.builder.componentIndex[name]
             # get the real latent states
@@ -289,16 +281,17 @@ class dlmPlotModule(_dlm):
             elif len(coordinates) > 5:
                 coordinates = coordinates[:5]
 
-            dlmPlot.plotLatentState(time=time,
-                                    coordinates=coordinates,
-                                    result=self.result,
-                                    options=self.options,
-                                    name=name)
+            dlmPlot.plotLatentState(
+                time=time,
+                coordinates=coordinates,
+                result=self.result,
+                options=self.options,
+                name=name,
+            )
         else:
-            raise NameError('No such component.')
+            raise NameError("No such component.")
 
         dlmPlot.plotout()
-
 
     def plotPredictN(self, N=1, date=None, featureDict=None):
         """
@@ -333,28 +326,31 @@ class dlmPlotModule(_dlm):
 
         # change option setting if some results are not available
         if not self.initialized:
-            raise NameError('The model must be constructed and' +
-                            ' fitted before ploting.')
+            raise NameError(
+                "The model must be constructed and" + " fitted before ploting."
+            )
 
         # check the filter status and automatically turn off bad plots
         self._checkPlotOptions()
 
         predictedTimeRange = range(date, date + N)
         predictedData, predictedVar = self.predictN(
-            N=N, date=date, featureDict=featureDict)
+            N=N, date=date, featureDict=featureDict
+        )
         dlmPlot.plotPrediction(
-            time=time, data=self.data,
+            time=time,
+            data=self.data,
             predictedTime=predictedTimeRange,
             predictedData=predictedData,
             predictedVar=predictedVar,
-            options=self.options)
+            options=self.options,
+        )
 
         dlmPlot.plotout()
-
-
 
     def loadPlotLibrary(self):
         if not self.plotLibLoaded:
             global dlmPlot
             import pydlm.plot.dlmPlot as dlmPlot
+
             self.plotLibLoaded = True

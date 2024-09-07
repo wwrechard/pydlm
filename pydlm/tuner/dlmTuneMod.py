@@ -3,13 +3,12 @@ from pydlm.tuner.dlmTuner import modelTuner
 
 import logging
 
-class dlmTuneModule(_dlmTune):
-    """ A dlm model containing all tuning methods
-    """
 
+class dlmTuneModule(_dlmTune):
+    """A dlm model containing all tuning methods"""
 
     def getMSE(self):
-        """ Get the one-day ahead prediction mean square error. The mse is
+        """Get the one-day ahead prediction mean square error. The mse is
         estimated only for days that has been predicted.
 
         Returns:
@@ -18,14 +17,13 @@ class dlmTuneModule(_dlmTune):
 
         return self._getMSE()
 
-
     def tune(self, maxit=100):
-        """ Automatic tuning of the discounting factors. 
+        """Automatic tuning of the discounting factors.
 
         The method will call the model tuner class to use the default parameters
         to tune the discounting factors and change the discount factor permenantly.
         User needs to refit the model after tuning.
-        
+
         If user wants a more refined tuning and not change any property of the
         existing model, they should opt to use the @modelTuner class.
         """
@@ -34,10 +32,10 @@ class dlmTuneModule(_dlmTune):
         if self._logger.isEnabledFor(logging.INFO):
             self.fitForwardFilter()
             self._logger.info(f"The current mse is { str(self.getMSE()) }.")
-        
+
         simpleTuner.tune(untunedDLM=self, maxit=maxit)
         self._setDiscounts(simpleTuner.getDiscounts(), change_component=True)
-        
+
         if self._logger.isEnabledFor(logging.INFO):
             self.fitForwardFilter()
             self._logger.info(f"The new mse is { str(self.getMSE()) }.")
