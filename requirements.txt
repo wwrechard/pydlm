@@ -4,14 +4,18 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-contourpy==1.3.3
-    # via matplotlib
+contourpy==1.3.2
+    # via
+    #   -r requirements.in
+    #   matplotlib
 cycler==0.12.1
     # via matplotlib
 fonttools==4.63.0
     # via matplotlib
-kiwisolver==1.5.0
-    # via matplotlib
+kiwisolver==1.4.7
+    # via
+    #   -r requirements.in
+    #   matplotlib
 matplotlib==3.9.4
     # via -r requirements.in
 numpy==2.2.6
@@ -21,8 +25,10 @@ numpy==2.2.6
     #   matplotlib
 packaging==26.3
     # via matplotlib
-pillow==12.3.0
-    # via matplotlib
+pillow==11.3.0
+    # via
+    #   -r requirements.in
+    #   matplotlib
 pyparsing==3.3.2
     # via matplotlib
 python-dateutil==2.9.0.post0
