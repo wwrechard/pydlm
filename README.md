@@ -24,6 +24,7 @@ Updates
 	    my_model.fit()
     ```
     * Updated the package version manage through `pip-compile` and `requirements.txt`.
+    * Supported pandas input to `dlm` and `dynamic` class. Used conditional import so `pandas` does not become a dependency to this library.
 
 Installation
 ------------
