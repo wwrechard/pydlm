@@ -13,6 +13,8 @@ Updates
     * Updated the documentations in [pydlm.github.io](https://pydlm.github.io/) using `sphinx`. Exposed more complete APIs in the class reference.
     * Simplified the implementation of `longSeason` component and turns `longSeason` and `autoReg` to be stateless.
     * Add tests for `dlmAccessModule` and fix issues that some tests were not running by coveralls
+    * Supported pandas input to `dlm` and `dynamic` class. Used conditional import so `pandas` does not become a dependency to this library.
+
 * Version 0.1.1.13 has been released on PyPI.
     * Migrated all the unnecessary `print()` to the default python logging operations, such as `logging.info`, `logging.warning` and `logging.critical`.
     * Users can now set the model logging level to suppress unnecessary information during model run.
@@ -24,7 +26,6 @@ Updates
 	    my_model.fit()
     ```
     * Updated the package version manage through `pip-compile` and `requirements.txt`.
-    * Supported pandas input to `dlm` and `dynamic` class. Used conditional import so `pandas` does not become a dependency to this library.
 
 Installation
 ------------
