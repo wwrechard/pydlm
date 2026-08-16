@@ -543,7 +543,7 @@ class testDlm(unittest.TestCase):
         self.assertIn("noise: 2.0", output.getvalue())
 
     def testDlmValidationErrors(self):
-        model = dlm(self.data)
+        model = self.dlm1
         with self.assertRaises(ValueError):
             model.fitBackwardSmoother()
         with self.assertRaises(NameError):
