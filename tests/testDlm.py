@@ -1,5 +1,7 @@
 import numpy as np
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 
 try:
     import pandas as pd
@@ -105,6 +107,15 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(self.dlm2.result.filteredObs[0:9]), 0.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[9][0, 0], 1.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[19][0, 0], 0.0)
+
+    def testFitForwardFilterRollingWindow(self):
+        self.dlm1.fitForwardFilter(useRollingWindow=True, windowLength=3)
+        self.assertEqual(self.dlm1.result.filteredType, "rolling")
+        self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
+
+        # Exercise the continuation path for an already rolling model.
+        self.dlm1.fitForwardFilter(useRollingWindow=True, windowLength=3)
+        self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
 
     def testFitBackwardSmoother(self):
         self.dlm1.fitForwardFilter()
@@ -503,6 +514,46 @@ class testDlm(unittest.TestCase):
         for i in range(len(filteredTrend)):
             diff += abs(-filteredTrend[i] - filteredResidual[i] + self.dlm5.data[i])
         self.assertAlmostEqual(diff, 0)
+
+    def testControlOptions(self):
+        model = dlm(self.data)
+
+        model.stableMode(True)
+        self.assertTrue(model.options.stable)
+        model.stableMode(False)
+        self.assertFalse(model.options.stable)
+        with self.assertRaises(ValueError):
+            model.stableMode(None)
+
+        self.assertIs(model.evolveMode("independent"), model)
+        self.assertEqual(model.options.innovationType, "component")
+        self.assertIs(model.evolveMode("dependent"), model)
+        self.assertEqual(model.options.innovationType, "whole")
+        with self.assertRaises(NameError):
+            model.evolveMode("invalid")
+
+        self.assertIs(model.noisePrior(2.0), model)
+        self.assertEqual(model.options.noise, 2.0)
+        self.assertIs(model.noisePrior(), model)
+        self.assertTrue(model.options.useAutoNoise)
+
+        output = StringIO()
+        with redirect_stdout(output):
+            model.showOptions()
+        self.assertIn("noise: 2.0", output.getvalue())
+
+    def testDlmValidationErrors(self):
+        model = dlm(self.data)
+        with self.assertRaises(ValueError):
+            model.fitBackwardSmoother()
+        with self.assertRaises(NameError):
+            model.append([1], component="missing")
+        with self.assertRaises(NameError):
+            model.alter(0, 1, component="missing")
+        with self.assertRaises(NameError):
+            model.popout(-1)
+        with self.assertRaises(NameError):
+            model.ignore(len(self.data))
 
     def testTune(self):
         # just make sure the tune can run
