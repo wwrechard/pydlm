@@ -11,6 +11,7 @@ It provides the basic modeling, filtering, forecasting and smoothing of a dlm.
 """
 
 from pydlm.base.kalmanFilter import kalmanFilter
+import pydlm.base.tools as tl
 from pydlm.modeler.builder import builder
 
 from numpy import var
@@ -62,6 +63,17 @@ class _dlm(object):
     # define the basic members
     # initialize the result
     def __init__(self, data, **options):
+        if tl.isPandasObject(data):
+            from pandas import DataFrame, Series
+
+            if isinstance(data, Series):
+                data = data.tolist()
+            elif isinstance(data, DataFrame):
+                if data.shape[1] != 1:
+                    raise ValueError(
+                        "The main data DataFrame must have exactly one column."
+                    )
+                data = data.iloc[:, 0].tolist()
         self.data = list(data)
         # padded_data is used by auto regressor. It is the raw data with missing value
         # replaced by forward filter results. (Missing value include the out of scope

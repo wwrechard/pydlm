@@ -66,6 +66,13 @@ class dynamic(component):
     """
 
     def __init__(self, features=None, discount=0.99, name="dynamic", w=100):
+        if tl.isPandasObject(features):
+            from pandas import DataFrame, Series
+
+            if isinstance(features, Series):
+                features = [[value] for value in features.tolist()]
+            elif isinstance(features, DataFrame):
+                features = features.to_numpy().tolist()
         self.n = len(features)
         self.d = len(features[0])
 

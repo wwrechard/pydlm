@@ -1,5 +1,12 @@
 import numpy as np
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
 
 from pydlm.modeler.trends import trend
 from pydlm.modeler.seasonality import seasonality
@@ -59,6 +66,30 @@ class testDlm(unittest.TestCase):
         self.dlm1 = self.dlm1 + ar3
         self.assertEqual(self.dlm1.builder.automaticComponents["ar3"], ar3)
 
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testPandasSeriesInput(self):
+        data = pd.Series(self.data)
+        model = dlm(data) + trend(degree=0, discount=1, w=1.0)
+        model.fitForwardFilter()
+
+        self.assertEqual(model.data, self.data)
+        self.assertEqual(model.n, len(self.data))
+        self.assertEqual(model.result.filteredSteps, [0, len(self.data) - 1])
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testPandasDataFrameInput(self):
+        data = pd.DataFrame({"value": self.data})
+        model = dlm(data) + trend(degree=0, discount=1, w=1.0)
+        model.fitForwardFilter()
+
+        self.assertEqual(model.data, self.data)
+        self.assertEqual(model.n, len(self.data))
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testPandasDataFrameWithMultipleMainColumns(self):
+        with self.assertRaisesRegex(ValueError, "exactly one column"):
+            dlm(pd.DataFrame({"first": self.data, "second": self.data}))
+
     def testDelete(self):
         trend2 = trend(2, name="trend2")
         self.dlm1 = self.dlm1 + trend2
@@ -76,6 +107,15 @@ class testDlm(unittest.TestCase):
         self.assertAlmostEqual(np.sum(self.dlm2.result.filteredObs[0:9]), 0.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[9][0, 0], 1.0)
         self.assertAlmostEqual(self.dlm2.result.filteredObs[19][0, 0], 0.0)
+
+    def testFitForwardFilterRollingWindow(self):
+        self.dlm1.fitForwardFilter(useRollingWindow=True, windowLength=3)
+        self.assertEqual(self.dlm1.result.filteredType, "rolling")
+        self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
+
+        # Exercise the continuation path for an already rolling model.
+        self.dlm1.fitForwardFilter(useRollingWindow=True, windowLength=3)
+        self.assertEqual(self.dlm1.result.filteredSteps, [0, 19])
 
     def testFitBackwardSmoother(self):
         self.dlm1.fitForwardFilter()
@@ -474,6 +514,46 @@ class testDlm(unittest.TestCase):
         for i in range(len(filteredTrend)):
             diff += abs(-filteredTrend[i] - filteredResidual[i] + self.dlm5.data[i])
         self.assertAlmostEqual(diff, 0)
+
+    def testControlOptions(self):
+        model = dlm(self.data)
+
+        model.stableMode(True)
+        self.assertTrue(model.options.stable)
+        model.stableMode(False)
+        self.assertFalse(model.options.stable)
+        with self.assertRaises(ValueError):
+            model.stableMode(None)
+
+        self.assertIs(model.evolveMode("independent"), model)
+        self.assertEqual(model.options.innovationType, "component")
+        self.assertIs(model.evolveMode("dependent"), model)
+        self.assertEqual(model.options.innovationType, "whole")
+        with self.assertRaises(NameError):
+            model.evolveMode("invalid")
+
+        self.assertIs(model.noisePrior(2.0), model)
+        self.assertEqual(model.options.noise, 2.0)
+        self.assertIs(model.noisePrior(), model)
+        self.assertTrue(model.options.useAutoNoise)
+
+        output = StringIO()
+        with redirect_stdout(output):
+            model.showOptions()
+        self.assertIn("noise: 2.0", output.getvalue())
+
+    def testDlmValidationErrors(self):
+        model = self.dlm1
+        with self.assertRaises(ValueError):
+            model.fitBackwardSmoother()
+        with self.assertRaises(ValueError):
+            model.append([1], component="missing")
+        with self.assertRaises(NameError):
+            model.alter(0, 1, component="missing")
+        with self.assertRaises(NameError):
+            model.popout(-1)
+        with self.assertRaises(NameError):
+            model.ignore(len(self.data))
 
     def testTune(self):
         # just make sure the tune can run
