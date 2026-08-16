@@ -546,7 +546,7 @@ class testDlm(unittest.TestCase):
         model = self.dlm1
         with self.assertRaises(ValueError):
             model.fitBackwardSmoother()
-        with self.assertRaises(NameError):
+        with self.assertRaises(ValueError):
             model.append([1], component="missing")
         with self.assertRaises(NameError):
             model.alter(0, 1, component="missing")
