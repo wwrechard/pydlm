@@ -45,6 +45,25 @@ jobs:
             python -m unittest discover
             coverage run --source . -m unittest discover
       - coveralls/upload
+  build-and-test-3-14:
+    docker:
+      - image: cimg/python:3.14
+    steps:
+      - checkout
+      - python/install-packages:
+           pkg-manager: pip
+      - run:
+          name: Install packages
+          # This assumes pytest is installed via the install-package step above
+          command: |
+            python setup.py install
+            pip install coveralls
+      - run:
+          name: Run tests
+          command: |
+            python -m unittest discover
+            coverage run --source . -m unittest discover
+      - coveralls/upload
   build-and-test-3-11:
     docker:
       - image: cimg/python:3.11
@@ -73,3 +92,4 @@ workflows:
       - build-and-test-3-11
       - build-and-test-3-12
       - build-and-test-3-13
+      - build-and-test-3-14
