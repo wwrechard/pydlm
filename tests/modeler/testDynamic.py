@@ -2,6 +2,11 @@ import numpy as np
 from pydlm.modeler.dynamic import dynamic
 import unittest
 
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
 
 class testDynamic(unittest.TestCase):
     def setUp(self):
@@ -13,6 +18,24 @@ class testDynamic(unittest.TestCase):
     def testInputNumpyMatrix(self):
         dynamic(features=np.random.rand(10, 2), w=1.0)
         pass
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testInputPandasSeries(self):
+        features = pd.Series(np.random.rand(10))
+        seriesDynamic = dynamic(features=features, w=1.0)
+
+        self.assertEqual(seriesDynamic.n, 10)
+        self.assertEqual(seriesDynamic.d, 1)
+        np.testing.assert_array_equal(seriesDynamic.features, [[value] for value in features])
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testInputPandasDataFrame(self):
+        features = pd.DataFrame(np.random.rand(10, 2))
+        frameDynamic = dynamic(features=features, w=1.0)
+
+        self.assertEqual(frameDynamic.n, 10)
+        self.assertEqual(frameDynamic.d, 2)
+        np.testing.assert_array_equal(frameDynamic.features, features.to_numpy())
 
     def testInitialization(self):
         self.assertEqual(self.newDynamic.d, 2)

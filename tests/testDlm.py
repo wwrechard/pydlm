@@ -1,6 +1,11 @@
 import numpy as np
 import unittest
 
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
 from pydlm.modeler.trends import trend
 from pydlm.modeler.seasonality import seasonality
 from pydlm.modeler.dynamic import dynamic
@@ -58,6 +63,30 @@ class testDlm(unittest.TestCase):
         ar3 = autoReg(degree=3, name="ar3")
         self.dlm1 = self.dlm1 + ar3
         self.assertEqual(self.dlm1.builder.automaticComponents["ar3"], ar3)
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testPandasSeriesInput(self):
+        data = pd.Series(self.data)
+        model = dlm(data) + trend(degree=0, discount=1, w=1.0)
+        model.fitForwardFilter()
+
+        self.assertEqual(model.data, self.data)
+        self.assertEqual(model.n, len(self.data))
+        self.assertEqual(model.result.filteredSteps, [0, len(self.data) - 1])
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testPandasDataFrameInput(self):
+        data = pd.DataFrame({"value": self.data})
+        model = dlm(data) + trend(degree=0, discount=1, w=1.0)
+        model.fitForwardFilter()
+
+        self.assertEqual(model.data, self.data)
+        self.assertEqual(model.n, len(self.data))
+
+    @unittest.skipIf(pd is None, "pandas is not installed")
+    def testPandasDataFrameWithMultipleMainColumns(self):
+        with self.assertRaisesRegex(ValueError, "exactly one column"):
+            dlm(pd.DataFrame({"first": self.data, "second": self.data}))
 
     def testDelete(self):
         trend2 = trend(2, name="trend2")

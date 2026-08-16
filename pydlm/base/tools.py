@@ -1,6 +1,11 @@
 import math
 
 
+def isPandasObject(data):
+    """Return whether an object was created by pandas without importing it."""
+    return type(data).__module__.split(".")[0] == "pandas"
+
+
 # define the error class for exceptions
 class matrixErrors(Exception):
     def __init__(self, value):
